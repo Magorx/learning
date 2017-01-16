@@ -1,0 +1,27 @@
+================================================================================
+This is a help file for step_by_step_fight game.
+================================================================================
+Rules:
+    First turn is hidden, if it's player's. It's just balace.
+    You can change number of players, teams and mode.
+    It's your turn every %your speed% ticks.
+    Tick is a time counter.
+    Healers will heal on autopilot if there are some teammates.
+================================================================================
+Control:
+    Press enter to see next movement.
+    When system asks you "what to do?" you have to give one of theres commands:
+        "w" will move you up.
+        "a" will move you left.
+        "s" will move you down.
+        "d" will move you right.
+        "f" will make range attack for you or autopilot you for 1 turn.
+        if no of theres commands come to input system will autopilot you for
+        1 turn.
+================================================================================
+Commands:
+    You can print them after every turn.
+    "print_stats %name%" will print stats of fighter with name %name%.
+    "print_stats %symb%" will print stats of first fighter with symb %symb%.
+    "stop" will kill the game.
+================================================================================
