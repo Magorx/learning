@@ -4,53 +4,53 @@
 #include "list.h"
 #include "general.h"
 
-struct list_node_data *const FICTIVE_NODE_DATA = (struct list_node_data*) 1;
+struct user_data *const FICTIVE_NODE_DATA = (struct user_data*) 1;
 char *const FICTIVE_NODE_DATA_KEY = "FICTIVE_DATA";
 
-const int MAX_LIST_NODE_DATA_KEY_LEN = 30;
+const int MAX_USER_DATA_KEY_LEN = 30;
 const int NODE_DUMP_COUNT = 6;
 const int TEST_ITER_COUNT = 100;
 const int SAMPLE_LIST_SIZE = 6;
 
-//====list_node_data===========================================================
-struct list_node_data *list_node_data_from_other(struct list_node_data *other) {
+//====user_data===========================================================
+struct user_data *user_data_from_other(struct user_data *other) {
 	if (other == FICTIVE_NODE_DATA)
 		return other;
-    if (list_node_data_ok(other) != 0)
+    if (user_data_ok(other) != 0)
         return NULL;
 
-    return list_node_data_from_values(other->key, other->value);
+    return user_data_from_values(other->key, other->value);
 };
 
-struct list_node_data *list_node_data_from_values(char *key, int value) {
+struct user_data *user_data_from_values(char *key, int value) {
 	if (key == NULL)
 		return NULL;
-	if (strlen(key) > MAX_LIST_NODE_DATA_KEY_LEN)
+	if (strlen(key) > MAX_USER_DATA_KEY_LEN)
 		return NULL;
 
-	struct list_node_data *new_list_node_data = (struct list_node_data*)
+	struct user_data *new_user_data = (struct user_data*)
 		many_attempts_calloc(1,
-						sizeof(struct list_node_data),
+						sizeof(struct user_data),
 						MAX_MEMORY_ALLOCATION_ATTEMPTS);
-	if (new_list_node_data == NULL) {
+	if (new_user_data == NULL) {
 		return NULL;
 	}
 
 	char *new_key = (char*)
-		many_attempts_calloc(MAX_LIST_NODE_DATA_KEY_LEN,
+		many_attempts_calloc(MAX_USER_DATA_KEY_LEN,
 						sizeof(char),
 						MAX_MEMORY_ALLOCATION_ATTEMPTS);
 	if (new_key == NULL) {
 		return NULL;
 	}
-	new_list_node_data->key = new_key;
-	strcpy(new_list_node_data->key, key);
-	new_list_node_data->value = value;
-	return new_list_node_data;
+	new_user_data->key = new_key;
+	strcpy(new_user_data->key, key);
+	new_user_data->value = value;
+	return new_user_data;
 }
 
-int list_node_data_destruct(struct list_node_data *self) {
-    if (list_node_data_ok(self) != 0)
+int user_data_destruct(struct user_data *self) {
+    if (user_data_ok(self) != 0)
         ERR_RETURN(ERR_ARG1);
 
     free(self->key);
@@ -60,23 +60,23 @@ int list_node_data_destruct(struct list_node_data *self) {
     return 0;
 }
 
-int list_node_data_ok(struct list_node_data *self) {
+int user_data_ok(struct user_data *self) {
     if (self == NULL) {
         return ERR_NULL_OBJ;
     }
     if (self->key == NULL) {
-        return ERR_LIST_NODE_DATA_KEY_BROKEN;
+        return ERR_USER_DATA_KEY_BROKEN;
     }
-	if (strlen(self->key) > MAX_LIST_NODE_DATA_KEY_LEN) {
+	if (strlen(self->key) > MAX_USER_DATA_KEY_LEN) {
 		return ERR_BROKEN_DATA_KEY;
 	}
 
     return 0;
 }
 
-int list_node_data_dump(struct list_node_data *self) {
-	int status = list_node_data_ok(self);
-    printf("list_node_data[%p] is %s\n", self,
+int user_data_dump(struct user_data *self) {
+	int status = user_data_ok(self);
+    printf("user_data[%p] is %s\n", self,
 			status? "broken" : "ok");
 
 	if (status != 0) {
@@ -88,10 +88,10 @@ int list_node_data_dump(struct list_node_data *self) {
     return 0;
 }
 
-int list_node_data_comparator(struct list_node_data *first, 
-							  struct list_node_data *second) {
-	if (list_node_data_ok(first) != 0 || list_node_data_ok(second) != 0) {
-		return ERR_LIST_NODE_DATA_BROKEN;
+int user_data_comparator(struct user_data *first, 
+							  struct user_data *second) {
+	if (user_data_ok(first) != 0 || user_data_ok(second) != 0) {
+		return ERR_USER_DATA_BROKEN;
 	}
 	if (strcmp(first->key, second->key)) {
 		return FALSE;
@@ -101,23 +101,23 @@ int list_node_data_comparator(struct list_node_data *first,
 	}
 	return TRUE;
 }
-
-int list_node_data_test() {
-	struct list_node_data *other = (struct list_node_data*)
-		calloc(1, sizeof(struct list_node_data));
+/*
+int user_data_test() {
+	struct user_data *other = (struct user_data*)
+		calloc(1, sizeof(struct user_data));
 	other->key = (char*)calloc(100, sizeof(char));
 	strcpy(other->key, "string");
 
-	if (list_node_data_ok(other) != 0) {
-		return ERR_LIST_NODE_DATA_BROKEN;
+	if (user_data_ok(other) != 0) {
+		return ERR_USER_DATA_BROKEN;
 	}
 
 	int i = 0;
-	struct list_node_data *data = NULL;
+	struct user_data *data = NULL;
 	for (i = 0; i < 100; ++i) {
 		printf("%d)\n", i);
-		data = list_node_data_from_other(other);
-		EXPECT_CMP_EQ(data, other, list_node_data_comparator);
+		data = user_data_from_other(other);
+		EXPECT_CMP_EQ(data, other, user_data_comparator);
 
 		if (randint(1, 2) % 2) {
 			strcpy(other->key, "normal_test");
@@ -125,23 +125,23 @@ int list_node_data_test() {
 			strcpy(other->key, "tooooooooooooooooooooooo loooooong teeeeeest");
 		}
 
-		if (list_node_data_ok(data) != 0) {
+		if (user_data_ok(data) != 0) {
 			continue;
 		}
-		list_node_data_dump(data);
-		list_node_data_destruct(data);
+		user_data_dump(data);
+		user_data_destruct(data);
 	}
 
-	list_node_data_destruct(other);
+	user_data_destruct(other);
 	return 0;
-}
+}*/
 //===== list_node =============================================================
 
-struct list_node *list_node_construct(struct list_node_data *data) {
+struct list_node *list_node_construct(struct user_data *data) {
 	if (data == FICTIVE_NODE_DATA) {
 		return list_node_construct_fictive();
 	}
-	if (list_node_data_ok(data) != 0)
+	if (user_data_ok(data) != 0)
 		return NULL;
 
     struct list_node *new_node = NULL;
@@ -151,7 +151,7 @@ struct list_node *list_node_construct(struct list_node_data *data) {
         return NULL;
     }
 
-    struct list_node_data *new_node_data = list_node_data_from_other(data);
+    struct user_data *new_node_data = user_data_from_other(data);
     if (new_node_data == NULL) {
         return NULL;
     }
@@ -177,7 +177,7 @@ int list_node_destruct(struct list_node *self) {
     if (list_node_ok(self) != 0)
         ERR_RETURN(ERR_ARG1);
 
-    list_node_data_destruct(self->data);
+    user_data_destruct(self->data);
     self->next = NULL;
     self->prev = NULL;
     free(self);
@@ -191,8 +191,8 @@ int list_node_ok(struct list_node *self) {
 	if (list_node_is_fictive(self)) {
 		return ERR_LIST_NODE_FICTIVE;
 	}
-	if (list_node_data_ok(self->data) != 0) {
-		return ERR_LIST_NODE_DATA_BROKEN;
+	if (user_data_ok(self->data) != 0) {
+		return ERR_USER_DATA_BROKEN;
 	}
 
 	return 0;
@@ -208,7 +208,7 @@ int list_node_dump(struct list_node *self) {
         ERR_RETURN(ERR_ARG1);
     }
 
-	list_node_data_dump(self->data);
+	user_data_dump(self->data);
 	printf("===End dumping list_node===\n");
     return 0;
 }
@@ -232,7 +232,7 @@ struct list_node *list_node_prev(struct list_node *self) {
     return self->prev;
 }
 
-struct list_node_data *list_node_get_data(struct list_node *self) {
+struct user_data *list_node_get_data(struct list_node *self) {
     if (list_node_ok(self) != 0)
         return NULL;
 
@@ -244,7 +244,7 @@ int list_node_comparator(struct list_node *first,
 	if (list_node_ok(first) != 0 || list_node_ok(second) != 0) {
 		return FALSE;
 	}
-	if (list_node_data_comparator(first->data, second->data) != TRUE) {
+	if (user_data_comparator(first->data, second->data) != TRUE) {
 		return FALSE;
 	}
 	if (list_node_next(first) != list_node_next(second)) {
@@ -268,25 +268,25 @@ int list_node_is_fictive(struct list_node *self) {
 }
 
 int list_node_test() {
-	struct list_node_data *other = (struct list_node_data*)
-		calloc(1, sizeof(struct list_node_data));
-	other->key = (char*)calloc(MAX_LIST_NODE_DATA_KEY_LEN, sizeof(char));
+	struct user_data *other = (struct user_data*)
+		calloc(1, sizeof(struct user_data));
+	other->key = (char*)calloc(MAX_USER_DATA_KEY_LEN, sizeof(char));
 	other->key = "string";
 	other->value = 0;
 
-	if (list_node_data_ok(other) != 0)
-		return ERR_LIST_NODE_DATA_BROKEN;
+	if (user_data_ok(other) != 0)
+		return ERR_USER_DATA_BROKEN;
 
 	struct list_node *node = list_node_construct(other);
 	if (list_node_ok(node) != 0)
 		return ERR_LIST_NODE_BROKEN;
 
 	int i = 0;
-	struct list_node_data *data = NULL;
+	struct user_data *data = NULL;
 	node->next = node;
 	node->prev = node;
 	for (i = 0; i < 100; ++i) {
-		data = list_node_data_from_other(other);
+		data = user_data_from_other(other);
 		printf("%d)\n", i);
 		node = list_node_construct(data);
 		node->next = node;
@@ -306,7 +306,7 @@ int list_node_test() {
 	}
 	
 	list_node_dump(node);
-	list_node_data_destruct(node->data);
+	user_data_destruct(node->data);
 	node->data = NULL;
 	printf("[bad_node_status] %d\n", list_node_ok(node));
 	list_node_destruct(node);
@@ -428,7 +428,7 @@ int list_size(struct list *self) {
 }
 
 int list_insert(struct list *self,					
-				struct list_node_data *data,	
+				struct user_data *data,	
 				struct list_node *pos) {
 	if (list_ok(self) != 0)
 		ERR_RETURN(ERR_LIST_BROKEN);
@@ -447,12 +447,12 @@ int list_insert(struct list *self,
 	return 0;
 }
 
-int list_push_back(struct list *self, struct list_node_data *new_data) {
-	return list_insert(self, new_data, list_end(self));
+int list_push_back(struct list *self, struct user_data *data) {
+	return list_insert(self, data, list_end(self));
 }
 
-int list_push_front(struct list *self, struct list_node_data *new_data) {
-	return list_insert(self, new_data, list_begin(self));
+int list_push_front(struct list *self, struct user_data *data) {
+	return list_insert(self, data, list_begin(self));
 }
 
 int list_erase(struct list *self, struct list_node *pos) {
@@ -503,14 +503,14 @@ struct list_node *list_end(struct list *self) {
 	return self->fictive_node;
 }
 
-struct list_node_data *list_front(struct list *self) {
+struct user_data *list_front(struct list *self) {
 	if (list_ok(self) != 0)
 		return NULL;
 
 	return list_node_get_data(list_begin(self));
 }
 
-struct list_node_data *list_back(struct list *self) {
+struct user_data *list_back(struct list *self) {
 	if (list_ok(self) != 0)
 		return NULL;
 
@@ -518,7 +518,7 @@ struct list_node_data *list_back(struct list *self) {
 }
 
 struct list_node *list_find(struct list *self,
-							struct list_node_data *data_to_find) {
+							struct user_data *data_to_find) {
 	if (list_ok(self) != 0)
 		return NULL;
 
@@ -526,7 +526,7 @@ struct list_node *list_find(struct list *self,
 	for (node = list_begin(self);
 		 node != list_end(self);
 		 node = list_node_next(node)) {
-		if (list_node_data_comparator(list_node_get_data(node),
+		if (user_data_comparator(list_node_get_data(node),
 									  data_to_find) == TRUE) {
 			break;
 		}
@@ -559,9 +559,9 @@ int test_list_EmptySizeClear() {
 
 	int i = 0;
 	int count = 0;
-	struct list_node_data *data = NULL;
+	struct user_data *data = NULL;
 	for (i = 0; i < TEST_ITER_COUNT; ++i) {
-		data = list_node_data_from_values("some_key", randint(-100, 100));
+		data = user_data_from_values("some_key", randint(-100, 100));
 		list_push_back(list, data);
 		count += 1;
 		ASSERT_EQ(list_ok(list), 0);
@@ -590,7 +590,7 @@ struct list *list_generate() {
 	for (i = 0; i < SAMPLE_LIST_SIZE; ++i) {
 		randstr(randint(5, 20), &str);
 		list_push_back(list,
-					   list_node_data_from_values(str, randint(-100, 100)));
+					   user_data_from_values(str, randint(-100, 100)));
 	}
 	return list;
 }
@@ -620,23 +620,23 @@ int test_list_InsertPush() {
 	for (i = 0; i < SAMPLE_LIST_SIZE / 2; ++i) {
 		node = list_node_next(node);
 	}
-	struct list_node_data *data = NULL;
+	struct user_data *data = NULL;
 	int count = SAMPLE_LIST_SIZE / 2;
 	for (i = 0; i < TEST_ITER_COUNT; ++i) {
-		data = list_node_data_from_values("insert_data", randint(-100, 100));
+		data = user_data_from_values("insert_data", randint(-100, 100));
 		list_insert(list, data, node);
 		++count;
 		ASSERT_CMP_EQ(list_node_get_data(list_node_prev(node)),
 					  data, 
-					  list_node_data_comparator);
+					  user_data_comparator);
 		list_push_front(list, data);
 		ASSERT_CMP_EQ(list_node_get_data(list_begin(list)),
 					  data, 
-					  list_node_data_comparator);
+					  user_data_comparator);
 		list_push_back(list, data);
 		ASSERT_CMP_EQ(list_node_get_data(list_node_prev(list_end(list))),
 					  data,
-					  list_node_data_comparator);
+					  user_data_comparator);
 	}
 	list_destruct(list);
 	return 0;
@@ -667,14 +667,14 @@ int test_list_Find() {
 	struct list *list = list_generate();
 	struct list_node *node = NULL;
 	struct list_node *node_found = NULL;
-	struct list_node_data *data = NULL;
+	struct user_data *data = NULL;
 
 	node = list_node_next(list_node_next(list_begin(list)));
-	struct list_node_data *data_to_find = list_node_get_data(node);
+	struct user_data *data_to_find = list_node_get_data(node);
 
 	int i = 0;
 	for (i = 0; i < TEST_ITER_COUNT; ++i) {
-		data = list_node_data_from_values("test_find", randint(-100, 100));
+		data = user_data_from_values("test_find", randint(-100, 100));
 		list_push_front(list, data);
 		node_found = list_find(list, data);
 		ASSERT_CMP_EQ(node_found, list_begin(list), list_node_comparator);

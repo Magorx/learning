@@ -3,8 +3,8 @@
 
 enum LIST_ERRORS {
 	ERR_LIST_NODE_BROKEN = -100,
-	ERR_LIST_NODE_DATA_KEY_BROKEN,
-	ERR_LIST_NODE_DATA_BROKEN,
+	ERR_USER_DATA_KEY_BROKEN,
+	ERR_USER_DATA_BROKEN,
 	ERR_LIST_NODE_BRROKEN,
 	ERR_LIST_BROKEN,
 	ERR_FAILED_NODE_CREATING,
@@ -12,35 +12,35 @@ enum LIST_ERRORS {
 	ERR_LIST_NODE_FICTIVE,
 };
 
-extern const int MAX_LIST_NODE_DATA_KEY_LEN;
+extern const int MAX_user_data_KEY_LEN;
 extern const int NODE_DUMP_COUNT;
 extern const int TEST_ITER_COUNT;
 extern const int SAMPLE_LIST_SIZE;
 
-//=== list_node_data ==========================================================
-struct list_node_data {
+//=== user_data ==========================================================
+struct user_data {
     char *key;
     int value;
 };
 
-struct list_node_data *list_node_data_from_other(struct list_node_data *other);
-struct list_node_data *list_node_data_from_values(char *key, int value);
-int list_node_data_destruct(struct list_node_data *self);
-int list_node_data_ok(struct list_node_data *self);
-int list_node_data_dump(struct list_node_data *self);
-int list_node_data_comparator(struct list_node_data *first, 
-							  struct list_node_data *second);
+struct user_data *user_data_from_other(struct user_data *other);
+struct user_data *user_data_from_values(char *key, int value);
+int user_data_destruct(struct user_data *self);
+int user_data_ok(struct user_data *self);
+int user_data_dump(struct user_data *self);
+int user_data_comparator(struct user_data *first, 
+							  struct user_data *second);
 
-int list_node_data_test();
+int user_data_test();
 
 //=== list_node ===============================================================
 struct list_node {
     struct list_node *prev;
     struct list_node *next;
-    struct list_node_data *data;
+    struct user_data *data;
 };
 
-struct list_node *list_node_construct(struct list_node_data *data);
+struct list_node *list_node_construct(struct user_data *data);
 struct list_node *list_node_construct_fictive();
 int list_node_destruct(struct list_node *self);
 int list_node_ok(struct list_node *self);
@@ -51,7 +51,7 @@ int list_node_is_fictive(struct list_node *self);
 
 struct list_node *list_node_next(struct list_node *self);
 struct list_node *list_node_prev(struct list_node *self);
-struct list_node_data *list_node_get_data(struct list_node *self);
+struct user_data *list_node_get_data(struct list_node *self);
 
 int list_node_test();
 
@@ -70,10 +70,10 @@ int list_empty(struct list *self);
 int list_size(struct list *self);
 
 int list_insert(struct list *self,
-				struct list_node_data *data,
+				struct user_data *data,
 				struct list_node *pos);
-int list_push_back(struct list *self, struct list_node_data *data);
-int list_push_front(struct list *self, struct list_node_data *new_data);
+int list_push_back(struct list *self, struct user_data *data);
+int list_push_front(struct list *self, struct user_data *new_data);
 int list_erase(struct list *self, struct list_node *pos);
 int list_pop_back(struct list *self);
 int list_pop_front(struct list *self);
@@ -81,11 +81,11 @@ int list_clear(struct list *self);
 
 struct list_node *list_begin(struct list *self);
 struct list_node *list_end(struct list *self);
-struct list_node_data *list_front(struct list *self);
-struct list_node_data *list_back(struct list *self);
+struct user_data *list_front(struct list *self);
+struct user_data *list_back(struct list *self);
 
 struct list_node *list_find(struct list *self,
-							struct list_node_data *data_to_find);
+							struct user_data *data_to_find);
 
 int test_list_ConstructDestruct();
 int test_list_Ok();
