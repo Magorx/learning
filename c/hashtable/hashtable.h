@@ -1,3 +1,6 @@
+#ifndef HASHTABLE_H
+#define HASHTABLE_H
+
 struct hashtable {
 	int (*hash_function)(struct user_data*);
 	struct list *data;
@@ -21,3 +24,5 @@ int hashtable_erase(struct hashtable *self, struct user_data *data);
 int hashtable_clear(struct hashtable *self);
 
 int hashtable_contains(struct hashtable *self, struct user_data *data_to_find);
+
+#endif  // HASHTABLE_H INCLUDED

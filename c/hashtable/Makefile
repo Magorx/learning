@@ -4,13 +4,13 @@ WARNINGS = -Wall -Werror
 STANDARD =  
 CFLAGS = $(STANDARD) $(WARNINGS)
 
-all: list
+all: hashtable
 
-list: main.o general.o list.o
+list: main.o general.o hashtable.o
 	$(CC) $(CFLAGS) main.o general.o list.o -o list
 
-list.o: list.c
-	$(CC) $(CFLAGS) list.c -c -o list.o
+hashtable.o: hashtable.c
+	$(CC) $(CFLAGS) hashtable.c -c -o hashtable.o
 
 general.o: general.c
 	$(CC) $(CFLAGS) general.c -c -o general.o
