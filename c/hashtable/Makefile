@@ -6,8 +6,8 @@ CFLAGS = $(STANDARD) $(WARNINGS)
 
 all: hashtable
 
-list: main.o general.o hashtable.o
-	$(CC) $(CFLAGS) main.o general.o list.o -o list
+hashtable: main.o general.o hashtable.o list.o
+	$(CC) $(CFLAGS) main.o general.o hashtable.o list.o -o hashtable
 
 hashtable.o: hashtable.c
 	$(CC) $(CFLAGS) hashtable.c -c -o hashtable.o
@@ -17,6 +17,9 @@ general.o: general.c
 
 main.o: main.c
 	$(CC) $(CFLAGS) main.c -c -o main.o
+
+list.o: list.c
+	$(CC) $(CFLAGS) list.c -c -o list.o
 
 clear:
 	rm *.o

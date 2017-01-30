@@ -76,8 +76,7 @@ int user_data_ok(struct user_data *self) {
 
 int user_data_dump(struct user_data *self) {
 	int status = user_data_ok(self);
-    printf("user_data[%p] is %s\n", self,
-			status? "broken" : "ok");
+    printf("user_data[%p] is %s\n", self, status? "broken" : "ok");
 
 	if (status != 0) {
 		ERR_RETURN(ERR_ARG1);
