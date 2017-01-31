@@ -12,9 +12,8 @@ enum LIST_ERRORS {
 	ERR_LIST_NODE_FICTIVE,
 };
 
-extern const int MAX_user_data_KEY_LEN;
+extern const int MAX_USER_DATA_KEY_LEN;
 extern const int NODE_DUMP_COUNT;
-extern const int TEST_ITER_COUNT;
 extern const int SAMPLE_LIST_SIZE;
 
 //=== user_data ==========================================================

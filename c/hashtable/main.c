@@ -1,18 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 #include "list.h"
 #include "hashtable.h"
 #include "general.h"
 
-
 int main() {
 	srand(time(NULL));
 
-	list_test();
-	char *str;
-	randstr(10, &str);
-	printf("%s\n", str);
+	struct hashtable *table = hashtable_generate();
+    hashtable_dump(table);
+	//randstr(10, &str);
+	//printf("%s\n", str);
 
     return 0;
 }

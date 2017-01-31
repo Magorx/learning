@@ -16,6 +16,8 @@ const int ORD_Z = (int) 'Z';
 const int ORD_0 = (int) '0';
 const int ORD_9 = (int) '9';
 
+const int TEST_ITER_COUNT = 100;
+
 int randint(int min, int max) {
     return rand() % (max - min + 1) + min;
 }

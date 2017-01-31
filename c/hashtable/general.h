@@ -62,7 +62,8 @@ extern const int ORD_Z;
 extern const int ORD_0;
 extern const int ORD_9;
 
-// int max(int first, int second);
+extern const int TEST_ITER_COUNT;
+
 int randint(int min, int max);
 int randstr(int len, char **string_pointer);
 void *many_attempts_calloc(int elem_count, int elem_size, int attempt_count);

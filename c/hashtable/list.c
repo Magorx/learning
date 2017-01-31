@@ -9,7 +9,6 @@ char *const FICTIVE_NODE_DATA_KEY = "FICTIVE_DATA";
 
 const int MAX_USER_DATA_KEY_LEN = 30;
 const int NODE_DUMP_COUNT = 6;
-const int TEST_ITER_COUNT = 100;
 const int SAMPLE_LIST_SIZE = 6;
 
 //====user_data===========================================================
@@ -90,17 +89,18 @@ int user_data_dump(struct user_data *self) {
 int user_data_comparator(struct user_data *first, 
 							  struct user_data *second) {
 	if (user_data_ok(first) != 0 || user_data_ok(second) != 0) {
-		return ERR_USER_DATA_BROKEN;
+		return FALSE;
 	}
 	if (strcmp(first->key, second->key)) {
 		return FALSE;
-	}
-	if (first->value != second->value) {
-		return FALSE;
-	}
+	}	
+	// if (first->value != second->value) {
+	// 	return FALSE;
+	// }
+
 	return TRUE;
 }
-/*
+
 int user_data_test() {
 	struct user_data *other = (struct user_data*)
 		calloc(1, sizeof(struct user_data));
@@ -133,7 +133,7 @@ int user_data_test() {
 
 	user_data_destruct(other);
 	return 0;
-}*/
+}
 //===== list_node =============================================================
 
 struct list_node *list_node_construct(struct user_data *data) {

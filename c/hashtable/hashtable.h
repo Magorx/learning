@@ -9,6 +9,9 @@ enum HASHTABLE_ERRORS {
     ERR_HASHTABLE_DATA_NOT_EXIST,
 };
 
+extern const int TEST_TABLE_SIZE;
+extern const int TEST_ELEM_COUNT;
+
 struct hashtable {
 	int (*hash_function)(struct user_data*);
 	struct list *data;
@@ -26,11 +29,21 @@ int hashtable_table_size(struct hashtable *self);
 int hashtable_empty(struct hashtable *self);
 
 int hashtable_hash(struct hashtable *self, struct user_data *data);
+int hashtable_standart_hash_function(struct user_data *data);
 
 int hashtable_insert(struct hashtable *self, struct user_data *data);
 int hashtable_erase(struct hashtable *self, struct user_data *data);
 int hashtable_clear(struct hashtable *self);
 
 int hashtable_contains(struct hashtable *self, struct user_data *data_to_find);
+
+struct hashtable *hashtable_generate();
+
+int hashtable_test_ConstructDestruct();
+int hashtable_test_Ok();
+int hashtable_test_SizeTablesizeEmpty();
+int hashtable_test_Hash();
+int hashtable_test_InsertEraseClear();
+int hashtable_test_Contains();
 
 #endif  // HASHTABLE_H INCLUDED
