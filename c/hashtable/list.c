@@ -443,6 +443,7 @@ int list_insert(struct list *self,
 	new_node->next = pos;
 	pos->prev = new_node;
 	++self->size;
+	ASSERT_EQ(list_ok(self), 0);
 	return 0;
 }
 

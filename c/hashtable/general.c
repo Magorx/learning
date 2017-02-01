@@ -50,7 +50,6 @@ int randstr(int len, char **string_ptr) {
 		}
 		new_string_ptr[symb_index] = symb;
 	}
-
 	*string_ptr = new_string_ptr;
 	return 0;
 }

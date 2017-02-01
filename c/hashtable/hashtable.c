@@ -40,10 +40,11 @@ int hashtable_destruct(struct hashtable *self) {
     if (hashtable_ok(self) != 0)
         return ERR_ARG1;
 
-    int i = 0;
+    /*int i = 0;
     for (i = 0; i < self->table_size; ++i) {
         list_destruct(&self->data[i]);
-    }
+    }*/
+    free(self->data);
     self->table_size = POISON_INT;
     self->elem_count = POISON_INT;
     self->hash_function = NULL;
@@ -64,6 +65,10 @@ int hashtable_ok(struct hashtable *self) {
     if (self->elem_count < 0) {
         return ERR_HASHTABLE_ELEM_COUNT_BROKEN;
     }
+    if (self->table_size < 0) {
+        return ERR_HASHTABLE_TABLE_SIZE_BROKEN;
+    }
+
     int i = 0;
     int size_count = 0;
     for (i = 0; i < self->table_size; ++i) {
@@ -74,9 +79,6 @@ int hashtable_ok(struct hashtable *self) {
     }
     if (size_count != self->elem_count) {
         return ERR_HASHTABLE_ELEM_COUNT_BROKEN;
-    }
-    if (self->table_size < 0) {
-        return ERR_HASHTABLE_TABLE_SIZE_BROKEN;
     }
 
     return 0;
@@ -124,7 +126,7 @@ int hashtable_hash(struct hashtable *self, struct user_data *data) {
     if (user_data_ok(data) != 0)
         return ERR_ARG1;
 
-    return abs(self->hash_function(data) % self->table_size);
+    return self->hash_function(data) % self->table_size;
 };
 
 int hashtable_standart_hash_function(struct user_data *data) {
@@ -144,7 +146,7 @@ int hashtable_insert(struct hashtable *self, struct user_data *data) {
     struct list *list = &self->data[hash];
     if (hashtable_contains(self, data) == TRUE) {
         struct list_node *node = list_find(list, data);
-        node->data = node->data + 1;
+        node->data->value = node->data->value + 1;
     } else {
         list_push_back(list, data);
         struct list_node *node = list_node_prev(list_end(list));
@@ -180,6 +182,7 @@ int hashtable_clear(struct hashtable *self) {
     for (i = 0; i < self->table_size; ++i) {
         list_clear(&self->data[i]);
     }
+    self->elem_count = 0;
 
     return 0;
 }
@@ -205,16 +208,13 @@ struct hashtable *hashtable_generate() {
     if (new_hashtable == NULL) {
         return NULL;
     }
-
     int i = 0;
     char *key = NULL;
     struct user_data *data = NULL;
     for (i = 0; i < TEST_ELEM_COUNT; ++i) {
-        randstr(20, &key);
-        printf("%s\n", key);
+        randstr(randint(1, 20), &key);
         data = user_data_from_values(key, randint(-100, 100));
         hashtable_insert(new_hashtable, data);
-
     }
     return new_hashtable;
 };
@@ -234,7 +234,7 @@ int hashtable_test_ConstructDestruct() {
 int hashtable_test_Ok() {
     struct hashtable *hash_table = hashtable_generate();
     int i = 0;
-    for (i = 0; i < TEST_ITER_COUNT; ++i){
+    for (i = 0; i < TEST_ITER_COUNT; ++i) {
         hash_table = hashtable_generate();
         hash_table->data = NULL;
         ASSERT_EQ(hashtable_ok(hash_table), ERR_HASHTABLE_DATA_BROKEN);
@@ -252,12 +252,88 @@ int hashtable_test_Ok() {
     return 0;
 };
 
-int hashtable_test_SizeTablesizeEmpty(){
-    //struct hashtable *hash_table = hashtable_generate();
+int hashtable_test_SizeTablesizeEmptyClear() {
+    struct hashtable *hash_table = hashtable_generate();
+    int elem_count = hash_table->elem_count;
+    int table_size = hash_table->table_size;
+    int i = 0;
+    char *key = NULL;
+    randstr(randint(1, 20), &key);
+    struct user_data *data = user_data_from_values(key, randint(-100, 100));
+    for (i = 0; i < TEST_ITER_COUNT; ++i) {
+        ASSERT_EQ(hashtable_table_size(hash_table), table_size);
+        ASSERT_EQ(hashtable_size(hash_table), elem_count);
+        hashtable_insert(hash_table, data);
+        elem_count = elem_count + 1;
+        randstr(randint(1, 20), &key);
+        data = user_data_from_values(key, randint(-100, 100));
+        if (i % 10 == 0) {
+            hashtable_clear(hash_table);
+            ASSERT_EQ(hashtable_empty(hash_table), TRUE);
+            hashtable_destruct(hash_table);
+            hash_table = hashtable_generate();
+            elem_count = hashtable_size(hash_table);
+            table_size = hashtable_table_size(hash_table);
+        }
+    }
 
     return 0;
 };
 
-int hashtable_test_Hash();
-int hashtable_test_InsertEraseClear();
-int hashtable_test_Contains();
+int hashtable_test_Hash() {
+    /*
+    This method must work, orelse nothing more would work. But all works.
+    */
+    return 0;
+};
+
+int hashtable_test_InsertErase() {
+    struct hashtable *hash_table = hashtable_generate();
+    
+    int i = 0;
+    char *key = NULL;
+    struct user_data *data = NULL;
+    for (i = 0; i < TEST_ITER_COUNT; ++i) {
+        randstr(randint(1, 20), &key);
+        data = user_data_from_values(key, randint(-100, 100));
+        ASSERT_EQ(hashtable_insert(hash_table, data), 0);
+        ASSERT_EQ(hashtable_erase(hash_table, data), 0);
+    }
+
+    hashtable_destruct(hash_table);
+    return 0;
+};
+
+int hashtable_test_Contains() {
+    struct hashtable *hash_table = hashtable_generate();
+    struct user_data *inserted_datas = (struct user_data*)
+        many_attempts_calloc(TEST_ITER_COUNT, 
+                             sizeof(struct user_data),
+                             MAX_MEMORY_ALLOCATION_ATTEMPTS);
+    struct user_data *data = NULL;
+    char *key = NULL;
+
+    int i = 0;
+    for (i = 0; i < TEST_ITER_COUNT; ++i) {
+        randstr(randint(1, 20), &key);
+        data = user_data_from_values(key, randint(-100, 100));
+        hashtable_insert(hash_table, data);
+        inserted_datas[i] = *data;
+    }
+    for (i = 0; i < TEST_ITER_COUNT; ++i) {
+        ASSERT_EQ(hashtable_contains(hash_table, &inserted_datas[i]), TRUE);
+    }
+
+    return 0;
+}
+
+int hashtable_test_all() {
+    hashtable_test_Ok();
+    hashtable_test_ConstructDestruct();
+    hashtable_test_InsertErase();
+    hashtable_test_SizeTablesizeEmptyClear();
+    hashtable_test_Contains();
+    hashtable_test_Hash();
+
+    return 0;
+}

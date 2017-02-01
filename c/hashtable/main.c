@@ -7,12 +7,8 @@
 #include "general.h"
 
 int main() {
-	srand(time(NULL));
-
-	struct hashtable *table = hashtable_generate();
-    hashtable_dump(table);
-	//randstr(10, &str);
-	//printf("%s\n", str);
-
+    struct hashtable *table = hashtable_generate();
+    table = NULL;
+    hashtable_test_all();
     return 0;
 }

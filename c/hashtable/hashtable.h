@@ -39,11 +39,12 @@ int hashtable_contains(struct hashtable *self, struct user_data *data_to_find);
 
 struct hashtable *hashtable_generate();
 
+int hashtable_test_all();
 int hashtable_test_ConstructDestruct();
 int hashtable_test_Ok();
-int hashtable_test_SizeTablesizeEmpty();
+int hashtable_test_SizeTablesizeEmptyClear();
 int hashtable_test_Hash();
-int hashtable_test_InsertEraseClear();
+int hashtable_test_InsertErase();
 int hashtable_test_Contains();
 
 #endif  // HASHTABLE_H INCLUDED
