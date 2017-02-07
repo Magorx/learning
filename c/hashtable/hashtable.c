@@ -25,9 +25,18 @@ struct hashtable *hashtable_construct(int table_size,
         many_attempts_calloc(table_size,
                              sizeof(struct list),
                              MAX_MEMORY_ALLOCATION_ATTEMPTS);
+    if (new_hashtable->data == NULL) {
+        return NULL;
+    }
+
     int i = 0;
+    struct list *new_list = NULL;
     for (i = 0; i < table_size; ++i) {
-        new_hashtable->data[i] = *list_construct();
+        new_list = list_construct();
+        if (new_list == NULL) {
+            return NULL;
+        }
+        new_hashtable->data[i] = *new_list;
     }
 
     new_hashtable->hash_function = hash_function;
@@ -42,9 +51,11 @@ int hashtable_destruct(struct hashtable *self) {
 
     /*int i = 0;
     for (i = 0; i < self->table_size; ++i) {
+        printf("%d\n", i);
         list_destruct(&self->data[i]);
     }*/
     free(self->data);
+
     self->table_size = POISON_INT;
     self->elem_count = POISON_INT;
     self->hash_function = NULL;
@@ -57,7 +68,7 @@ int hashtable_ok(struct hashtable *self) {
         return ERR_NULL_OBJ;
     }
     if (self->data == NULL) {
-        return ERR_HASHTABLE_DATA_BROKEN;
+        return ERR_HASHTABLE_NULL_DATA;
     }
     if (self->hash_function == NULL) {
         return ERR_HASHTABLE_HASH_FUNCTION_BROKEN;
@@ -70,14 +81,14 @@ int hashtable_ok(struct hashtable *self) {
     }
 
     int i = 0;
-    int size_count = 0;
+    int true_elem_count = 0;
     for (i = 0; i < self->table_size; ++i) {
         if (list_ok(&self->data[i]) != 0) {
-            return ERR_HASHTABLE_DATA_BROKEN;
+            return ERR_HASHTABLE_DATA_LIST_BROKEN;
         }
-        size_count = size_count + list_size(&self->data[i]);
+        true_elem_count = true_elem_count + list_size(&self->data[i]);
     }
-    if (size_count != self->elem_count) {
+    if (true_elem_count != self->elem_count) {
         return ERR_HASHTABLE_ELEM_COUNT_BROKEN;
     }
 
@@ -115,11 +126,7 @@ int hashtable_empty(struct hashtable *self) {
     if (hashtable_ok(self) != 0)
         return FALSE;
 
-    if (self->elem_count == 0) {
-        return TRUE;
-    } else {
-        return FALSE;
-    }
+    return self->elem_count == 0 ? TRUE : FALSE;
 };
 
 int hashtable_hash(struct hashtable *self, struct user_data *data) {
@@ -129,7 +136,7 @@ int hashtable_hash(struct hashtable *self, struct user_data *data) {
     return self->hash_function(data) % self->table_size;
 };
 
-int hashtable_standart_hash_function(struct user_data *data) {
+int hashtable_standard_hash_function(struct user_data *data) {
     if (user_data_ok(data) != 0)
         ERR_RETURN(ERR_ARG1);
 
@@ -202,9 +209,10 @@ int hashtable_contains(struct hashtable *self, struct user_data *data_to_find) {
     }
 }
 
+//=============================================================================
 struct hashtable *hashtable_generate() {
     struct hashtable *new_hashtable  = 
-        hashtable_construct(TEST_TABLE_SIZE, hashtable_standart_hash_function);
+        hashtable_construct(TEST_TABLE_SIZE, hashtable_standard_hash_function);
     if (new_hashtable == NULL) {
         return NULL;
     }
@@ -222,9 +230,12 @@ struct hashtable *hashtable_generate() {
 int hashtable_test_ConstructDestruct() {
     struct hashtable *hash_table = NULL;
     int i = 0;
-    for (i = 0; i < TEST_ITER_COUNT; ++i) {
+    for (i = 0; i < 1; ++i) {
         hash_table = hashtable_construct(TEST_TABLE_SIZE,
-                                         hashtable_standart_hash_function);
+                                         hashtable_standard_hash_function);
+        ASSERT_EQ(hashtable_ok(hash_table), 0);
+        ASSERT_EQ(hashtable_destruct(hash_table), 0);
+        hash_table = hashtable_generate();
         ASSERT_EQ(hashtable_ok(hash_table), 0);
         ASSERT_EQ(hashtable_destruct(hash_table), 0);
     }
@@ -237,7 +248,7 @@ int hashtable_test_Ok() {
     for (i = 0; i < TEST_ITER_COUNT; ++i) {
         hash_table = hashtable_generate();
         hash_table->data = NULL;
-        ASSERT_EQ(hashtable_ok(hash_table), ERR_HASHTABLE_DATA_BROKEN);
+        ASSERT_EQ(hashtable_ok(hash_table), ERR_HASHTABLE_NULL_DATA);
         hash_table = hashtable_generate();
         hash_table->elem_count = hash_table->elem_count - 10;
         ASSERT_EQ(hashtable_ok(hash_table), ERR_HASHTABLE_ELEM_COUNT_BROKEN);
@@ -282,7 +293,7 @@ int hashtable_test_SizeTablesizeEmptyClear() {
 
 int hashtable_test_Hash() {
     /*
-    This method must work, orelse nothing more would work. But all works.
+    This method must work, or else nothing more would work. But all works.
     */
     return 0;
 };
@@ -323,6 +334,7 @@ int hashtable_test_Contains() {
     for (i = 0; i < TEST_ITER_COUNT; ++i) {
         ASSERT_EQ(hashtable_contains(hash_table, &inserted_datas[i]), TRUE);
     }
+    hashtable_destruct(hash_table);
 
     return 0;
 }

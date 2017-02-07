@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include "general.h"
 #include "list.h"
 #include "hashtable.h"
-#include "general.h"
 
 int main() {
     struct hashtable *table = hashtable_generate();

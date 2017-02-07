@@ -6,11 +6,6 @@ CFLAGS = $(STANDARD) $(WARNINGS)
 
 all: hashtable
 
-go: hashtable
-	make clear
-	clear
-	./hashtable
-
 hashtable: main.o general.o hashtable.o list.o
 	$(CC) $(CFLAGS) main.o general.o hashtable.o list.o -o hashtable
 
@@ -25,6 +20,11 @@ main.o: main.c
 
 list.o: list.c
 	$(CC) $(CFLAGS) list.c -c -o list.o
+
+run: hashtable
+	make clear
+	clear
+	./hashtable
 
 clear:
 	rm *.o
