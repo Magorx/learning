@@ -31,13 +31,13 @@ BLACK_CASTLE = ['Черный', 'Черного', 'Черному', \
 
 WHITE_CASTLE = ['Белый', 'Белого', 'Белому', \
                 ['Белый', 'Белого'], 'Белым', 'Белом']
-#== CLASSES ==================================================================
+#== KNIGHT ==================================================================
 class Knight(object):
     def __init__(self, user_id):
         self.id = user_id
         self.castle = choice([BLUE_CASTLE, RED_CASTLE, GREEN_CASTLE, \
                                YELLOW_CASTLE, BLACK_CASTLE, WHITE_CASTLE])
-        self.name = choice(['Григорий', 'Ольга', 'Александр', 'Максим'])
+        self.name = choice(['Гриша', 'Максим', 'Алиса', 'Оля', 'Александр'])
         self.attack = 1
         self.defence = 1
         self.money = 10
@@ -45,6 +45,7 @@ class Knight(object):
         self.exp = 0
         self.nexp = 15
         self.statment = 'Отдых'
+        self.time = 0
 
     def send_to_player(self):
         message = self.name + ', рыцарь ' + self.get_list_castle()[1] + ' замка!\n'
@@ -56,18 +57,18 @@ class Knight(object):
         message = message + 'Состояние: ' + self.statment
         bot.send_message(self.id, message)
 
-    def get_str_castle(self):
-        if self.castle is BLUE_CASTLE:
+    def get_str_castle(self, castle=self.castle):
+        if castle is BLUE_CASTLE:
             return "castle_blue"
-        if self.castle is RED_CASTLE:
+        if castle is RED_CASTLE:
             return "castle_red"
-        if self.castle is GREEN_CASTLE:
+        if castle is GREEN_CASTLE:
             return "castle_green"
-        if self.castle is YELLOW_CASTLE:
+        if castle is YELLOW_CASTLE:
             return "castle_yellow"
-        if self.castle is BLACK_CASTLE:
+        if castle is BLACK_CASTLE:
             return "castle_black"
-        if self.castle is WHITE_CASTLE:
+        if castle is WHITE_CASTLE:
             return "castle_white"
         return 'Ошибка, напишите админам, пожалуйста, и идите гулять)'
 
@@ -93,6 +94,23 @@ class Knight(object):
                                  self.attack, self.defence, self.money, \
                                  self.lvl, self.exp, self.nexp,self.statment]))
 
+#== CASTLE ===================================================================
+class Castle(object):
+    def __init__(self, color):
+        self.knights = {}
+        self.knights_count = 0
+        self.color_list = color
+        self.color_str = knight.get_str_castle(castle=color)
+        self.money = 0
+        self.wood = 0
+        self.stone = 0
+
+    def add_knight(self, knight);
+        knight.castle = knight.get_list_castle(self.castle)
+        self.knights{knight.id} = knight
+        self.knights_count += 1
+
+
 #== KEYBOARDS ================================================================
 main_menu_markup = types.ReplyKeyboardMarkup()
 main_menu_markup.row('Атака', 'Защита', 'Замок')
@@ -105,6 +123,16 @@ castle_menu_markup.row('Кузница', 'Назад')
 main_menu_markup.resize_keyboard = True
 
 #== GAME ACTIONS =============================================================
+'''def START():
+    global users
+    global log
+    blue_castle = open('blue.castle', 'r')
+    red_castle = open('red.castle', 'r')
+    green_castle = open('green.castle', 'r')
+    yellow_castle = open('yellow.castle', 'r')
+    black_castle = open('black.castle', 'r')
+    white_castle = open('white.castle', 'r')'''
+
 def LOAD():
     global users
     global log
@@ -149,8 +177,8 @@ def SAVE():
         print(usr, 'SAVED', file=log)
     data_file.close()
     log.close()
-#== MAIN =====================================================================
 
+#== MAIN =====================================================================
 def main():
     global log
     global users
@@ -196,8 +224,14 @@ def main():
     def menus_handler(message):
         knight = users[message.chat.id]
         text = message.text
+        if text == 'Герой':
+            knight.send_to_player()
+
+        if knight.time > 0:
+            bot.send_message(knght.id, 'Сейчас ты на другом преключении')
+
         if text == 'Назад':
-            bot.send_message(knight.id,
+            bot.send_message(knight.id,2
                              'Куда держишь путь, ' + knight.name + '?',
                              reply_markup=main_menu_markup)
         if text == 'Замок':
@@ -205,8 +239,7 @@ def main():
                              knight.get_list_castle()[0] + \
                              ' замок процветает!',
                              reply_markup=castle_menu_markup)
-        if text == 'Герой':
-            knight.send_to_player()
+
     #=========================================================================
     bot.polling()
     bot.polling(interval=3)

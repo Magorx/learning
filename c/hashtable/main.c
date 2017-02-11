@@ -8,7 +8,7 @@
 
 int main() {
     struct hashtable *table = hashtable_generate();
-    table = NULL;
-    hashtable_test_all();
+    hashtable_destruct(table);
+    //hashtable_super_test("test.txt");
     return 0;
 }

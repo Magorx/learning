@@ -49,17 +49,18 @@ int hashtable_destruct(struct hashtable *self) {
     if (hashtable_ok(self) != 0)
         return ERR_ARG1;
 
-    /*int i = 0;
+    int i = 0;
     for (i = 0; i < self->table_size; ++i) {
         printf("%d\n", i);
         list_destruct(&self->data[i]);
-    }*/
-    free(self->data);
+        //free(&self->data[i]);
+    }
+    //free(self->data);
 
     self->table_size = POISON_INT;
     self->elem_count = POISON_INT;
     self->hash_function = NULL;
-    free(self);
+    //free(self);
     return 0;
 };
 
@@ -149,15 +150,14 @@ int hashtable_insert(struct hashtable *self, struct user_data *data) {
     if (user_data_ok(data) != 0)
         return ERR_ARG2;
 
-    int hash = hashtable_hash(self, data);
-    struct list *list = &self->data[hash];
-    if (hashtable_contains(self, data) == TRUE) {
-        struct list_node *node = list_find(list, data);
-        node->data->value = node->data->value + 1;
+    struct user_data *data_found = __hashtable_find(self, data);
+    if (data_found != NULL) {
+        data_found->value = data_found->value + 1;
     } else {
-        list_push_back(list, data);
-        struct list_node *node = list_node_prev(list_end(list));
-        node->data->value = 1;
+        int hash = hashtable_hash(self, data);
+        struct list *list = &self->data[hash];
+        struct user_data *data_to_insert = user_data_from_values(data->key, 1);
+        list_push_back(list, data_to_insert);
         self->elem_count = self->elem_count + 1;
     }
 
@@ -170,10 +170,11 @@ int hashtable_erase(struct hashtable *self, struct user_data *data) {
     if (user_data_ok(data) != 0)
         return ERR_ARG2;
 
-    int hash = hashtable_hash(self, data);
-    if (hashtable_contains(self, data) == FALSE) {
+    struct user_data *data_found = __hashtable_find(self, data);
+    if (data_found == NULL) {
         return ERR_HASHTABLE_DATA_NOT_EXIST;
     }
+    int hash = hashtable_hash(self, data);
     struct list *list = &self->data[hash];
     list_erase(list, list_find(list, data));
     self->elem_count = self->elem_count - 1;
@@ -194,15 +195,31 @@ int hashtable_clear(struct hashtable *self) {
     return 0;
 }
 
+struct user_data *__hashtable_find(struct hashtable *self,
+                                       struct user_data *data_to_find) {
+    if (hashtable_ok(self) != 0)
+        return NULL;
+    if (user_data_ok(data_to_find) != 0)
+        return NULL;
+
+    int hash = hashtable_hash(self, data_to_find);
+    struct list *list = &self->data[hash];
+    struct list_node *node = list_find(list, data_to_find);
+    if (node == list_end(list)) {
+        return NULL;
+    } else {
+        struct user_data *data = list_node_get_data(node);
+        return data;
+    }
+}
+
 int hashtable_contains(struct hashtable *self, struct user_data *data_to_find) {
     if (hashtable_ok(self) != 0)
         return FALSE;
     if (user_data_ok(data_to_find) != 0)
         return FALSE;
 
-    int hash = hashtable_hash(self, data_to_find);
-    struct list *list = &self->data[hash];
-    if (list_find(list, data_to_find) == list_end(list)) {
+    if (__hashtable_find(self, data_to_find) == NULL) {
         return FALSE;
     } else {
         return TRUE;
@@ -346,6 +363,52 @@ int hashtable_test_all() {
     hashtable_test_SizeTablesizeEmptyClear();
     hashtable_test_Contains();
     hashtable_test_Hash();
+
+    return 0;
+}
+
+int hashtable_super_test(const char *file_name) {
+    //struct hashtable *hash_table = 
+    //    hashtable_construct(100, hashtable_standard_hash_function);
+    /*FILE *file = fopen(file_name, "r");
+    char *word = (char*)many_attempts_calloc(30,
+                                             sizeof(char),
+                                             MAX_MEMORY_ALLOCATION_ATTEMPTS);
+    struct user_data *data = NULL;
+    int symb_index = 0;
+    char symb = 'a';
+
+    int i = 55;
+    while (i > 0) {
+        --i;
+        fscanf(file, "%c", &symb);
+        printf("%c", symb);
+        if (symb == EOF) {
+            break;
+        }
+        if (0){
+            word[symb_index] = symb;
+            ++symb_index;            
+        } else {
+            data = user_data_from_values(word, 0);
+            hashtable_insert(hash_table, data);
+            free(word);
+            char *word = (char*)
+                many_attempts_calloc(30,
+                                     sizeof(char),
+                                     MAX_MEMORY_ALLOCATION_ATTEMPTS);
+            word[0] = '~';
+            symb_index = 0;
+        }
+    }*/
+    FILE *file = fopen("test.txt", "r");
+    char *symb = many_attempts_calloc(20, sizeof(char), MAX_MEMORY_ALLOCATION_ATTEMPTS);
+    int itt = 20;
+    while (itt > 0) {
+        --itt;
+        printf("%s ", symb);
+        fscanf(file, "%s", symb);
+    }
 
     return 0;
 }

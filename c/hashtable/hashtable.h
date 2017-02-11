@@ -38,6 +38,8 @@ int hashtable_insert(struct hashtable *self, struct user_data *data);
 int hashtable_erase(struct hashtable *self, struct user_data *data);
 int hashtable_clear(struct hashtable *self);
 
+struct user_data  *__hashtable_find(struct hashtable *self,
+                                       struct user_data *data_to_find);
 int hashtable_contains(struct hashtable *self, struct user_data *data_to_find);
 
 struct hashtable *hashtable_generate();
@@ -49,5 +51,7 @@ int hashtable_test_SizeTablesizeEmptyClear();
 int hashtable_test_Hash();
 int hashtable_test_InsertErase();
 int hashtable_test_Contains();
+
+int hashtable_super_test(const char *file_name);
 
 #endif  // HASHTABLE_H
