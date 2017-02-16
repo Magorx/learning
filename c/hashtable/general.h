@@ -66,6 +66,8 @@ extern const int TEST_ITER_COUNT;
 
 int randint(int min, int max);
 int randstr(int len, char **string_pointer);
+int delete_first_character(char **string);
+int delete_last_character(char **string);
 void *many_attempts_calloc(int elem_count, int elem_size, int attempt_count);
 
 #endif  // GENERAL_H

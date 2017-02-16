@@ -16,7 +16,7 @@ extern const int TEST_ELEM_COUNT;
 
 struct hashtable {
 	int (*hash_function)(struct user_data*);
-	struct list *data;
+	struct list **data;
 	int table_size;
 	int elem_count;
 };
@@ -30,9 +30,11 @@ int hashtable_dump(struct hashtable *self);
 int hashtable_size(struct hashtable *self);
 int hashtable_table_size(struct hashtable *self);
 int hashtable_empty(struct hashtable *self);
+struct user_data *hashtable_max_value_elem(struct hashtable *self);
 
 int hashtable_hash(struct hashtable *self, struct user_data *data);
 int hashtable_standard_hash_function(struct user_data *data);
+int hashtable_hash_function_sum(struct user_data *data);
 
 int hashtable_insert(struct hashtable *self, struct user_data *data);
 int hashtable_erase(struct hashtable *self, struct user_data *data);
@@ -52,6 +54,6 @@ int hashtable_test_Hash();
 int hashtable_test_InsertErase();
 int hashtable_test_Contains();
 
-int hashtable_super_test(const char *file_name);
+int hashtable_count_most_used_words(const char *file_name);
 
 #endif  // HASHTABLE_H

@@ -15,7 +15,7 @@ class ground(object):
 
 
 def map_show(arr):
-    print('\n' * 30)
+    print('\n' * 20)
     for i in arr:
         print(*i, sep='')
 
@@ -23,9 +23,9 @@ def map_show(arr):
 def main():
     sock = socket.socket()
     try:
-        sock.connect(('127.0.0.1', 10005))
+        sock.connect(('127.0.0.1', 10000))
     except:
-        sock.connect(('127.0.0.1', 10006))
+        sock.connect(('127.0.0.1', 10001))
     
     data = ''
     while True:

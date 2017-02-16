@@ -5,6 +5,7 @@
 import socket
 import time
 import pickle
+from random import randint, choice
 
 DIRS = [[], [-1, 0], [1, 0], [0, -1], [0, 1]]
 UP = 1
@@ -19,6 +20,12 @@ class ground(object):
 
     def __repr__(self):
         return self.symb
+
+    def randomize(self):
+        rand_int = randint(0, 9)
+        if not rand_int:
+            self.symb = '#'
+            self.full = True
 
 
 class thing(object):
@@ -43,6 +50,9 @@ class thing(object):
 
         return 0
 
+    def fire(self, direction):
+        
+
 
 def handle_input(s):
     print(s)
@@ -60,21 +70,30 @@ def map_show(arr):
     for i in arr:
         print(*i, sep='')
 
+def map_generate():
+    global arr
+    arr = [[ground() for j in range(MAP_Y)] for i in range(MAP_X)]
+    for i in range(MAP_X):
+        for j in range(MAP_Y):
+            arr[i][j].randomize()
 
 MAP_X = 10
 MAP_Y = 10
 
-arr = [[ground() for j in range(MAP_Y)] for i in range(MAP_X)]
-a = thing('@', 0, 0)
+map_generate()
+a = thing('@', 5, 5)
 
 def main():
     sock = socket.socket()
     try:
-        sock.bind(('', 10005))
+        sock.bind(('', 10000))
     except:
-        sock.bind(('', 10006))
+        sock.bind(('', 10001))
     sock.listen(4)
     conn, adr = sock.accept()
+    map_show(arr)
+    data = pickle.dumps(arr, 2)
+    conn.send(data)
 
     while True:
         data = conn.recv(1024)

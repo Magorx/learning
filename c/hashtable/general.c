@@ -23,9 +23,10 @@ int randint(int min, int max) {
 }
 
 int randstr(int len, char **string_ptr) {
-	char *new_string_ptr = (char*)many_attempts_calloc(len + 2,
-										 sizeof(char),
-										 MAX_MEMORY_ALLOCATION_ATTEMPTS);
+	char *new_string_ptr = (char*)
+		many_attempts_calloc(len + 2,
+							 sizeof(char),
+							 MAX_MEMORY_ALLOCATION_ATTEMPTS);
 	if (new_string_ptr == NULL) {
 		ERR_RETURN(ERR_STRING_NOT_CREATED);
 	}
@@ -51,6 +52,52 @@ int randstr(int len, char **string_ptr) {
 		new_string_ptr[symb_index] = symb;
 	}
 	*string_ptr = new_string_ptr;
+	return 0;
+}
+
+int delete_first_character(char **string) {
+	char *old_str = *string;
+	if (old_str == NULL)
+		return ERR_NULL_OBJ;
+
+	int len = strlen(old_str);
+	char *new_str = (char*)
+		many_attempts_calloc(len - 1,
+							 sizeof(char),
+							 MAX_MEMORY_ALLOCATION_ATTEMPTS);
+	if (new_str == NULL) {
+		return ERR_STRING_NOT_CREATED;
+	}
+
+	int symb_index = 1;
+	for (symb_index = 1; symb_index < len; ++symb_index) {
+		new_str[symb_index - 1] = old_str[symb_index];
+	}
+	*string = new_str;
+
+	return 0;
+}
+
+int delete_last_character(char **string) {
+	char *old_str = *string;
+	if (old_str == NULL)
+		return ERR_NULL_OBJ;
+
+	int len = strlen(old_str);
+	char *new_str = (char*)
+		many_attempts_calloc(len - 1,
+							 sizeof(char),
+							 MAX_MEMORY_ALLOCATION_ATTEMPTS);
+	if (new_str == NULL) {
+		return ERR_STRING_NOT_CREATED;
+	}
+
+	int symb_index = 0;
+	for (symb_index = 0; symb_index < len - 1; ++symb_index) {
+		new_str[symb_index] = old_str[symb_index];
+	}
+	*string = new_str;
+
 	return 0;
 }
 
