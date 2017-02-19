@@ -1,0 +1,31 @@
+How_to_use:
+    1. If you write normal text you will get normal text
+    2. If you write '![text]!' machine will try to convert [text] into 
+       openning tag (look at glossary)
+    3. if you write '!-[text]!' machine will try to convert [text] into
+       closing tag (ex: '!-fat!' -> '</B>')
+    4. if you write '%[symb]' machine will try to convert it into something 
+       special (ex: '%n' -> '<BR>', '%h' -> '<HR>')
+    5. if you want to get container with attributes you should write like this:
+        '!$[teg_name]|atr_1=val_1|atr_2=val_2'
+        this means, that there will be oppening container ([tag_name]), where attribute one will have value [val_1], attribute two - [val_2]
+-------------------------------------------------------------------------------
+
+
+This is a tag glossary of my text_to_html converting machine:
+    1. 'fat' or 'f' will be transformed into '<B>'
+    2. 'kyr' or 'k' will be transformed into '<I>'
+    3. 'zach' or 'z' will be transformed into '<S>'
+    4. 'undr' or 'u' will be transformed into '<U>'
+    5. 'up' will be transformed into '<SUP>'
+    6. 'down' will be transformed into '<SUB>'
+    7. 'parag' or 'p' will be transformed into '<P>'
+
+
+This is a special glossary of my text_to_html converting machine:
+    1. 'n' will be transformed into '<BR>'
+    2. 'h' will be transformed into '<HR>'
+
+Fast tags glossary:
+    1. '!color=[val]!' or '!clr=[val]' or '!c=[val]!' will turn all line
+        into [val] color

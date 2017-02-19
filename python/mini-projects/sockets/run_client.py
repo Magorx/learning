@@ -15,7 +15,7 @@ class ground(object):
 
 
 def map_show(arr):
-    print('\n' * 20)
+    print('\n' * 30)
     for i in arr:
         print(*i, sep='')
 
@@ -33,6 +33,11 @@ def main():
         if data == 'stop':
             sock.close()
             return 0
+        if not data:
+            map_show(arr)
+            print("WRONG INPUT")
+            continue
+        print("SENT ", data)
         sock.send(data)
 
         data = sock.recv(10000)

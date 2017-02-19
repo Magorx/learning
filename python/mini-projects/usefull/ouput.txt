@@ -1,0 +1,21 @@
+<HTML>
+<HEAD>
+<TITLE>
+max_dz
+</TITLE>
+</HEAD>
+<BODY BGCOLOR='skyblue' style='font-size: 50px'>
+
+<P><FONT color=red>каждый</P></FONT>
+<P><FONT color=orange><I>охотник</I></P></FONT>
+<P><FONT color=yellow><U>желает</U></P></FONT>
+<P><FONT color=green><S>знать</S></P></FONT>
+<P><FONT color=blue><U>где же</U></P></FONT>
+<P><FONT color='00BB00'><I><B>СИДИТ</B></I></P></FONT>
+<P><FONT color='FFF000'>ФАЗАН</P></FONT>
+<BR>
+
+<Hr size=50 color=deepskyblue>
+
+</BODY>
+</HTML>

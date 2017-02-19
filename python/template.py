@@ -3,7 +3,9 @@
 
 
 def main():
-    pass
+    string = ''
+    while string != 'stop':
+        string = input().split()
 
 
 if __name__ == "__main__":

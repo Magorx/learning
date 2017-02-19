@@ -22,7 +22,7 @@ class ground(object):
         return self.symb
 
     def randomize(self):
-        rand_int = randint(0, 9)
+        rand_int = randint(0, 7)
         if not rand_int:
             self.symb = '#'
             self.full = True
@@ -50,20 +50,20 @@ class thing(object):
 
         return 0
 
-    def fire(self, direction):
+    #def fire(self, direction):
         
 
 
-def handle_input(s):
+def handle_input(s, conn):
     print(s)
     if s[0] == 'w':
-        a.move(UP)
+        things[conn].move(UP)
     if s[0] == 's':
-        a.move(DOWN)
+        things[conn].move(DOWN)
     if s[0] == 'a':
-        a.move(LEFT)
+        things[conn].move(LEFT)
     if s[0] == 'd':
-        a.move(RIGHT)
+        things[conn].move(RIGHT)
 
 def map_show(arr):
     print('==============')
@@ -79,30 +79,40 @@ def map_generate():
 
 MAP_X = 10
 MAP_Y = 10
+PLAYER_COUNT = 1
 
 map_generate()
 a = thing('@', 5, 5)
 
 def main():
+    global conns
+    conns = {}
     sock = socket.socket()
+    global things
+    things = {}
     try:
         sock.bind(('', 10000))
     except:
         sock.bind(('', 10001))
-    sock.listen(4)
-    conn, adr = sock.accept()
-    map_show(arr)
-    data = pickle.dumps(arr, 2)
-    conn.send(data)
+    for i in range(PLAYER_COUNT):
+        sock.listen(1)
+        conn, adr = sock.accept()
+        conns[adr] = conn
+        things[conn] = thing(choice(['1', '2', '3', '4', ]), randint(0, MAP_X - 1), randint(0, MAP_Y - 1))
+        sock = socket.socket()
 
     while True:
-        data = conn.recv(1024)
-        if data.decode() == 'stop':
-            break
-        handle_input(data.decode('utf-8'))
-        map_show(arr)
-        data = pickle.dumps(arr, 2)
-        conn.send(data)
+        for conn in conns.values():
+            data = conn.recv(1024)
+            print("GOT ", data)
+            if data.decode() == 'stop':
+                break
+            if not data:
+                continue
+            handle_input(data.decode('utf-8'), conn)
+            map_show(arr)
+            data = pickle.dumps(arr, 2)
+            conn.send(data)
     conn.close()
 
 

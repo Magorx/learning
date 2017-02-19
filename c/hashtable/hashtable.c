@@ -130,7 +130,7 @@ int hashtable_empty(struct hashtable *self) {
     return self->elem_count == 0 ? TRUE : FALSE;
 };
 
-struct user_data *hashtable_max_value_elem(struct hashtable *self){
+struct user_data *hashtable_max_value_elem(struct hashtable *self) {
     if (hashtable_ok(self) != 0)
         return NULL;
    
@@ -143,7 +143,7 @@ struct user_data *hashtable_max_value_elem(struct hashtable *self){
     struct user_data *data = user_data_from_values(key, -1);
     struct user_data *max_value_data = user_data_from_values(key, -1);
 
-    for (i = 0; i < self->table_size; ++i){
+    for (i = 0; i < self->table_size; ++i) {
         //printf("%d\n[data_status] %d\n", i, user_data_ok(data));
         list = self->data[i];
         for (node = list_begin(list);
@@ -441,7 +441,7 @@ int hashtable_count_most_used_words(const char *file_name) {
         }
         word[0] = tolower(word[0]);
         ++word_count;
-        if (word_count % 1000 == 0){
+        if (word_count % 1000 == 0) {
             printf("[word_count] %d\n", word_count);
         }
         data = user_data_from_values(word, 1);
@@ -449,7 +449,7 @@ int hashtable_count_most_used_words(const char *file_name) {
     }
 
     int i = 0;
-    for (i = 0; i < 50; ++i){
+    for (i = 0; i < 50; ++i) {
         data = hashtable_max_value_elem(hash_table);
         printf("[MAX_%d] %s %d\n", i + 1, data->key, data->value);
         hashtable_erase(hash_table, data);
