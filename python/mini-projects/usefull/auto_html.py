@@ -1,19 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-MODE = 1
-SPECIAL = ['!', '%', '$']
-REPLACEMENTS = {'kyr' : 'I', 'k' : 'I',
-                'fat' : 'B', 'f' : 'B',
-                'undr' : 'U', 'u' : 'U',
-                'zach' : 'S', 'z' : 'S',
-                'up' : 'SUP', 'up' : 'SUP',
-                'down' : 'SUB', 'down' : 'SUB',
-                'parag' : 'P', 'p' : 'P',
-                '~' : '~'
-                }
-KEY_WORDS = ['B', 'I', 'U', 'S', 'SUP', 'SUB', 'P', '+', '-']
-FONT_TAG_KEY_WORDS = ['color', 'clr', 'c=']
+SPECIAL = ['!', '%', '/']
+MISC_KEY_WORDS = ['color=', 'clr=', 'c=', '-c']
 
 def get_word(string, start_index, finish_symb):
     word = ''
@@ -24,142 +13,111 @@ def get_word(string, start_index, finish_symb):
     return word
 
 
-def handle_spec(spec):
+def handle_spec(string, spec_symb_index):
     global fout
+    spec = string[spec_symb_index]
+
     if spec == 'n':
-        print('<BR>\n', end='', file=fout)
+        if spec_symb_index == len(string):
+            print('<BR>', end='', file=fout)
+        else:
+            print('<BR>\n' + ' ' * TAB_SIZE, end='', file=fout)
     if spec == 'h':
-        print('\n<HR>\n', end='', file=fout)
+        print('<HR>', end='', file=fout)
     return 0
 
-
-def handle_misc_variable(string):
-    global to_print_end
-    string = string.split('=')
-    if string[0] in ['color', 'clr', 'c']:
-        print('<FONT color=', string[1], '>', sep='', end='', file=fout)
-        to_print_end = to_print_end  + '</FONT>'
-
-
-
 def handle_tag(tag):
-    for misc_word in FONT_TAG_KEY_WORDS:
-        if misc_word in tag:
-            handle_misc_variable(tag)
-            return ''
+    if len(tag) < 1:
+        return ''
 
-    if MODE < 2:
-        for rep in REPLACEMENTS:
-            if rep in tag:
-                tag = tag.replace(rep, REPLACEMENTS[rep])
-    if MODE < 1:
-        if tag not in KEY_WORDS:
-            print('WRONG TAG')
-            return ''
-
+    global TAB_SIZE
     if tag[0] == '-':
-        to_print = '</'
-    else:
-        to_print = '<'
-    if tag[0] == '+' or tag[0] == '-':
+        TAB_SIZE -= 2
+        return '</' + tag[1:].upper() + '>'
+
+    if tag[0] == '+':
         tag = tag[1:]
+    tag = tag.split('|')
+    output = '<' + tag[0].upper()
+    for i in range(1, len(tag)):
+        output = output + ' ' + tag[i]
+    output = output + '>'
+    TAB_SIZE += 2
 
-    tag = tag.capitalize()
-    to_print = to_print + tag + '>'
-    #print(to_print, end='', file=fout)
-    return to_print
-        
-
-def handle_tag_args(string):
-    string = string.split('|')
-    tag = string[0]
-    string = string[1:]
-    to_print = handle_tag(tag)
-    to_print = to_print[:len(to_print) - 1]
-
-    for i in range(len(string)):
-        try:
-            arg_name, arg_value = string[i].split('=')
-            to_print = to_print + ' ' + arg_name + '=' + arg_value
-        except:
-            print('failed transforming', string, 'into tag with args')
-            return ''
-
-    to_print = to_print + '>'
-    return to_print
-
+    return output
 
 
 def handle_string(string):
-    string = list(string)
-    global to_print_end
-    to_print_end = ''
+    global TAB_SIZE
+    global symb_index
 
-    try:
-        if string[-1] != '!' and string[-2] != '%':
-            string.append(' ')
-    except:
-        print('print more words on one line, pleas')
-    to_print = ''
-    to_miss = 0
+    if len(string) < 1:
+        print('[empty_string]')
+        return 0
 
-    for symb_index in range(len(string)):
+    if len(string) > 1 and string[0] == '!' and string[1] == '-':
+        print(' ' * (TAB_SIZE - 2), end='', file=fout)
+    else:
+        print(' ' * TAB_SIZE, end='', file=fout)
+
+    symb_index = 0
+    string_len = len(string)
+
+    while symb_index < string_len:
+        symb_used = False
         symb = string[symb_index]
-        if to_miss:
-            to_miss = max(to_miss - 1, 0)
-            continue
-
-        if symb not in SPECIAL:
+        
+        if (symb not in SPECIAL or
+           symb_index == string_len or
+           string[symb_index - 1] == '/'):
             print(symb, end='', file=fout)
-            continue
+            symb_index += 1
+            symb_used = True
 
-        if symb == '!':
-            try:
-                tag = get_word(string, symb_index + 1, '!')
-            except:
-                pass
+        if not symb_used and (symb == '!'and string[symb_index - 1] != '/'):
+            tag = get_word(string, symb_index + 1, '!')
+            symb_index += len(tag) + 2
+            to_print = handle_tag(tag)
+            print(to_print, end='', file=fout)
+            symb_used = True
 
-            if len(tag) == 0:
-                print('!', end='', file=fout)
-            if len(tag) < 1:
-                print('Invalid tag on index', symb_index)
-            to_miss = len(tag) + 1
+        if not symb_used and (symb == '%' and string[symb_index - 1] != '/'):
+            handle_spec(string, symb_index + 1)
+            symb_index += 2
+            symb_used = True
 
-            if tag[0] == '$':
-                print(handle_tag_args(tag[1:]), end='', file=fout)
-            else:
-                print(handle_tag(tag), end='', file=fout)
-
-        if symb == '%':
-            spec = string[symb_index + 1]
-            handle_spec(spec)
-            to_miss = 1
-    print(to_print_end, file=fout)
-    to_print_end = ''
-    return 0
+    print('\n', end='', file=fout)
 
 
 
+
+TAB_SIZE = 4
 def main():
-    bgcolor = "'" + input('BackGround color (HEX): ') + "'"
-    if bgcolor == "''":
-        bgcolor = "'skyblue'"
-    body_args = input('Body args: ')
-
-    print("write !help! if you don't know, how to use me\n!stop! to stop")
-
     global fout
     global help_file
     help_file = open('auto_html_help.txt', 'r')
     help_text = help_file.read()
-    fout = open('ouput.html', 'w')
+    fout = open('html_page.html', 'w')
 
-    print('<HTML>\n<HEAD>\n<TITLE>', file=fout)
-    print(input('TITLE: '), file=fout)
-    print('</TITLE>\n</HEAD>\n<BODY BGCOLOR=', bgcolor, ' ', body_args, '>',
-          sep='', file=fout)
+    print('<HTML>', file=fout)
+    print('  <HEAD>', file=fout)
+    print('    <TITLE>', file=fout)
+    print('      ' + input('Title: '), file=fout)
+    print('    </TITLE>', file=fout)
+    print('  <HEAD>', file=fout)
+    print('  <BODY BGCOLOR=', end='', file=fout)
+    
+    bgcolor = "'" + input('Body color (HEX): ') + "'"
+    if len(bgcolor) != 8:
+        bgcolor = 'skyblue'
+    body_args = input('Body args: ')
+    if body_args:
+        body_args = ' ' + body_args
+    print(bgcolor + body_args, end='>\n', file=fout)
 
-    string = ''
+    print("--write !help! if you don't know, how to use me")
+    print('--!stop! to stop')
+    
     while True:
         string = input()
         if string == '!stop!':
@@ -168,7 +126,8 @@ def main():
             print(help_text)
         handle_string(string)
 
-    print('\n</BODY>\n</HTML>', file=fout)
+    print('  </BODY>', file=fout)
+    print('</HTML>', file=fout)
     fout.close()
 
 

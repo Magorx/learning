@@ -7,7 +7,7 @@ How_to_use:
     4. if you write '%[symb]' machine will try to convert it into something 
        special (ex: '%n' -> '<BR>', '%h' -> '<HR>')
     5. if you want to get container with attributes you should write like this:
-        '!$[teg_name]|atr_1=val_1|atr_2=val_2'
+        '!$[teg_name]|atr_1=val_1|atr_2=val_2!'
         this means, that there will be oppening container ([tag_name]), where attribute one will have value [val_1], attribute two - [val_2]
 -------------------------------------------------------------------------------
 
@@ -26,6 +26,6 @@ This is a special glossary of my text_to_html converting machine:
     1. 'n' will be transformed into '<BR>'
     2. 'h' will be transformed into '<HR>'
 
-Fast tags glossary:
-    1. '!color=[val]!' or '!clr=[val]' or '!c=[val]!' will turn all line
+Key words glossary:
+    1. '!color=[val]!' or '!clr=[val]!' or '!c=[val]!' will turn all line
         into [val] color
