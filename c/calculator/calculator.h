@@ -23,7 +23,8 @@ struct token {
 struct token *token_construct_number(int32_t number);
 struct token *token_construct_id(char *id);
 struct token *token_construct_symb(char symb);
-int32_t token_destruct(char *token);
+int32_t token_destruct(struct token *token);
+int32_t token_dump(struct token* token);
 
 struct token *tokenize(char *expression);
 

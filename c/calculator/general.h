@@ -50,6 +50,7 @@ enum GENERAL_ERRORS {
 };
 
 extern const int POISON_INT;
+extern const char POISON_CHAR;
 extern const int TRUE;
 extern const int FALSE;
 extern const int MAX_MEMORY_ALLOCATION_ATTEMPTS;
@@ -66,6 +67,10 @@ extern const int TEST_ITER_COUNT;
 
 int randint(int min, int max);
 int randstr(int len, char **string_pointer);
+int get_number(char *string, int start_index, int *number);
+int get_word(char *string, int start_index, char **word);
+int int_len(int number);
+int _int_len(int number, int len_count);
 void *many_atempts_calloc(int elem_count, int elem_size, int attempt_count);
 
 #endif  // GENERAL_H

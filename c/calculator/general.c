@@ -1,9 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include "general.h"
 
 const int POISON_INT = -123;
+const char POISON_CHAR = '~';
 const int TRUE = 1;
 const int FALSE = 0;
 const int MAX_MEMORY_ALLOCATION_ATTEMPTS = 5;
@@ -52,6 +54,69 @@ int randstr(int len, char **string_ptr) {
 	}
 	*string_ptr = new_string_ptr;
 	return 0;
+}
+
+int get_number(char *string, int start_index, int *number) {
+	if (string == NULL)
+		return ERR_NULL_OBJ;
+	if (!isdigit(string[start_index]))
+		return ERR_ARG2;
+
+	int symb_index = start_index;
+	int cur_num = 0;
+	for (symb_index = start_index; symb_index < strlen(string); ++symb_index) {
+		if isdigit(string[symb_index]) {
+			cur_num = cur_num * 10 + ((int)string[symb_index] - ORD_0);
+		} else {
+			break;
+		}
+	}
+
+	*number = cur_num;
+	return 0;
+}
+
+int get_word(char *string, int start_index, char **word) {
+	if (string == NULL)
+		return ERR_NULL_OBJ;
+	if (!isalpha(string[start_index]))
+		return ERR_ARG2;
+
+	char *new_word = (char*)
+		many_atempts_calloc(strlen(string) - start_index + 2,
+							sizeof(char),
+						    MAX_MEMORY_ALLOCATION_ATTEMPTS);
+	if (new_word == NULL) {
+		return ERR_STRING_NOT_CREATED;
+	}
+
+	int symb_index = start_index;
+	for (symb_index = start_index; symb_index < strlen(string); ++symb_index) {
+		if (isalpha(string[symb_index])) {
+			new_word[symb_index - start_index] = string[symb_index];
+		} else {
+			break;
+		}
+	}
+
+	*word = new_word;
+	return 0;
+}
+
+int int_len(int number) {
+	if (number < 0) {
+		return _int_len(-number, 1);
+	} else {
+		return _int_len(number, 0);
+	}
+}
+
+int _int_len(int number, int len_count) {
+	if (number >= 0 && number <= 9) {
+		return len_count + 1;
+	} else {
+		return _int_len(number / 10, len_count + 1);
+	}
 }
 
 void *many_atempts_calloc(int elem_count, int elem_size, int attempt_count) {

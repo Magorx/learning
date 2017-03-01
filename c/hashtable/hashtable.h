@@ -30,19 +30,19 @@ int hashtable_dump(struct hashtable *self);
 int hashtable_size(struct hashtable *self);
 int hashtable_table_size(struct hashtable *self);
 int hashtable_empty(struct hashtable *self);
-struct user_data *hashtable_max_value_elem(struct hashtable *self);
 
 int hashtable_hash(struct hashtable *self, struct user_data *data);
-int hashtable_standard_hash_function(struct user_data *data);
-int hashtable_hash_function_sum(struct user_data *data);
 
 int hashtable_insert(struct hashtable *self, struct user_data *data);
 int hashtable_erase(struct hashtable *self, struct user_data *data);
 int hashtable_clear(struct hashtable *self);
 
-struct user_data  *__hashtable_find(struct hashtable *self,
-                                       struct user_data *data_to_find);
+struct user_data *hashtable_find(struct hashtable *self,
+                                   struct user_data *data_to_find);
 int hashtable_contains(struct hashtable *self, struct user_data *data_to_find);
+
+int hashtable_standard_hash_function(struct user_data *data);
+int hashtable_hash_function_sum(struct user_data *data);
 
 struct hashtable *hashtable_generate();
 
@@ -54,6 +54,7 @@ int hashtable_test_Hash();
 int hashtable_test_InsertErase();
 int hashtable_test_Contains();
 
+struct user_data *hashtable_max_value_elem(struct hashtable *self);
 int hashtable_count_most_used_words(const char *file_name);
 
 #endif  // HASHTABLE_H

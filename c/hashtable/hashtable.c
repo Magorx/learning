@@ -150,8 +150,7 @@ struct user_data *hashtable_max_value_elem(struct hashtable *self) {
              node != list_end(list);
              node = list_node_next(node)) {
             data = list_node_get_data(node);
-            if (user_data_ok(data) == 0 &&
-                data->value > max_value_data->value) {
+            if (data->value > max_value_data->value) {
                 max_value_data = data;
             }
         }
@@ -199,15 +198,14 @@ int hashtable_insert(struct hashtable *self, struct user_data *data) {
     if (user_data_ok(data) != 0)
         return ERR_ARG2;
 
-    struct user_data *data_found = __hashtable_find(self, data);
+    struct user_data *data_found = hashtable_find(self, data);
     if (data_found != NULL) {
-        data_found->value = data_found->value + 1;
+        ++data_found->value;
     } else {
         int hash = hashtable_hash(self, data);
-        struct list *list = self->data[hash];
         struct user_data *data_to_insert = user_data_from_values(data->key, 1);
-        list_push_back(list, data_to_insert);
-        self->elem_count = self->elem_count + 1;
+        list_push_back(self->data[hash], data_to_insert);
+        ++self->elem_count;
     }
 
     return 0;
@@ -219,14 +217,14 @@ int hashtable_erase(struct hashtable *self, struct user_data *data) {
     if (user_data_ok(data) != 0)
         return ERR_ARG2;
 
-    struct user_data *data_found = __hashtable_find(self, data);
+    struct user_data *data_found = hashtable_find(self, data);
     if (data_found == NULL) {
         return ERR_HASHTABLE_DATA_NOT_EXIST;
     }
     int hash = hashtable_hash(self, data);
     struct list *list = self->data[hash];
     list_erase(list, list_find(list, data));
-    self->elem_count = self->elem_count - 1;
+    --self->elem_count;
 
     return 0;
 };
@@ -244,7 +242,7 @@ int hashtable_clear(struct hashtable *self) {
     return 0;
 }
 
-struct user_data *__hashtable_find(struct hashtable *self,
+struct user_data *hashtable_find(struct hashtable *self,
                                        struct user_data *data_to_find) {
     if (hashtable_ok(self) != 0)
         return NULL;
@@ -257,8 +255,7 @@ struct user_data *__hashtable_find(struct hashtable *self,
     if (node == list_end(list)) {
         return NULL;
     } else {
-        struct user_data *data = list_node_get_data(node);
-        return data;
+        return list_node_get_data(node);
     }
 }
 
@@ -268,7 +265,7 @@ int hashtable_contains(struct hashtable *self, struct user_data *data_to_find) {
     if (user_data_ok(data_to_find) != 0)
         return FALSE;
 
-    if (__hashtable_find(self, data_to_find) == NULL) {
+    if (hashtable_find(self, data_to_find) == NULL) {
         return FALSE;
     } else {
         return TRUE;
@@ -359,7 +356,8 @@ int hashtable_test_SizeTablesizeEmptyClear() {
 
 int hashtable_test_Hash() {
     /*
-    This method must work, or else nothing more would work. But all works.
+    This method must work, or else nothing more would work. But everything 
+    works.
     */
     return 0;
 };
@@ -417,9 +415,10 @@ int hashtable_test_all() {
 }
 
 int hashtable_count_most_used_words(const char *file_name) {
+    FILE *file = fopen(file_name, "r");
     struct hashtable *hash_table = 
         hashtable_construct(1000, hashtable_hash_function_sum);
-    FILE *file = fopen(file_name, "r");
+    
     char *word = (char*)
         many_attempts_calloc(100, sizeof(char), MAX_MEMORY_ALLOCATION_ATTEMPTS);
     struct user_data *data = NULL;
@@ -446,6 +445,7 @@ int hashtable_count_most_used_words(const char *file_name) {
         }
         data = user_data_from_values(word, 1);
         hashtable_insert(hash_table, data);
+        user_data_destruct(data);
     }
 
     int i = 0;
@@ -454,5 +454,7 @@ int hashtable_count_most_used_words(const char *file_name) {
         printf("[MAX_%d] %s %d\n", i + 1, data->key, data->value);
         hashtable_erase(hash_table, data);
     }
+
+    hashtable_destruct(hash_table);
     return 0;
 }
