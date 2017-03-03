@@ -37,12 +37,13 @@ int hashtable_insert(struct hashtable *self, struct user_data *data);
 int hashtable_erase(struct hashtable *self, struct user_data *data);
 int hashtable_clear(struct hashtable *self);
 
+struct list_node *_hashtable_find_node(struct hashtable *self,
+                                       struct user_data *data_to_find);
 struct user_data *hashtable_find(struct hashtable *self,
-                                   struct user_data *data_to_find);
+                                 struct user_data *data_to_find);
 int hashtable_contains(struct hashtable *self, struct user_data *data_to_find);
 
 int hashtable_standard_hash_function(struct user_data *data);
-int hashtable_hash_function_sum(struct user_data *data);
 
 struct hashtable *hashtable_generate();
 

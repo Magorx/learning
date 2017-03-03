@@ -22,11 +22,11 @@ struct hashtable *hashtable_construct(int table_size,
         return NULL;
     }
 
-    new_hashtable->data = (struct list**)
+    struct list **data = (struct list**)
         many_attempts_calloc(table_size,
                              sizeof(struct list),
                              MAX_MEMORY_ALLOCATION_ATTEMPTS);
-    if (new_hashtable->data == NULL) {
+    if (data == NULL) {
         return NULL;
     }
 
@@ -37,9 +37,10 @@ struct hashtable *hashtable_construct(int table_size,
         if (new_list == NULL) {
             return NULL;
         }
-        new_hashtable->data[i] = new_list;
+        data[i] = new_list;
     }
 
+    new_hashtable->data = data;
     new_hashtable->hash_function = hash_function;
     new_hashtable->table_size = table_size;
     new_hashtable->elem_count = 0;
@@ -130,35 +131,6 @@ int hashtable_empty(struct hashtable *self) {
     return self->elem_count == 0 ? TRUE : FALSE;
 };
 
-struct user_data *hashtable_max_value_elem(struct hashtable *self) {
-    if (hashtable_ok(self) != 0)
-        return NULL;
-   
-    int i = 0;
-    char *key = (char*)
-        many_attempts_calloc(30, sizeof(char), MAX_MEMORY_ALLOCATION_ATTEMPTS);
-    strcpy(key, "key");
-    struct list *list = self->data[0];
-    struct list_node *node = list_begin(list);
-    struct user_data *data = user_data_from_values(key, -1);
-    struct user_data *max_value_data = user_data_from_values(key, -1);
-
-    for (i = 0; i < self->table_size; ++i) {
-        //printf("%d\n[data_status] %d\n", i, user_data_ok(data));
-        list = self->data[i];
-        for (node = list_begin(list);
-             node != list_end(list);
-             node = list_node_next(node)) {
-            data = list_node_get_data(node);
-            if (data->value > max_value_data->value) {
-                max_value_data = data;
-            }
-        }
-    }
-
-    return max_value_data;
-}
-
 int hashtable_hash(struct hashtable *self, struct user_data *data) {
     if (user_data_ok(data) != 0)
         return ERR_ARG1;
@@ -166,14 +138,14 @@ int hashtable_hash(struct hashtable *self, struct user_data *data) {
     return self->hash_function(data) % self->table_size;
 };
 
-int hashtable_standard_hash_function(struct user_data *data) {
+/*int hashtable_standard_hash_function(struct user_data *data) {
     if (user_data_ok(data) != 0)
         ERR_RETURN(ERR_ARG1);
 
     return strlen(data->key);
-}
+}*/
 
-int hashtable_hash_function_sum(struct user_data *data) {
+int hashtable_standard_hash_function(struct user_data *data) {
     if (user_data_ok(data) != 0)
         ERR_RETURN(ERR_ARG1);
 
@@ -182,14 +154,9 @@ int hashtable_hash_function_sum(struct user_data *data) {
     int symb_index = 0;
     for (symb_index = 0; symb_index < strlen(key); ++symb_index) {
         hash += key[symb_index];
-        //printf("%d %s [%c]\n", hash, key, key[symb_index]);
     }
     
-    if (hash < 0) {
-        return 0;
-    } else {
-        return hash;
-    }
+    return hash > 0 ? hash : 0;
 }
 
 int hashtable_insert(struct hashtable *self, struct user_data *data) {
@@ -242,7 +209,7 @@ int hashtable_clear(struct hashtable *self) {
     return 0;
 }
 
-struct user_data *hashtable_find(struct hashtable *self,
+struct list_node *_hashtable_find_node(struct hashtable *self,
                                        struct user_data *data_to_find) {
     if (hashtable_ok(self) != 0)
         return NULL;
@@ -252,11 +219,14 @@ struct user_data *hashtable_find(struct hashtable *self,
     int hash = hashtable_hash(self, data_to_find);
     struct list *list = self->data[hash];
     struct list_node *node = list_find(list, data_to_find);
-    if (node == list_end(list)) {
-        return NULL;
-    } else {
-        return list_node_get_data(node);
-    }
+    
+    return  node == list_end(list) ? NULL : node;
+}
+
+struct user_data *hashtable_find(struct hashtable *self,
+                                       struct user_data *data_to_find) {
+    struct list_node *node = _hashtable_find_node(self, data_to_find);
+    return node == NULL ? NULL : list_node_get_data(node);
 }
 
 int hashtable_contains(struct hashtable *self, struct user_data *data_to_find) {
@@ -265,11 +235,7 @@ int hashtable_contains(struct hashtable *self, struct user_data *data_to_find) {
     if (user_data_ok(data_to_find) != 0)
         return FALSE;
 
-    if (hashtable_find(self, data_to_find) == NULL) {
-        return FALSE;
-    } else {
-        return TRUE;
-    }
+    return hashtable_find(self, data_to_find) == NULL ? FALSE : TRUE;
 }
 
 //=============================================================================
@@ -414,13 +380,52 @@ int hashtable_test_all() {
     return 0;
 }
 
+struct user_data *hashtable_max_value_elem(struct hashtable *self) {
+    if (hashtable_ok(self) != 0)
+        return NULL;
+   
+    int i = 0;
+    char *key = (char*)
+        many_attempts_calloc(30, sizeof(char), MAX_MEMORY_ALLOCATION_ATTEMPTS);
+    strcpy(key, "key");
+    struct list *list = NULL;
+    struct list_node *node = NULL;
+    struct user_data *data = NULL;
+    struct user_data *max_value_data = user_data_from_values(key, -1);
+
+    for (i = 0; i < self->table_size; ++i) {
+        //printf("%d\n[data_status] %d\n", i, user_data_ok(data));
+        list = self->data[i];
+        for (node = list_begin(list);
+             node != list_end(list);
+             node = list_node_next(node)) {
+            data = list_node_get_data(node);
+            if (data->value > max_value_data->value) {
+                max_value_data = data;
+            }
+        }
+    }
+
+    return max_value_data;
+}
+
 int hashtable_count_most_used_words(const char *file_name) {
     FILE *file = fopen(file_name, "r");
+    if (file == NULL) {
+        return ERR_FILE_NOT_EXIST;
+    }
     struct hashtable *hash_table = 
-        hashtable_construct(1000, hashtable_hash_function_sum);
+        hashtable_construct(1000, hashtable_standard_hash_function);
+    if (hash_table == NULL) {
+        return ERR_NULL_OBJ;
+    }
     
     char *word = (char*)
         many_attempts_calloc(100, sizeof(char), MAX_MEMORY_ALLOCATION_ATTEMPTS);
+    if (word == NULL) {
+        return ERR_STRING_NOT_CREATED;
+    }
+
     struct user_data *data = NULL;
     int word_count = 0;
 
@@ -438,7 +443,8 @@ int hashtable_count_most_used_words(const char *file_name) {
         if (strlen(word) == 0) {
             continue;
         }
-        word[0] = tolower(word[0]);
+        printf("%s\n", word);
+        string_to_lower(&word, FALSE);
         ++word_count;
         if (word_count % 1000 == 0) {
             printf("[word_count] %d\n", word_count);

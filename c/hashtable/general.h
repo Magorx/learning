@@ -47,6 +47,7 @@ enum GENERAL_ERRORS {
 	ERR_ARG3,
 	ERR_NULL_OBJ,
 	ERR_STRING_NOT_CREATED,
+	ERR_FILE_NOT_EXIST
 };
 
 extern const int POISON_INT;
@@ -66,6 +67,7 @@ extern const int TEST_ITER_COUNT;
 
 int randint(int min, int max);
 int randstr(int len, char **string_pointer);
+int string_to_lower(char **string, int to_free);
 int delete_first_character(char **string);
 int delete_last_character(char **string);
 void *many_attempts_calloc(int elem_count, int elem_size, int attempt_count);

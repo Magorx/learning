@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include "general.h"
 
 const int POISON_INT = -123;
@@ -97,6 +98,28 @@ int delete_last_character(char **string) {
 		new_str[symb_index] = old_str[symb_index];
 	}
 	*string = new_str;
+
+	return 0;
+}
+
+int string_to_lower(char **string, int to_free) {
+	if (string == NULL)
+		return ERR_NULL_OBJ;
+
+	char *new_string = (char*)
+		many_attempts_calloc(strlen(*string),
+							 sizeof(char),
+							 MAX_MEMORY_ALLOCATION_ATTEMPTS);
+	strcpy(new_string, *string);
+	if (to_free == TRUE) {
+		free(string);
+	}
+
+	int symb_index = 0;
+	for (symb_index = 0; symb_index < strlen(new_string); ++symb_index) {
+		new_string[symb_index] = tolower(new_string[symb_index]);
+	}
+	*string = new_string;
 
 	return 0;
 }
