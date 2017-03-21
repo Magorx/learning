@@ -1,13 +1,13 @@
-general.c) bad letters deleting
+|general.c) bad letters deleting
 
 hashtable.c)
     |1. construct) make data, then new_hahstable->data = data
-    |2. hashtable_max_value_elem:  move to the bottom + make start pointers NULL
+    |2. hashtable_max_value_elem:  move to the bottom + make start pointers |NULL
     |3. rename standart_hash_function or make it better
     |4. 188) use '?', also find and contains
     |5. add _hashtable_find_node
     6. super_test) |check constructors and reorder.
-                   bad file ending + while TRUE
-                   2 whiles to one function
+                   |bad file ending + while TRUE
+                   |2 whiles to one function
                    |tolower to all string
                    hashtable_find_top_used_words(n) (move and memcpy)

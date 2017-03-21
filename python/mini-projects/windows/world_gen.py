@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import fixpath
 from colorama import init, Fore, Back, Style
 from random import randint, choice
@@ -27,9 +30,9 @@ class player:
         while True:
             x = randint(0, len(world) - 1)
             y = randint(0, len(world[0]) - 1)
-            if not world[x][y].fool:
+            if not world[x][y].full:
                 print("!")
-                world[x][y].fool = 1
+                world[x][y].full = 1
                 self.x = x
                 self.y = y
                 break
@@ -38,24 +41,24 @@ class player:
         self.style = Style.BRIGHT
     def move(self, world, direction):
         if direction == UP and self.x - 1 >= 0:
-            if not world[self.x - 1][self.y].fool :
-                world[self.x - 1][self.y].fool = 1
-                world[self.x][self.y].fool = 0
+            if not world[self.x - 1][self.y].full :
+                world[self.x - 1][self.y].full = 1
+                world[self.x][self.y].full = 0
                 self.x -= 1
         if direction == DOWN and self.x + 1 < len(world):
-            if not world[self.x + 1][self.y].fool :
-                world[self.x + 1][self.y].fool = 1
-                world[self.x][self.y].fool = 0
+            if not world[self.x + 1][self.y].full :
+                world[self.x + 1][self.y].full = 1
+                world[self.x][self.y].full = 0
                 self.x += 1
         if direction == LEFT and self.y - 1 >= 0:
-            if not world[self.y - 1][self.y].fool :
-                world[self.y - 1][self.y].fool = 1
-                world[self.x][self.y].fool = 0
+            if not world[self.y - 1][self.y].full :
+                world[self.y - 1][self.y].full = 1
+                world[self.x][self.y].full = 0
                 self.y -= 1
         if direction == RIGHT and self.y + 1 < len(world[0]):
-            if not world[self.y + 1][self.y].fool :
-                world[self.y + 1][self.y].fool = 1
-                world[self.x][self.y].fool = 0
+            if not world[self.y + 1][self.y].full :
+                world[self.y + 1][self.y].full = 1
+                world[self.x][self.y].full = 0
                 self.y += 1
         
 
@@ -66,8 +69,7 @@ class map_tile:
     back = Back.BLACK
     style = Style.NORMAL
     symb = "#"
-    fool = 0
-    #def gen_
+    full = 0
     
     def gen_symb_tile(self, symb):
         self.symb = symb

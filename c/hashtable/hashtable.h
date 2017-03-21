@@ -56,6 +56,6 @@ int hashtable_test_InsertErase();
 int hashtable_test_Contains();
 
 struct user_data *hashtable_max_value_elem(struct hashtable *self);
-int hashtable_count_most_used_words(const char *file_name);
+int hashtable_count_most_used_words(const char *file_name, int top_words_count);
 
 #endif  // HASHTABLE_H

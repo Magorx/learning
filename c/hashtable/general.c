@@ -19,6 +19,8 @@ const int ORD_9 = (int) '9';
 
 const int TEST_ITER_COUNT = 100;
 
+const int SMALL_BUFFER_LENGTH = 50;
+
 int randint(int min, int max) {
     return rand() % (max - min + 1) + min;
 }
@@ -56,63 +58,78 @@ int randstr(int len, char **string_ptr) {
 	return 0;
 }
 
-int delete_first_character(char **string) {
-	char *old_str = *string;
-	if (old_str == NULL)
-		return ERR_NULL_OBJ;
+int normalize_string(char **string, int to_free, int full_string_len) {
+	/* Normalized string is string, that starts with letter or number, ends
+	   with letter or nuber and all of it's letters are small*/
 
-	int len = strlen(old_str);
-	char *new_str = (char*)
-		many_attempts_calloc(len - 1,
-							 sizeof(char),
-							 MAX_MEMORY_ALLOCATION_ATTEMPTS);
-	if (new_str == NULL) {
-		return ERR_STRING_NOT_CREATED;
-	}
-
-	int symb_index = 1;
-	for (symb_index = 1; symb_index < len; ++symb_index) {
-		new_str[symb_index - 1] = old_str[symb_index];
-	}
-	*string = new_str;
-
-	return 0;
-}
-
-int delete_last_character(char **string) {
-	char *old_str = *string;
-	if (old_str == NULL)
-		return ERR_NULL_OBJ;
-
-	int len = strlen(old_str);
-	char *new_str = (char*)
-		many_attempts_calloc(len - 1,
-							 sizeof(char),
-							 MAX_MEMORY_ALLOCATION_ATTEMPTS);
-	if (new_str == NULL) {
-		return ERR_STRING_NOT_CREATED;
-	}
-
-	int symb_index = 0;
-	for (symb_index = 0; symb_index < len - 1; ++symb_index) {
-		new_str[symb_index] = old_str[symb_index];
-	}
-	*string = new_str;
-
-	return 0;
-}
-
-int string_to_lower(char **string, int to_free) {
 	if (string == NULL)
 		return ERR_NULL_OBJ;
 
 	char *new_string = (char*)
-		many_attempts_calloc(strlen(*string),
+		many_attempts_calloc(full_string_len,
 							 sizeof(char),
 							 MAX_MEMORY_ALLOCATION_ATTEMPTS);
 	strcpy(new_string, *string);
 	if (to_free == TRUE) {
-		free(string);
+		free(*string);
+	}
+
+	while (isalpha(new_string[0]) == 0 &&
+		   isdigit(new_string[0]) == 0 &&
+		   strlen(new_string)) {
+		delete_first_character(new_string);
+	}
+	while (isalpha(new_string[strlen(new_string) - 1]) == 0 &&
+		   isdigit(new_string[strlen(new_string) - 1]) == 0 &&
+		   strlen(new_string)) {
+		delete_last_character(new_string);
+	}
+
+	string_to_lower(&new_string, TRUE, full_string_len);
+
+	*string = new_string;
+
+	return 0;
+}
+
+int get_word(char *string, int start_index, char **word) {
+	if (string == NULL)
+		return ERR_NULL_OBJ;
+	if (!isalpha(string[start_index]))
+		return ERR_ARG2;
+
+	char *new_word = (char*)
+		many_attempts_calloc(strlen(string) - start_index + 2,
+							sizeof(char),
+						    MAX_MEMORY_ALLOCATION_ATTEMPTS);
+	if (new_word == NULL) {
+		return ERR_STRING_NOT_CREATED;
+	}
+
+	int symb_index = start_index;
+	for (symb_index = start_index; symb_index < strlen(string); ++symb_index) {
+		if (!isspace(string[symb_index])) {
+			new_word[symb_index - start_index] = string[symb_index];
+		} else {
+			break;
+		}
+	}
+
+	*word = new_word;
+	return 0;
+}
+
+int string_to_lower(char **string, int to_free, int full_string_len) {
+	if (string == NULL)
+		return ERR_NULL_OBJ;
+
+	char *new_string = (char*)
+		many_attempts_calloc(full_string_len,
+							 sizeof(char),
+							 MAX_MEMORY_ALLOCATION_ATTEMPTS);
+	strcpy(new_string, *string);
+	if (to_free == TRUE) {
+		free(*string);
 	}
 
 	int symb_index = 0;
@@ -120,6 +137,46 @@ int string_to_lower(char **string, int to_free) {
 		new_string[symb_index] = tolower(new_string[symb_index]);
 	}
 	*string = new_string;
+
+	return 0;
+}
+
+int empty_string(char *string) {
+	if (string == NULL)
+		return ERR_NULL_OBJ;
+
+	int len = strlen(string);
+	for (int symb_index = 0; symb_index < len; ++symb_index) {
+		string[symb_index] = '\0';
+	}
+
+	return 0;
+}
+
+int delete_character(char *string, int pos) {
+	if (string == NULL)
+		return ERR_NULL_OBJ;
+	int len = strlen(string);
+	if (pos < 0 || pos >= len)
+		return ERR_ARG2;
+
+	for (int symb_index = pos; symb_index < strlen(string); ++symb_index) {
+		string[symb_index] = string[symb_index + 1];
+	}
+	string[len - 1] = '\0';
+
+	return 0;
+}
+
+
+int delete_first_character(char *string) {
+	delete_character(string, 0);
+
+	return 0;
+}
+
+int delete_last_character(char *string) {
+	delete_character(string, strlen(string) - 1);
 
 	return 0;
 }

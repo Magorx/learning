@@ -22,6 +22,7 @@ struct user_data *user_data_from_other(struct user_data *other) {
 };
 
 struct user_data *user_data_from_values(char *key, int value) {
+	
 	if (key == NULL)
 		return NULL;
 	if (strlen(key) > MAX_USER_DATA_KEY_LEN)

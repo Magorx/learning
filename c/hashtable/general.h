@@ -54,7 +54,7 @@ extern const int POISON_INT;
 extern const int TRUE;
 extern const int FALSE;
 extern const int MAX_MEMORY_ALLOCATION_ATTEMPTS;
-extern const int MAX_RANDOM_STRING_LENGT;
+extern const int MAX_RANDOM_STRING_LENGTH;
 
 extern const int ORD_a;
 extern const int ORD_z;
@@ -65,11 +65,20 @@ extern const int ORD_9;
 
 extern const int TEST_ITER_COUNT;
 
+extern const int SMALL_BUFFER_LENGTH;
+
 int randint(int min, int max);
 int randstr(int len, char **string_pointer);
-int string_to_lower(char **string, int to_free);
-int delete_first_character(char **string);
-int delete_last_character(char **string);
+
+int normalize_string(char **string, int to_free, int full_string_len);
+int get_word(char *string, int start_index, char **word);
+int string_to_lower(char **string, int to_free, int full_string_len);
+int empty_string(char *string);
+
+int delete_character(char *string, int pos);
+int delete_first_character(char *string);
+int delete_last_character(char *string);
+
 void *many_attempts_calloc(int elem_count, int elem_size, int attempt_count);
 
 #endif  // GENERAL_H

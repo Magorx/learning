@@ -409,7 +409,8 @@ struct user_data *hashtable_max_value_elem(struct hashtable *self) {
     return max_value_data;
 }
 
-int hashtable_count_most_used_words(const char *file_name) {
+int hashtable_count_most_used_words(const char *file_name, 
+                                    int top_words_count) {
     FILE *file = fopen(file_name, "r");
     if (file == NULL) {
         return ERR_FILE_NOT_EXIST;
@@ -419,48 +420,58 @@ int hashtable_count_most_used_words(const char *file_name) {
     if (hash_table == NULL) {
         return ERR_NULL_OBJ;
     }
-    
+
     char *word = (char*)
-        many_attempts_calloc(100, sizeof(char), MAX_MEMORY_ALLOCATION_ATTEMPTS);
+        many_attempts_calloc(SMALL_BUFFER_LENGTH,
+                             sizeof(char),
+                             MAX_MEMORY_ALLOCATION_ATTEMPTS);
     if (word == NULL) {
         return ERR_STRING_NOT_CREATED;
     }
 
-    struct user_data *data = NULL;
     int word_count = 0;
+    struct user_data *data = NULL;
+    int symb_index = 0;
+    int symb_int = getc(file);
+    char symb = '!';
 
-    while (TRUE) {
-        fscanf(file, "%s", word);
-        if (word[strlen(word) - 1] == '~') {
-            break;
+    while (symb_int != EOF) {
+        symb = (char)symb_int;
+        if isspace(symb) {
+            word_count += 1;
+            if (word_count % 1000 == 0) {
+                if (word_count % 10000 == 0) {
+                    printf("==");
+                }
+                if (word_count % 100000 == 0) {
+                    printf("==");
+                }
+                printf("%d words loaded\n", word_count);
+            }
+            normalize_string(&word, TRUE, SMALL_BUFFER_LENGTH);
+            if (strlen(word)) {
+                struct user_data *data = user_data_from_values(word, 0);
+                hashtable_insert(hash_table, data);
+            }
+
+            empty_string(word);
+            symb_index = 0;
+        } else {
+            word[symb_index] = symb;
+            ++symb_index;
         }
-        while (isalpha(word[0]) == 0 && strlen(word) > 0) {
-            delete_first_character(&word);
-        }
-        while (isalpha(word[strlen(word) - 1]) == 0 && strlen(word) > 0) {
-            delete_last_character(&word);
-        }
-        if (strlen(word) == 0) {
-            continue;
-        }
-        printf("%s\n", word);
-        string_to_lower(&word, FALSE);
-        ++word_count;
-        if (word_count % 1000 == 0) {
-            printf("[word_count] %d\n", word_count);
-        }
-        data = user_data_from_values(word, 1);
-        hashtable_insert(hash_table, data);
-        user_data_destruct(data);
+        symb_int = getc(file);
     }
 
     int i = 0;
-    for (i = 0; i < 50; ++i) {
+    for (i = 0; i < top_words_count; ++i) {
         data = hashtable_max_value_elem(hash_table);
         printf("[MAX_%d] %s %d\n", i + 1, data->key, data->value);
         hashtable_erase(hash_table, data);
     }
 
+    fclose(file);
+    free(word);
     hashtable_destruct(hash_table);
     return 0;
 }
