@@ -3,6 +3,8 @@ import random
 ERR_INVALID_COORDS = -100
 ERR_ARGS = -99
 
+STANDART_WORLD_WIDTH = 15
+STANDART_WORLD_HEIGHT = 15
 
 class Tyle(object):
     def __init__(self, symb='.'):
@@ -81,7 +83,7 @@ class World(object):
         #self.print()
         return cur_square
 
-    def GenerateWorld(self, lands_to_generate=80, defined_land_square = 0,
+    def GenerateWorld(self, lands_to_generate=90, defined_land_square = 0,
                       landshafts=['~', '^', 'T'], to_update=False):
         ''' lands_to_generate must be given as percents
             world.square * percents // 100 will be generated into somthing'''
