@@ -5,7 +5,13 @@ import tyles
 from tkinter import *
 from PIL import Image, ImageTk
 
-main_root = Tk()
+WORLD_WIDTH = 15
+WORLD_HEIGHT = 15
+SIDE_PX = 50
+
+main_window = Tk()
+main_window.title('main_window')
+main_window.config(width=WORLD_WIDTH * SIDE_PX, height=WORLD_HEIGHT * SIDE_PX)
 
 TEXTURES = {
     'road' : ImageTk.PhotoImage(Image.open('road.png')),
@@ -25,6 +31,10 @@ class MyWorldTyle(tyles.WorldTyle):
 
     def update(self):
         symb = self.symb
+        try:
+            self.image.delete()
+        except:
+            pass
         if symb == '^':
             self.texture = TEXTURES['mountain']
         elif symb == 'T':
@@ -38,16 +48,17 @@ class MyWorldTyle(tyles.WorldTyle):
             self.symb = 'ERROR'
             return ERROR
 
-        self.canvas.create_image(25, 25, image=self.texture)
+        self.image = self.canvas.create_image(25, 25, image=self.texture)
 
-STANDART_WORLD_WIDTH = 15
-STANDART_WORLD_HEIGHT = 15
 
 class MyWorld(tyles.World):
-    def __init__(self, prev_world_class=None, side_px=50, pre_generated=False):
+    def __init__(self,
+                 prev_world_class=None,
+                 side_px=SIDE_PX,
+                 pre_generated=False):
         if prev_world_class is None or pre_generated:
-            prev_world_class = tyles.World(STANDART_WORLD_WIDTH,
-                                           STANDART_WORLD_HEIGHT)
+            prev_world_class = tyles.World(WORLD_WIDTH,
+                                           WORLD_HEIGHT)
         if pre_generated:
             prev_world_class.GenerateWorld()
 
@@ -58,7 +69,7 @@ class MyWorld(tyles.World):
         self.square = self.width * self.height
         self.map = [[0 for i in range(self.height)] for j in range(self.width)]
 
-        self.root_window = main_root
+        self.root_window = main_window
         for x in range(self.width):
             for y in range(self.height):
                 self.map[x][y] = MyWorldTyle(
@@ -69,7 +80,7 @@ class MyWorld(tyles.World):
         
         for x in range(self.width):
             for y in range(self.height):
-                self.map[x][y].canvas.grid(row=x, column=y)
+                self.map[x][y].canvas.place(x=x*side_px, y=y*side_px)
 
     def full_update(self):
         for x in range(self.width):

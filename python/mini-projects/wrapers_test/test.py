@@ -4,7 +4,6 @@
 import tyles
 from tkinter import *
 from PIL import Image, ImageTk
-from random import randint, choice
 
 WORLD_WIDTH = 15
 WORLD_HEIGHT = 15
@@ -63,34 +62,14 @@ class MyWorldTyle(tyles.WorldTyle):
         self.texture = TEXTURES[self.texture_name]
         self.image = self.canvas.create_image(0, 0, anchor='nw', image=self.texture)
 
-    def chosen(self, event, n=2):
+    def chosen(self, event):
         print(self.symb, self.x, self.y, 'chosen')
         try:
             self.image.delete()
         except:
             pass
-        self.texture = ImageTk.PhotoImage(
-            Image.alpha_composite(PIL_IMAGES[self.texture_name],
-                                  PIL_IMAGES['chosen_corner']))
+        self.texture = ImageTk.PhotoImage(Image.alpha_composite(PIL_IMAGES[self.texture_name], PIL_IMAGES['chosen_corner']))
         self.image = self.canvas.create_image(0, 0, anchor='nw', image=self.texture)
-        if n:
-            try:
-                world.map[self.x - 1][self.y].chosen(event, n=n-1)
-            except:
-                pass
-            try:
-                world.map[self.x + 1][self.y].chosen(event, n=n-1)
-            except:
-                pass
-            try:
-                world.map[self.x][self.y - 1].chosen(event, n=n-1)
-            except:
-                pass
-            try:
-                world.map[self.x][self.y + 1].chosen(event, n=n-1)
-            except:
-                pass
-
 
 
 

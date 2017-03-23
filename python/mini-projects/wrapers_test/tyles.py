@@ -1,4 +1,5 @@
 import random
+import time
 
 ERR_INVALID_COORDS = -100
 ERR_ARGS = -99
@@ -15,14 +16,16 @@ class Tyle(object):
 
 
 class WorldTyle(Tyle):
-    def __init__(self, symb='.'):
+    def __init__(self, world, x, y, symb='.'):
+        self.x = x
+        self.y = y
         self.symb = symb
         self.full = False
 
 
 class World(object):
     def __init__(self, width, height, tyle_type=WorldTyle, common_symb='.'):
-        self.map = [[tyle_type(symb=common_symb) for i in range (height)]
+        self.map = [[tyle_type(self, j, i, symb=common_symb) for i in range (height)]
                                  for j in range(width)]
         self.common_symb = common_symb
         self.time = 0
@@ -36,8 +39,9 @@ class World(object):
                 print(self.map[x][y], end='')
             print()
 
-    def GenerateLandshaft(self, square, symb, start_x, start_y, forbiden=[],
-                          replacements=[-1, 1], to_update=False):
+    def GenerateLandshaft(self, square, symb, start_x, start_y,
+                          forbiden=[], replacements=[-1, 1],
+                          to_update=False, delay_between_updates=0):
         if (start_x < 0 or start_y < 0 or
            start_x >= self.width or start_y >= self.height):
            return ERR_INVALID_COORDS
@@ -46,7 +50,7 @@ class World(object):
 
         width = self.width
         height = self.height
-        world_map = self.map
+        self.map = self.map
         cur_square = 0
         x = start_x
         y = start_y
@@ -57,34 +61,38 @@ class World(object):
             if itters > square * 10:
                 break
 
-            if world_map[x][y].symb in forbiden:
+            if self.map[x][y].symb in forbiden:
                 if x == start_x and y == start_y:
                     break
                 x = start_x
                 y = start_y
 
-            if world_map[x][y].symb == symb:
+            if self.map[x][y].symb == symb:
                 rand_int = random.randint(0, replacements[1])
                 if replacements[0] > rand_int:
-                    world_map.symb[x][y] = self.common_symb
+                    self.map.symb[x][y] = self.common_symb
                     cur_square -= 1
             else:
-                world_map[x][y].symb = symb
+                self.map[x][y].symb = symb
                 cur_square += 1
                 if to_update:
-                    world_map[x][y].update()
-
+                    self.map[x][y].update()
+                    time.sleep(delay_between_updates)
+            #print('\n' * 35)
+            #self.print()
+            #time.sleep(0.1)
             x += random.randint(-1, 1)
             y += random.randint(-1, 1)
             if x < 0 or y < 0 or x >= width or y >= height:
                 x = start_x
                 y = start_y
-        #input()
-        #self.print()
         return cur_square
 
-    def GenerateWorld(self, lands_to_generate=90, defined_land_square = 0,
-                      landshafts=['~', '^', 'T'], to_update=False):
+    def GenerateWorld(self,
+                      lands_to_generate=90, defined_land_square = 0,
+                      landshafts=['~', '^', 'T'],
+                      to_update=False, delay_between_updates=0):
+        self.ClearWorld(to_update=to_update)
         ''' lands_to_generate must be given as percents
             world.square * percents // 100 will be generated into somthing'''
 
@@ -107,7 +115,10 @@ class World(object):
             symb = random.choice(landshafts)
             other_symbs = set(landshafts) - {symb}
             generated = self.GenerateLandshaft(land_square, symb, start_x, 
-                                               start_y, forbiden=other_symbs, to_update=to_update)
+                                                start_y, forbiden=other_symbs, 
+                                                to_update=to_update,
+                                                delay_between_updates=\
+                                                delay_between_updates)
             cur_square += generated
             if cur_square * 1.01 >= self.square:
                 for x in range(self.width):
@@ -118,5 +129,12 @@ class World(object):
                                 self.map[x][y].update()
                             cur_square += 1
                 break
+
+    def ClearWorld(self, to_update=False):
+        for x in range(self.width):
+            for y in range(self.height):
+                self.map[x][y].symb = self.common_symb
+                if to_update:
+                    self.map[x][y].update()
             
         return 0
