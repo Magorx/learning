@@ -17,6 +17,7 @@ class Tyle(object):
 
 class WorldTyle(Tyle):
     def __init__(self, world, x, y, symb='.'):
+        self.world = world
         self.x = x
         self.y = y
         self.symb = symb
@@ -32,6 +33,7 @@ class World(object):
         self.width = width
         self.height = height
         self.square = width * height
+        self.a = random.randint(0, 100)
 
     def print(self):
         for x in range(self.width):
