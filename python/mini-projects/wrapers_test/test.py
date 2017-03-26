@@ -139,6 +139,7 @@ class MyWorldTyle(tyles.WorldTyle):
         Label(info_window, text='~ - water').pack()
         Label(info_window, text='^ - mountain').pack()
         Label(info_window, text='Enter to update').pack()
+
         def update(event):
             self.symb = ent.get(1.0, END)[0]
             self.update()
@@ -208,7 +209,6 @@ def main():
         world.full_update()
         world.GenerateWorld(lands_to_generate=100)
         world.full_update()
-        world.print()
         world.root_window.mainloop()
     else:
         world = tyles.World(20, 50, tyle_type=tyles.WorldTyle)

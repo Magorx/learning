@@ -80,9 +80,6 @@ class World(object):
                 if to_update:
                     self.map[x][y].update()
                     time.sleep(delay_between_updates)
-            #print('\n' * 35)
-            #self.print()
-            #time.sleep(0.1)
             x += random.randint(-1, 1)
             y += random.randint(-1, 1)
             if x < 0 or y < 0 or x >= width or y >= height:
@@ -140,3 +137,6 @@ class World(object):
                     self.map[x][y].update()
             
         return 0
+
+
+class BattlegroundTyle(Tyle):
