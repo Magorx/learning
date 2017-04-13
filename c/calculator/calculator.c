@@ -8,9 +8,24 @@
 const int32_t NUMBER = 1;
 const int32_t ID = 2;
 const int32_t SYMB = 3;
+const int32_t UNUSED = 4;
 const int32_t MAX_ID_LEN = 20;
 
-struct token *token_construct_number(int32_t number) {
+struct token *token_construct_unused() {
+    struct token *new_token = (struct token*)
+        many_atempts_calloc(1,
+                            sizeof(struct token),
+                            MAX_MEMORY_ALLOCATION_ATTEMPTS);
+    if (new_token == NULL) {
+        return NULL;
+    }
+
+    new_token->type = UNUSED;
+
+    return new_token;
+}
+
+struct token *token_construct_number(double number) {
     struct token *new_token = (struct token*)
         many_atempts_calloc(1,
                             sizeof(struct token),
@@ -89,22 +104,22 @@ int32_t token_destruct(struct token *token) {
     return 0;
 };
 
-int32_t token_dump(struct token* token) {
-    //printf("Token[%p]\n", token);
-    if (token == NULL) {
-        return ERR_NULL_OBJ;
-    }
-
-    //printf("Type[%d]\n", token->type);
-    switch (token->type) {
+int32_t token_dump(struct token token) {
+    switch (token.type) {
         case NUMBER:
-            printf("Number[%d]\n", token->number);
+            printf("Number[%f]\n", token.number);
             break;
         case ID:
-            printf("Id[%s]\n", token->id);
+            printf("Id[%s]\n", token.id);
             break;
         case SYMB:
-            printf("Symb[%c]\n", token->symb);
+            printf("Symb[%c]\n", token.symb);
+            break;
+        case UNUSED:
+            printf("Unused\n");
+            break;
+        default:
+            printf("Bad token[%p]\n", &token);
             break;
     }
 
@@ -115,16 +130,20 @@ struct token *tokenize(char *expression) {
     if (expression == NULL)
         return NULL;
 
-    struct token **token_arr = (struct token**)
+    struct token *token_arr = (struct token*)
         many_atempts_calloc(strlen(expression),
-                            sizeof(struct token*),
+                            sizeof(struct token),
                             MAX_MEMORY_ALLOCATION_ATTEMPTS);
-    char symb = '~';
-    int symb_index = 0;
-    int last_token_index = 0;
-    int symbols_to_ignore = 0;
+    for (int32_t i = 0; i < strlen(expression); ++i) {
+        token_arr[i] = *token_construct_unused();
+    }
 
-    int number = 0;
+    char symb = '~';
+    int32_t symb_index = 0;
+    int32_t last_token_index = 0;
+    int32_t symbols_to_ignore = 0;
+
+    double number = 0;
     char *id = NULL;
 
     for (symb_index = 0; symb_index < strlen(expression); ++symb_index) {
@@ -136,27 +155,32 @@ struct token *tokenize(char *expression) {
         symb = expression[symb_index];
         if (isdigit(symb)) {
             get_number(expression, symb_index, &number);
-            token_arr[last_token_index] = token_construct_number(number);
-            token_dump(token_arr[last_token_index]);
+            token_arr[last_token_index] = *token_construct_number(number);
+            //token_dump(token_arr[last_token_index]);
             ++last_token_index;
-            symbols_to_ignore = int_len(number) - 1;
+            symbols_to_ignore = strlen(tmp_string);
             continue;
         }
 
         if isalpha(symb) {
             get_word(expression, symb_index, &id);
-            token_arr[last_token_index] = token_construct_id(id);
-            token_dump(token_arr[last_token_index]);
+            token_arr[last_token_index] = *token_construct_id(id);
+            //token_dump(token_arr[last_token_index]);
             ++last_token_index;
-            symbols_to_ignore = strlen(id);
+            symbols_to_ignore = strlen(id) - 1;
             continue;
         }
         
-        token_arr[last_token_index] = token_construct_symb(symb);
-        token_dump(token_arr[last_token_index]);
+        token_arr[last_token_index] = *token_construct_symb(symb);
+        //token_dump(token_arr[last_token_index]);
         ++last_token_index;
         
     }
 
-    return *token_arr;
+    return token_arr;
+}
+
+int32_t get_expression(struct token *tokens, int32_t *cur_pos, double *result) {
+    //for (int32_t token_index = *cur_pos; )
+    return 0;
 }

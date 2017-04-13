@@ -4,6 +4,7 @@
 extern const int32_t NUMBER;
 extern const int32_t ID;
 extern const int32_t SYMB;
+extern const int32_t UNUSED;
 extern const int32_t MAX_ID_LEN;
 
 /*  Grammar:
@@ -15,16 +16,17 @@ extern const int32_t MAX_ID_LEN;
 
 struct token {
     int32_t type;
-    int32_t number;
+    double number;
     char *id;
     char symb;
 };
 
-struct token *token_construct_number(int32_t number);
+struct token *token_construct_unused();
+struct token *token_construct_number(double number);
 struct token *token_construct_id(char *id);
 struct token *token_construct_symb(char symb);
 int32_t token_destruct(struct token *token);
-int32_t token_dump(struct token* token);
+int32_t token_dump(struct token token);
 
 struct token *tokenize(char *expression);
 

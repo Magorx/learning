@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include "general.h"
 
+
 const int POISON_INT = -123;
 const char POISON_CHAR = '~';
 const int TRUE = 1;
@@ -56,7 +57,7 @@ int randstr(int len, char **string_ptr) {
 	return 0;
 }
 
-int get_number(char *string, int start_index, int *number) {
+/*int get_number(char *string, int start_index, int *number) {
 	if (string == NULL)
 		return ERR_NULL_OBJ;
 	if (!isdigit(string[start_index]))
@@ -73,6 +74,18 @@ int get_number(char *string, int start_index, int *number) {
 	}
 
 	*number = cur_num;
+	return 0;
+}*/
+
+int32_t get_number(char *string, double *number,
+				   int start_index, char **endptr) {
+	if (string == NULL)
+		return ERR_NULL_OBJ;
+
+	char *tmp_string = &string[start_index];
+	printf("%s\n", tmp_string);
+	*number = strtol(tmp_string, endptr);
+
 	return 0;
 }
 

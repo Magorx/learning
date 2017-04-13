@@ -67,7 +67,7 @@ extern const int TEST_ITER_COUNT;
 
 int randint(int min, int max);
 int randstr(int len, char **string_pointer);
-int get_number(char *string, int start_index, int *number);
+int32_t get_number( char *string, int start_index, double *number);
 int get_word(char *string, int start_index, char **word);
 int int_len(int number);
 int _int_len(int number, int len_count);

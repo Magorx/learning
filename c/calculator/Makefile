@@ -13,7 +13,7 @@ calculator.o: calculator.c
 	$(CC) $(CFLAGS) calculator.c -c -o calculator.o
 
 main.o: main.c
-	$(CC) $(CLAGS) main.c -c -o main.o
+	$(CC) $(CFLAGS) main.c -c -o main.o
 
 general.o: general.c
 	$(CC) $(CFALGS) general.c -c -o general.o
