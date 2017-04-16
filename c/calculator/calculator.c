@@ -230,7 +230,6 @@ int32_t eval_term(struct token *tokens, int32_t *cur_pos, double *result) {
     if (token.type == NUMBER) {
         eval_factor(tokens, cur_pos, &tmp_result);
         *result = tmp_result;
-        return 0;
     }
 
     if (token.type == SYMB) {
@@ -238,35 +237,36 @@ int32_t eval_term(struct token *tokens, int32_t *cur_pos, double *result) {
             case '+':
                 ++*cur_pos;
                 eval_term(tokens, cur_pos, &tmp_result);
-                *result = tmp_result;
                 break;
             case '-':
                 ++*cur_pos;
                 eval_term(tokens, cur_pos, &tmp_result);
-                *result = tmp_result * -1;
                 break;
-            /*case '*':
-                eval_factor(tokens, cur_pos, &tmp_result);
-                eval_term(tokens, cur_pos, &factor_two);
-                *result = tmp_result * factor_two;
+        }
+    }
+    *result = tmp_result;
+
+    token = tokens[*cur_pos];
+    while (token.type == SYMB && (token.symb == '*' || token.symb == '/')) {
+        ++*cur_pos;
+        switch (token.symb) {
+            case '*':
+                eval_term(tokens, cur_pos, &tmp_result);
+                *result = *result * tmp_result;
                 break;
             case '/':
-                eval_factor(tokens, cur_pos, &tmp_result);
-                eval_term(tokens, cur_pos, &factor_two);
-                *result = tmp_result / factor_two;
+                eval_term(tokens, cur_pos, &tmp_result);
+                *result = *result / tmp_result;
                 break;
-            case '(':
-                eval_factor(tokens, cur_pos, &tmp_result);
-                *result = tmp_result;
-                break;*/
         }
+
+        token = tokens[*cur_pos];
     }
 
     return 0;
 }
 
 int32_t eval_factor(struct token *tokens, int32_t *cur_pos, double *result) {
-    //double tmp_result = 0;
     struct token token = tokens[*cur_pos];
 
     if (token.type == NUMBER) {
@@ -297,7 +297,7 @@ int32_t calculate(char *expression, double *result) {
 
     int32_t DEBUG = FALSE;
     if (DEBUG == TRUE) {
-        for (int i = 0; i < strlen(expression); ++i) {
+         for (int i = 0; i < strlen(expression); ++i) {
             token_dump(tokens[i]);
         }
     }
