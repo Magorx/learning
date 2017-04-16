@@ -251,11 +251,11 @@ int32_t eval_term(struct token *tokens, int32_t *cur_pos, double *result) {
         ++*cur_pos;
         switch (token.symb) {
             case '*':
-                eval_term(tokens, cur_pos, &tmp_result);
+                eval_factor(tokens, cur_pos, &tmp_result);
                 *result = *result * tmp_result;
                 break;
             case '/':
-                eval_term(tokens, cur_pos, &tmp_result);
+                eval_factor(tokens, cur_pos, &tmp_result);
                 *result = *result / tmp_result;
                 break;
         }
