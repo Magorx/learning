@@ -67,8 +67,10 @@ extern const int TEST_ITER_COUNT;
 
 int randint(int min, int max);
 int randstr(int len, char **string_pointer);
-int32_t get_number( char *string, int start_index, double *number);
+int32_t get_number(char *string, double *number,
+				   int start_index, char **endptr);
 int get_word(char *string, int start_index, char **word);
+int index_in_string_by_char_ptr(char *string, char *symb_ptr);
 int int_len(int number);
 int _int_len(int number, int len_count);
 void *many_atempts_calloc(int elem_count, int elem_size, int attempt_count);

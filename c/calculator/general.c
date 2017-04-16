@@ -83,8 +83,8 @@ int32_t get_number(char *string, double *number,
 		return ERR_NULL_OBJ;
 
 	char *tmp_string = &string[start_index];
-	printf("%s\n", tmp_string);
-	*number = strtol(tmp_string, endptr);
+	//printf("%s\n", tmp_string);
+	*number = strtod(tmp_string, endptr);
 
 	return 0;
 }
@@ -114,6 +114,19 @@ int get_word(char *string, int start_index, char **word) {
 
 	*word = new_word;
 	return 0;
+}
+
+int index_in_string_by_char_ptr(char *string, char *symb_ptr) {
+	if (string == NULL)
+		return ERR_ARG1;
+
+	for (int symb_index = 0; symb_index < strlen(string); ++symb_index) {
+		if (&string[symb_index] == symb_ptr) {
+			return symb_index;
+		}
+	}
+
+	return ERR_ARG2;
 }
 
 int int_len(int number) {

@@ -6,6 +6,7 @@ extern const int32_t ID;
 extern const int32_t SYMB;
 extern const int32_t UNUSED;
 extern const int32_t MAX_ID_LEN;
+extern const int32_t MAX_EXPRESSION_LEN;
 
 /*  Grammar:
     Expr = Term + Expr | Term - Expr | Term
@@ -30,9 +31,11 @@ int32_t token_dump(struct token token);
 
 struct token *tokenize(char *expression);
 
-int32_t get_expression(struct token *tokens, int32_t *cur_pos, double *result);
-int32_t get_term(struct token *tokens, int32_t *cur_pos, double *result);
-int32_t get_factor(struct token *tokens, int32_t *cur_pos, double *result);
-int32_t get_unit(struct token *tokens, int32_t *cur_pos, double *result);
+int32_t eval_expression(struct token *tokens, int32_t *cur_pos, double *result);
+int32_t eval_term(struct token *tokens, int32_t *cur_pos, double *result);
+int32_t eval_factor(struct token *tokens, int32_t *cur_pos, double *result);
+int32_t eval_unit(struct token *tokens, int32_t *cur_pos, double *result);
+
+int32_t calculate(char *expression, double *result);
 
 #endif  // CALCULATOR_H
