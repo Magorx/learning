@@ -203,23 +203,24 @@ int32_t eval_expression(struct token *tokens, int32_t *cur_pos, double *result) 
     eval_term(tokens, cur_pos, result);
 
     struct token token = tokens[*cur_pos];
+    double cur_result = *result;
     while (token.type == SYMB && (token.symb == '+' || token.symb == '-')) {
         ++*cur_pos;
         double tmp_result = 0;
+        eval_term(tokens, cur_pos, &tmp_result);
         switch (token.symb) {
             case '+':
-                eval_term(tokens, cur_pos, &tmp_result);
-                *result = *result + tmp_result;
+                cur_result = cur_result + tmp_result;
                 break;
             case '-':
-                eval_term(tokens, cur_pos, &tmp_result);
-                *result = *result - tmp_result;
+                cur_result = cur_result - tmp_result;
                 break;
         }
 
         token = tokens[*cur_pos];
     }
 
+    *result = cur_result;
     return 0;
 }
 
@@ -229,8 +230,7 @@ int32_t eval_term(struct token *tokens, int32_t *cur_pos, double *result) {
     struct token token = tokens[*cur_pos];
 
     eval_factor(tokens, cur_pos, &tmp_result);
-
-    *result = tmp_result;
+    double cur_result = tmp_result;
 
     token = tokens[*cur_pos];
     while (token.type == SYMB && (token.symb == '*' || token.symb == '/')) {
@@ -238,17 +238,18 @@ int32_t eval_term(struct token *tokens, int32_t *cur_pos, double *result) {
         switch (token.symb) {
             case '*':
                 eval_factor(tokens, cur_pos, &tmp_result);
-                *result = *result * tmp_result;
+                cur_result = cur_result * tmp_result;
                 break;
             case '/':
                 eval_factor(tokens, cur_pos, &tmp_result);
-                *result = *result / tmp_result;
+                cur_result = cur_result / tmp_result;
                 break;
         }
 
         token = tokens[*cur_pos];
     }
 
+    *result = cur_result;
     return 0;
 }
 
