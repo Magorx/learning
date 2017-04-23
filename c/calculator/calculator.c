@@ -12,8 +12,6 @@ const int32_t UNUSED = 4;
 const int32_t MAX_ID_LEN = 20;
 const int32_t MAX_EXPRESSION_LEN = 1000;
 
-#define arr_size(arr)  (sizeof arr / sizeof arr[0])
-
 struct token *token_construct_unused() {
     struct token *new_token = (struct token*)
         many_atempts_calloc(1,
@@ -97,12 +95,13 @@ struct token *token_construct_symb(char symb) {
     return new_token;
 }
 
-int32_t token_destruct(struct token *token) {
-    token->type = POISON_INT;
-    token->number = POISON_INT;
-    free(token->id);
-    token->symb = POISON_CHAR;
-    free(token);
+int32_t token_destruct(struct token token) {
+    if (token.type == ID) {
+        free(token.id);
+    }
+    token.type = POISON_INT;
+    token.number = POISON_INT;
+    token.symb = POISON_CHAR;
 
     return 0;
 };
@@ -165,7 +164,7 @@ struct token *tokenize(char *expression) {
         token_arr[i] = *token_construct_unused();
     }
 
-    char symb = '~';
+    char symb = 0;
     int32_t last_token_index = 0;
 
     for (int32_t symb_index = 0;
@@ -173,10 +172,10 @@ struct token *tokenize(char *expression) {
          ++symb_index) {
         symb = expression[symb_index];
         if (isspace(symb)) {
-            if (symb == ' '){
+            if (symb == ' ') {
                 continue;
             } else {
-                continue;
+                break;
             }
         }
         if (isdigit(symb)) {
@@ -200,12 +199,13 @@ struct token *tokenize(char *expression) {
 }
 
 int32_t eval_expression(struct token *tokens, int32_t *cur_pos, double *result) {
-    double tmp_result = 0;
+    printf("expr pos %d\n", *cur_pos);
     eval_term(tokens, cur_pos, result);
 
     struct token token = tokens[*cur_pos];
     while (token.type == SYMB && (token.symb == '+' || token.symb == '-')) {
         ++*cur_pos;
+        double tmp_result = 0;
         switch (token.symb) {
             case '+':
                 eval_term(tokens, cur_pos, &tmp_result);
@@ -224,26 +224,12 @@ int32_t eval_expression(struct token *tokens, int32_t *cur_pos, double *result) 
 }
 
 int32_t eval_term(struct token *tokens, int32_t *cur_pos, double *result) {
+    printf("term pos %d\n", *cur_pos);
     double tmp_result = 0;
     struct token token = tokens[*cur_pos];
 
-    if (token.type == NUMBER) {
-        eval_factor(tokens, cur_pos, &tmp_result);
-        *result = tmp_result;
-    }
+    eval_factor(tokens, cur_pos, &tmp_result);
 
-    if (token.type == SYMB) {
-        switch (token.symb) {
-            case '+':
-                ++*cur_pos;
-                eval_term(tokens, cur_pos, &tmp_result);
-                break;
-            case '-':
-                ++*cur_pos;
-                eval_term(tokens, cur_pos, &tmp_result);
-                break;
-        }
-    }
     *result = tmp_result;
 
     token = tokens[*cur_pos];
@@ -267,7 +253,24 @@ int32_t eval_term(struct token *tokens, int32_t *cur_pos, double *result) {
 }
 
 int32_t eval_factor(struct token *tokens, int32_t *cur_pos, double *result) {
+    printf("factor pos %d\n", *cur_pos);
+    double tmp_result = 0;
     struct token token = tokens[*cur_pos];
+
+    if (token.type == SYMB) {
+        switch (token.symb) {
+            case '+':
+                ++*cur_pos;
+                eval_factor(tokens, cur_pos, &tmp_result);
+                break;
+            case '-':
+                ++*cur_pos;
+                eval_factor(tokens, cur_pos, &tmp_result);
+                tmp_result = tmp_result * -1;
+                break;
+        }
+    }
+    *result = tmp_result;
 
     if (token.type == NUMBER) {
         eval_unit(tokens, cur_pos, result);
@@ -277,7 +280,7 @@ int32_t eval_factor(struct token *tokens, int32_t *cur_pos, double *result) {
 }
 
 int32_t eval_unit(struct token *tokens, int32_t *cur_pos, double *result) {
-    //double tmp_result = 0;
+    printf("unit pos %d\n", *cur_pos);
     struct token token = tokens[*cur_pos];
 
     if (token.type == NUMBER) {
@@ -304,6 +307,10 @@ int32_t calculate(char *expression, double *result) {
 
     int32_t cur_pos = 0;
     eval_expression(tokens, &cur_pos, result);
+
+    for (int i = 0; i < strlen(expression); ++i) {
+        token_destruct(tokens[i]);
+    }
 
     return 0;
 }

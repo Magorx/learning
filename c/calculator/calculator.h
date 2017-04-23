@@ -10,8 +10,8 @@ extern const int32_t MAX_EXPRESSION_LEN;
 
 /*  Grammar:
     Expr = Term + Expr | Term - Expr | Term
-    Term = Factor * Term | Factor / Term | -Term | +Term | Factor
-    Factor = Unit ^ Factor | Unit
+    Term = Factor * Term | Factor / Term | Factor
+    Factor = Unit ^ Factor | Unit | -Factor | +Factor
     Unit = Number | (Expr) | UnaryFunction(Expr)
 */
 
@@ -26,7 +26,7 @@ struct token *token_construct_unused();
 struct token *token_construct_number(double number);
 struct token *token_construct_id(char *id);
 struct token *token_construct_symb(char symb);
-int32_t token_destruct(struct token *token);
+int32_t token_destruct(struct token token);
 int32_t token_dump(struct token token);
 
 struct token *tokenize(char *expression);
