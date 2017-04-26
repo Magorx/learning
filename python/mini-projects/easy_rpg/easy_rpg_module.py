@@ -5,6 +5,7 @@
 from random import randint, choice
 from time import sleep
 import sys
+from menu import *
 
 
 LVL_NEXP = [0, 15, 35, 58, 94, 133, 178, 241, 392, 495]
@@ -170,6 +171,8 @@ class Creature(object):
 
     def die(self, battle):
         self.alive = False
+        self.defence = 0
+
         if battle is not None:
             battle.hero_count[self.color] -= 1
             if battle.hero_count[self.color] <= 0:
@@ -180,12 +183,23 @@ class Creature(object):
 
         return 0
 
+    def revive(self, full=True):
+        self.alive = True
+        if full:
+            self.defence = self.max_defence
+            self.attack = self.max_attack
+        else:
+            self.defence = max(1, self.defence)
+            self.attack = max(1, self.attack)
+
+        return 0
+
     def deal_damage(self, damage):
         self.defence -= damage
 
     def attack_another(self, defender, battle=None):
         if battle is None:
-            file = self.file
+            file = LOG
         else:
             file = battle.file
         clear_damage = self.attack
@@ -233,12 +247,7 @@ class Battle(object):
         self.creatures = creatures
         self.hero_count = {}
         self.alive_sides = []
-        for cr in creatures:
-            if not cr.color in self.hero_count:
-                self.hero_count[cr.color] = 1
-                self.alive_sides.append(cr.color)
-            else:
-                self.hero_count[cr.color] += 1
+        self.recount_alives()
 
         self.file = file
         self.x = x
@@ -249,27 +258,58 @@ class Battle(object):
         print('--- Battle[{}][{}] was started'.format(self.x, self.y),
               file=self.file)
         creatures = self.creatures
+        battle_round = 0
         while True:
+            if battle_round >= 1000000:
+                break
+            battle_round += 1
+
+            self.recount_alives()
             i = 0
             while i < len(creatures):
-                cur_creature = creatures[i]
-                for j in range(len(creatures)):
-                    if (creatures[j].color != cur_creature.color and 
-                        creatures[j].alive):
-                        cur_creature.attack_another(creatures[j], self)
+                cr = creatures[i]
+                if not cr.alive:
+                    i += 1
+                    continue
+
+                j = i
+                while j > len(creatures) * -1:
+                    if cr.color != creatures[j].color and creatures[j].alive:
+                        cr.attack_another(creatures[j], battle=self)
                         break
-                    if len(self.alive_sides) == 1:
-                        return self.end()
+                    j -= 1
+                if len(self.alive_sides) < 2:
+                    battle_round = 1000001
+
                 sleep(hit_delay)
                 i += 1
 
+        self.end()
+        return 0
+
     def end(self):
         for i in range(len(self.creatures)):
-            self.creatures[i].alive = True
+            self.creatures[i].revive()
+
         print('--- Battle[{}][{}] was won by {} nation'.\
             format(self.x, self.y, self.alive_sides[0]), file=self.file)
         print_boarder(self.file)
         return self.alive_sides[0]
+
+    def recount_alives(self):
+        hero_count = {}
+        alive_sides = []
+        for cr in self.creatures:
+            if cr.alive:
+                if cr.color in hero_count:
+                    hero_count[cr.color] += 1
+                else:
+                    hero_count[cr.color] = 1
+                    alive_sides.append(cr.color)
+        self.hero_count = hero_count
+        self.alive_sides = alive_sides
+
+        return 0
 
 
 def randname(min_len=3, max_len=7,
@@ -296,61 +336,20 @@ def randname(min_len=3, max_len=7,
     return name
 
 
-class Menu(object):
-    def __init__(self, buttons, links, name='', id=0):
-        if len(buttons) != len(links):
-            raise IndexError
-        self.buttons = ['Back'] + buttons
-        self.links = ['Back'] + links
-        self.name = name
-        self.id = id
-
-    def print_buttons(self):
-        for i in range(len(self.buttons)):
-            print('{}. {}'.format(i, self.buttons[i]))
-
-    def button_pressed(self, button_index):
-        if button_index == 0:
-            return 'Back'
-        link = self.links[button_index]
-        if callable(link):
-            link()
-        elif isinstance(link, Menu):
-            link.call()
-
-    def call(self):
-        while True:
-            print('-- {} --'.format(self.name))
-            self.print_buttons()
-            print('-' * (len(self.name) + 6))
-            pressed = input()
-            try:
-                pressed = int(pressed)
-            except Exception:
-                print('Input should be integer')
-                continue
-            if pressed >= len(self.links):
-                print('Input must be chosen from variants')
-                continue
-            to_do = self.button_pressed(pressed)
-            if to_do == 'Back':
-                return 0
-
-
-
-
 def main():
-    # for i in range(1):
-    #     creatures = [Creature(name=randname(), color=choice(['Green', 'Blue', 'White']),
-    #                           evade_chace=randint(10, 40), crit_chance=randint(10, 50), damage_cut=randint(10, 30),
-    #                           lvl=0, to_update_by_lvl=True) for j in range(randint(2, 2))]
-    #     battle = Battle(creatures, randint(1, 5), randint(1, 5))
-    #     print(battle.execute())
     hero = Creature(name='Max', color='Green', lvl=3, exp=17, stat_points=5, gold=115, to_update_by_lvl=True)
+    def foo():
+        for i in range(1):
+            creatures = [Creature(name=randname(), color=choice(['Green', 'Blue', 'White']),
+                                  evade_chace=randint(10, 40), crit_chance=randint(10, 50), damage_cut=randint(10, 30),
+                                  lvl=0, to_update_by_lvl=True) for j in range(randint(2, 2))]
+            battle = Battle(creatures + [hero], randint(1, 5), randint(1, 5))
+            battle.execute()
     
-    menu = Menu(['report', 'stop'], [hero.full_report, exit], name='Report')
-    one = Menu(['Go'], [menu], name='GO')
-    one.call()
+    
+    menu = Menu(['report', 'battle'], [hero.full_report, foo], name='Report')
+    one = Menu(['Go'], [menu], name='first')
+    menu.call()
 
     LOG.close()
 

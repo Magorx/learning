@@ -1,21 +1,29 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+
+BACK_LINKS = ['back', 'Back']
+
+
 class Menu(object):
-    def __init__(self, buttons, links, name='', id=0):
+    def __init__(self, buttons, links, parent=None, name='', id=0,
+                 back_links=BACK_LINKS):
         if len(buttons) != len(links):
             raise IndexError
-        self.buttons = ['Back'] + buttons
-        self.links = ['Back'] + links
+
+        self.buttons = buttons
+        self.links = links
+        self.parent = parent
         self.name = name
         self.id = id
+        self.back_links = back_links
 
     def print_buttons(self):
         for i in range(len(self.buttons)):
             print('{}. {}'.format(i, self.buttons[i]))
 
     def button_pressed(self, button_index):
-        if button_index == 0:
+        if self.links[button_index] in self.back_links:
             return 'Back'
         link = self.links[button_index]
         if callable(link):
@@ -25,9 +33,9 @@ class Menu(object):
 
     def call(self):
         while True:
-            print('-- {} --'.format(self.name))
+            print('--{}--'.format(self.name))
             self.print_buttons()
-            print('-' * (len(self.name) + 6))
+            print('-' * (len(self.name) + 4))
             pressed = input()
             try:
                 pressed = int(pressed)
@@ -41,7 +49,7 @@ class Menu(object):
             if to_do == 'Back':
                 return 0
 
-                
+
 def main():
     pass
 
