@@ -57,26 +57,6 @@ int randstr(int len, char **string_ptr) {
 	return 0;
 }
 
-/*int get_number(char *string, int start_index, int *number) {
-	if (string == NULL)
-		return ERR_NULL_OBJ;
-	if (!isdigit(string[start_index]))
-		return ERR_ARG2;
-
-	int symb_index = start_index;
-	int cur_num = 0;
-	for (symb_index = start_index; symb_index < strlen(string); ++symb_index) {
-		if isdigit(string[symb_index]) {
-			cur_num = cur_num * 10 + ((int)string[symb_index] - ORD_0);
-		} else {
-			break;
-		}
-	}
-
-	*number = cur_num;
-	return 0;
-}*/
-
 int32_t get_number(char *string, double *number,
 				   int start_index, char **endptr) {
 	if (string == NULL)

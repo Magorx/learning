@@ -15,6 +15,7 @@ int main() {
     double res = 0;
     calculate(str, &res);
     printf("result: %f\n", res);
+    free(str);
 
     return 0;
 }

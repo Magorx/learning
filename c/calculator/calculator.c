@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 #include <string.h>
 #include <ctype.h>
 #include "general.h"
@@ -180,13 +181,13 @@ struct token *tokenize(char *expression) {
         }
         if (isdigit(symb)) {
             token_arr[last_token_index] = *get_token_number(expression,
-                                                           symb_index,
-                                                           &symb_index);
+                                                            symb_index,
+                                                            &symb_index);
         } else if isalpha(symb) {
             
             token_arr[last_token_index] = *get_token_id(expression,
-                                                       symb_index,
-                                                       &symb_index);
+                                                        symb_index,
+                                                            &symb_index);
         } else {        
             token_arr[last_token_index] = *get_token_symb(expression,
                                                           symb_index);
@@ -258,7 +259,9 @@ int32_t eval_factor(struct token *tokens, int32_t *cur_pos, double *result) {
     double tmp_result = 0;
     struct token token = tokens[*cur_pos];
 
-    if (token.type == SYMB) {
+    if (token.type == NUMBER) {
+        eval_unit(tokens, cur_pos, &tmp_result);
+    } else if (token.type == SYMB) {
         switch (token.symb) {
             case '+':
                 ++*cur_pos;
@@ -269,12 +272,18 @@ int32_t eval_factor(struct token *tokens, int32_t *cur_pos, double *result) {
                 eval_factor(tokens, cur_pos, &tmp_result);
                 tmp_result = tmp_result * -1;
                 break;
+            case '(':
+                //++*cur_pos;
+                eval_unit(tokens, cur_pos, &tmp_result);
         }
     }
     *result = tmp_result;
 
-    if (token.type == NUMBER) {
-        eval_unit(tokens, cur_pos, result);
+    token = tokens[*cur_pos];
+    if (token.type == SYMB && token.symb == '^') {
+        ++*cur_pos;
+        eval_factor(tokens, cur_pos, &tmp_result);
+        *result = pow(*result, tmp_result);
     }
 
     return 0;
@@ -288,6 +297,11 @@ int32_t eval_unit(struct token *tokens, int32_t *cur_pos, double *result) {
         *result = token.number;
         ++*cur_pos;
         return 0;
+    }
+
+    if (token.type == SYMB && token.symb == '(') {
+        ++*cur_pos;
+        eval_expression(tokens, cur_pos, result);
     }
 
     return 0;
@@ -312,6 +326,7 @@ int32_t calculate(char *expression, double *result) {
     for (int i = 0; i < strlen(expression); ++i) {
         token_destruct(tokens[i]);
     }
+    free(tokens);
 
     return 0;
 }

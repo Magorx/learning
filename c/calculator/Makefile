@@ -7,7 +7,7 @@ CFLAGS = $(STANDARD) $(WARNINGS)
 all: calculator
 
 calculator: main.o calculator.o general.o
-	$(CC) $(CFLAGS) main.o calculator.o general.o -o calculator
+	$(CC) $(CFLAGS) main.o calculator.o -lm general.o -o calculator
 
 calculator.o: calculator.c
 	$(CC) $(CFLAGS) calculator.c -c -o calculator.o
