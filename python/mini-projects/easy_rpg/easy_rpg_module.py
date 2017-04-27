@@ -2,19 +2,33 @@
 # -*- coding: utf-8 -*-
 
 
-from random import randint, choice
+from random import randint, choice, shuffle
 from time import sleep
 import sys
 from menu import *
 
 
-LVL_NEXP = [0, 15, 35, 58, 94, 133, 178, 241, 392, 495]
-LVL_ATK =  [50, 10, 11, 15, 21, 45, 73, 98]
-LVL_DEF =   [110, 10, 12, 18, 27, 59, 95, 140]
+LVL_NEXP = [0, 15, 35, 58, 94, 133, 178, 241, 392, 495, 1, 1, 1, 1, 10000000]
+LVL_ATK =  [50, 10, 11, 15, 21, 32, 47, 70]
+LVL_DEF =  [110, 10, 13, 21, 35, 54, 84, 123]
 LOW_SKILL_LVL = 30
 MEDIUM_SKILL_LVL = 60
 HIGHT_SKILL_LVL = 80
 LOG = open('rpg.log', 'w')
+
+
+def atk_by_lvl(lvl):
+    res = 0
+    for i in range(1, lvl + 1):
+        res += 10 * 1.05 ** i
+    return int(res)
+
+
+def def_by_lvl(lvl):
+    res = 0
+    for i in range(1, lvl + 1):
+        res += 10 * 1.10 ** i
+    return int(res)
 
 
 def choices(population, weights=None, k=1):
@@ -73,7 +87,10 @@ class Creature(object):
     def __repr__(self):
         return '{' + self.color + '} ' + self.name
 
-    def full_report(self, file=LOG):
+    def full_report(self, menu=False, file=LOG):
+        self.update_lvl()
+        self.attack = atk_by_lvl(self.lvl)
+        self.defence = def_by_lvl(self.lvl)
         print('Hero {} from {} castle'.format(self.name, self.color))
         print('Attack {}   Defence {}'.format(self.attack, self.defence))
         print('{}/{} exp  Lvl {} ({})'.format(self.exp, LVL_NEXP[self.lvl], 
@@ -90,10 +107,11 @@ class Creature(object):
         if not self.is_lvl_up():
             return 0
 
-        print('{} leveled up'.format(self))
-        self.exp -= LVL_NEXP[self.lvl + 1]
+        print('{} leveled up'.format(self), file=LOG)
         self.lvl += 1
         self.stat_points += 1
+        self.attack = atk_by_lvl(self.lvl)
+        self.defence = def_by_lvl(self.lvl)
 
         return 0
 
@@ -101,7 +119,7 @@ class Creature(object):
         print('You got new level!')
 
     def is_lvl_up(self):
-        if self.exp >= LVL_NEXP[self.lvl + 1]:
+        if self.exp >= LVL_NEXP[self.lvl]:
             return True
         else:
             return False
@@ -157,7 +175,7 @@ class Creature(object):
         return 0
 
     def update_lvl(self):
-        if self.is_lvl_up():
+        while self.is_lvl_up():
             self.lvl_up()
 
         return 0
@@ -166,20 +184,22 @@ class Creature(object):
         self.exp += exp
 
     def set_ad_by_lvl(self):
-        self.attack = LVL_ATK[self.lvl]
-        self.defence = LVL_DEF[self.lvl]
+        self.attack = atk_by_lvl(self.lvl)
+        self.defence = atk_by_lvl(self.lvl)
+        self.max_attack = def_by_lvl(self.lvl)
+        self.max_defence = def_by_lvl(self.lvl)
 
     def die(self, battle):
         self.alive = False
         self.defence = 0
 
         if battle is not None:
-            battle.hero_count[self.color] -= 1
-            if battle.hero_count[self.color] <= 0:
-                try:
-                    del battle.alive_sides[battle.alive_sides.index(self.color)]
-                except Exception:
-                    print('##### ERROR KILLING', self)
+            try:
+                battle.sides[self.color]['alive_hero_count'] -= 1
+                if battle.sides[self.color]['alive_hero_count'] <= 0:
+                        battle.alive_sides_count -= 1
+            except Exception:
+                print('##### ERROR KILLING', self)
 
         return 0
 
@@ -243,20 +263,30 @@ class Creature(object):
 
 
 class Battle(object):
-    def __init__(self, creatures, x, y, file=sys.stdout):
+    def __init__(self, creatures, x, y, win_exp=3, loos_exp=1, file=sys.stdout):
         self.creatures = creatures
+        shuffle(self.creatures)
         self.hero_count = {}
-        self.alive_sides = []
+        self.sides = []
         self.recount_alives()
+        self.win_exp = win_exp
+        self.loos_exp = loos_exp
 
         self.file = file
         self.x = x
         self.y = y
 
-    def execute(self, hit_delay=0):
+    def execute(self, full_log=False, hit_delay=0):
+        self.recount_alives()
         print_boarder(self.file)
-        print('--- Battle[{}][{}] was started'.format(self.x, self.y),
+        print('--- Battle[{}][{}] was executed'.format(self.x, self.y),
               file=self.file)
+
+        if full_log:
+            print('Sides:', self.alive_sides())
+            for cr in self.creatures:
+                print(cr, 'Atk {} | Def {}'.format(cr.attack, cr.defence))
+            print('---------------\nLOG:')
         creatures = self.creatures
         battle_round = 0
         while True:
@@ -278,7 +308,7 @@ class Battle(object):
                         cr.attack_another(creatures[j], battle=self)
                         break
                     j -= 1
-                if len(self.alive_sides) < 2:
+                if self.alive_sides_count < 2:
                     battle_round = 1000001
 
                 sleep(hit_delay)
@@ -289,27 +319,43 @@ class Battle(object):
 
     def end(self):
         for i in range(len(self.creatures)):
-            self.creatures[i].revive()
+            cr = self.creatures[i]
+            cr.revive()
+            if cr.color in self.alive_sides():
+                cr.add_exp(self.win_exp)
+            else:
+                cr.add_exp(self.loos_exp)
+            cr.update_lvl()
 
         print('--- Battle[{}][{}] was won by {} nation'.\
-            format(self.x, self.y, self.alive_sides[0]), file=self.file)
+            format(self.x, self.y, self.alive_sides()), file=self.file)
         print_boarder(self.file)
-        return self.alive_sides[0]
+        return self.alive_sides()
 
     def recount_alives(self):
-        hero_count = {}
-        alive_sides = []
+        sides = {}
+        self.alive_sides_count = 0
         for cr in self.creatures:
             if cr.alive:
-                if cr.color in hero_count:
-                    hero_count[cr.color] += 1
+                if cr.color in sides:
+                    sides[cr.color]['alive_hero_count'] += 1
                 else:
-                    hero_count[cr.color] = 1
-                    alive_sides.append(cr.color)
-        self.hero_count = hero_count
-        self.alive_sides = alive_sides
+                    self.alive_sides_count += 1
+                    sides[cr.color] = {}
+                    sides[cr.color]['alive_hero_count'] = 1
+        self.sides = sides
 
         return 0
+
+    def alive_sides(self):
+        alive_sides = []
+        for side in self.sides:
+            if self.sides[side]['alive_hero_count'] > 0:
+                alive_sides.append(side)
+        if len(alive_sides) > 1:
+            return alive_sides
+        else:
+            return alive_sides[0]
 
 
 def randname(min_len=3, max_len=7,
@@ -337,19 +383,20 @@ def randname(min_len=3, max_len=7,
 
 
 def main():
-    hero = Creature(name='Max', color='Green', lvl=3, exp=17, stat_points=5, gold=115, to_update_by_lvl=True)
+    hero = Creature(name='Max', color='Green', lvl=2, exp=0, stat_points=5, gold=115, to_update_by_lvl=True)
     def foo():
         for i in range(1):
-            creatures = [Creature(name=randname(), color=choice(['Green', 'Blue', 'White']),
+            creatures = [Creature(name=randname(), color=choice(['Green', 'White']),
                                   evade_chace=randint(10, 40), crit_chance=randint(10, 50), damage_cut=randint(10, 30),
-                                  lvl=0, to_update_by_lvl=True) for j in range(randint(2, 2))]
-            battle = Battle(creatures + [hero], randint(1, 5), randint(1, 5))
-            battle.execute()
+                                  lvl=1, to_update_by_lvl=True) for j in range(randint(3, 5))]
+            creatures = creatures + [hero]
+            battle = Battle(creatures, randint(1, 5), randint(1, 5))
+            battle.execute(full_log=True)
     
     
-    menu = Menu(['report', 'battle'], [hero.full_report, foo], name='Report')
+    menu = Menu(['report', 'battle', 'exit'], [hero.full_report, foo, exit])
     one = Menu(['Go'], [menu], name='first')
-    menu.call()
+    menu()
 
     LOG.close()
 

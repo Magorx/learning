@@ -46,9 +46,9 @@ class Menu(object):
 
     def __call__(self):
         while True:
-            print('_' * (self.max_button_name_len + 5))
+            print('=' * (self.max_button_name_len + 5))
             self.print_self()
-            print('_' * (self.max_button_name_len + 5))
+            print('=' * (self.max_button_name_len + 5))
             pressed = input()
             try:
                 pressed = int(pressed)
@@ -60,7 +60,9 @@ class Menu(object):
                 continue
             to_do = self.button_pressed(pressed)
             if to_do is None:
-                return 0
+                break
+
+        return None
 
 
 def main():
