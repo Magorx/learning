@@ -17,18 +17,25 @@ HIGHT_SKILL_LVL = 80
 LOG = open('rpg.log', 'w')
 
 
-def atk_by_lvl(lvl):
+def calcAtk(lvl):
     res = 0
     for i in range(1, lvl + 1):
         res += 10 * 1.05 ** i
     return int(res)
 
 
-def def_by_lvl(lvl):
+def calcDef(lvl):
     res = 0
     for i in range(1, lvl + 1):
         res += 10 * 1.10 ** i
     return int(res)
+
+
+def tolvl(lvl):
+    res = 0
+    for i in range(lvl):
+        res += 10 * i
+    return res
 
 
 def choices(population, weights=None, k=1):
@@ -89,11 +96,11 @@ class Creature(object):
 
     def full_report(self, menu=False, file=LOG):
         self.update_lvl()
-        self.attack = atk_by_lvl(self.lvl)
-        self.defence = def_by_lvl(self.lvl)
+        self.attack = calcAtk(self.lvl)
+        self.defence = calcDef(self.lvl)
         print('Hero {} from {} castle'.format(self.name, self.color))
         print('Attack {}   Defence {}'.format(self.attack, self.defence))
-        print('{}/{} exp  Lvl {} ({})'.format(self.exp, LVL_NEXP[self.lvl], 
+        print('{}/{} exp  Lvl {} ({})'.format(self.exp, tolvl(self.lvl + 1), 
                                          self.lvl, self.stat_points))
         print('Gold {}'.format(self.gold))
         print('Str {}  Int {}  Dex {}'.format(self.strenght, self.intelligence,
@@ -110,8 +117,8 @@ class Creature(object):
         print('{} leveled up'.format(self), file=LOG)
         self.lvl += 1
         self.stat_points += 1
-        self.attack = atk_by_lvl(self.lvl)
-        self.defence = def_by_lvl(self.lvl)
+        self.attack = (self.lvl)
+        self.defence = calcDef(self.lvl)
 
         return 0
 
@@ -119,7 +126,7 @@ class Creature(object):
         print('You got new level!')
 
     def is_lvl_up(self):
-        if self.exp >= LVL_NEXP[self.lvl]:
+        if self.exp >= tolvl(self.lvl + 1):
             return True
         else:
             return False
@@ -184,10 +191,10 @@ class Creature(object):
         self.exp += exp
 
     def set_ad_by_lvl(self):
-        self.attack = atk_by_lvl(self.lvl)
-        self.defence = atk_by_lvl(self.lvl)
-        self.max_attack = def_by_lvl(self.lvl)
-        self.max_defence = def_by_lvl(self.lvl)
+        self.attack = calcAtk(self.lvl)
+        self.defence = calcAtk(self.lvl)
+        self.max_attack = calcDef(self.lvl)
+        self.max_defence = calcDef(self.lvl)
 
     def die(self, battle):
         self.alive = False
