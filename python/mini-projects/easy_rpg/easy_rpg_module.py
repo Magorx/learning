@@ -390,14 +390,14 @@ def randname(min_len=3, max_len=7,
 
 
 def main():
-    hero = Creature(name='Max', color='Green', lvl=2, exp=0, stat_points=5, gold=115, to_update_by_lvl=True)
+    hero = Creature(name='Max', color='Green', lvl=1, exp=0, stat_points=5, gold=115, to_update_by_lvl=True)
     def foo():
         for i in range(1):
             creatures = [Creature(name=randname(), color=choice(['Green', 'White']),
                                   evade_chace=randint(10, 40), crit_chance=randint(10, 50), damage_cut=randint(10, 30),
-                                  lvl=1, to_update_by_lvl=True) for j in range(randint(3, 5))]
+                                  lvl=hero.lvl, to_update_by_lvl=True) for j in range(randint(3, 5))]
             creatures = creatures + [hero]
-            battle = Battle(creatures, randint(1, 5), randint(1, 5))
+            battle = Battle(creatures, randint(1, 5), randint(1, 5), win_exp=3, loos_exp=1)
             battle.execute(full_log=True)
     
     
