@@ -276,13 +276,15 @@ int32_t eval_factor(struct token *tokens, int32_t *cur_pos, double *result) {
                 //++*cur_pos;
                 eval_unit(tokens, cur_pos, &tmp_result);
         }
+    } else if (token.type == ID) {
+        eval_unit(tokens, cur_pos, &tmp_result);
     }
     *result = tmp_result;
 
     token = tokens[*cur_pos];
     if (token.type == SYMB && token.symb == '^') {
-        ++*cur_pos;
         eval_factor(tokens, cur_pos, &tmp_result);
+        printf("HI\n");
         *result = pow(*result, tmp_result);
     }
 
@@ -304,8 +306,57 @@ int32_t eval_unit(struct token *tokens, int32_t *cur_pos, double *result) {
         eval_expression(tokens, cur_pos, result);
     }
 
+    if (token.type == ID) {
+        ++*cur_pos;
+        eval_expression(tokens, cur_pos, result);
+        handle_function(token.id, *result, result);
+    }
+
     return 0;
 }
+
+
+int32_t handle_function(char *function, double arg, double *result) {
+    if (function == NULL)
+        return ERR_NULL_OBJ;
+
+    printf("func %s(%f)\n", function, arg);
+    if (strcmp(function, "sqrt") == 0) {
+        *result = sqrt(arg);
+    }
+    if (strcmp(function, "exp") == 0) {
+        *result = exp(arg);
+    }
+    if (strcmp(function, "sin") == 0) {
+        *result = sin(arg);
+    }
+    if (strcmp(function, "cos") == 0) {
+        *result = cos(arg);
+    }
+    if (strcmp(function, "log") == 0) {
+        *result = log(arg);
+    }
+    if (strcmp(function, "lg") == 0) {
+        *result = log10(arg);
+        printf("%f\n", *result);
+    }
+    if (strcmp(function, "abs") == 0) {
+        *result = fabs(arg);
+    }
+    if (strcmp(function, "round") == 0) {
+        *result = round(arg);
+    }
+    if (strcmp(function, "trunc") == 0) {
+        *result = trunc(arg);
+    }
+    if (strcmp(function, "") == 0) {
+        *result = 0;
+    }
+
+    return 0;
+}
+
+
 
 int32_t calculate(char *expression, double *result) {
     if (expression == NULL)

@@ -36,6 +36,8 @@ int32_t eval_term(struct token *tokens, int32_t *cur_pos, double *result);
 int32_t eval_factor(struct token *tokens, int32_t *cur_pos, double *result);
 int32_t eval_unit(struct token *tokens, int32_t *cur_pos, double *result);
 
+int32_t handle_function(char *function, double arg, double *result);
+
 int32_t calculate(char *expression, double *result);
 
 #endif  // CALCULATOR_H
