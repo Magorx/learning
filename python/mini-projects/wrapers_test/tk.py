@@ -17,19 +17,19 @@ main_root.config(width=WORLD_WIDTH * SIDE_PX, height=WORLD_HEIGHT * SIDE_PX)
 main_root.protocol("WM_DELETE_WINDOW", exit)
 
 TEXTURES = {
-    'road' : ImageTk.PhotoImage(Image.open('road.png')),
-    'water' : ImageTk.PhotoImage(Image.open('water.png')),
-    'mountain' : ImageTk.PhotoImage(Image.open('mountain.png')),
-    'tree' : ImageTk.PhotoImage(Image.open('tree.png')),
-    'chosen_corner' : ImageTk.PhotoImage(Image.open('chosen_corner.png'))
+    'road' : ImageTk.PhotoImage(Image.open('./textures/road.png')),
+    'water' : ImageTk.PhotoImage(Image.open('./textures/water.png')),
+    'mountain' : ImageTk.PhotoImage(Image.open('./textures/mountain.png')),
+    'tree' : ImageTk.PhotoImage(Image.open('./textures/tree.png')),
+    'chosen_corner' : ImageTk.PhotoImage(Image.open('./textures/chosen_corner.png'))
 }
 
 PIL_IMAGES = {
-    'road' : Image.open('road.png'),
-    'water' : Image.open('water.png'),
-    'mountain' : Image.open('mountain.png'),
-    'tree' : Image.open('tree.png'),
-    'chosen_corner' : Image.open('chosen_corner.png')
+    'road' : Image.open('./textures/road.png'),
+    'water' : Image.open('./textures/water.png'),
+    'mountain' : Image.open('./textures/mountain.png'),
+    'tree' : Image.open('./textures/tree.png'),
+    'chosen_corner' : Image.open('./textures/chosen_corner.png')
 }
 
 class MyWorldTyle(tyles.WorldTyle):
@@ -206,7 +206,6 @@ def main():
     MODE = True
     if MODE:
         world = MyWorld()
-        world.full_update()
         world.GenerateWorld(lands_to_generate=100)
         world.full_update()
         world.print()

@@ -283,6 +283,7 @@ int32_t eval_factor(struct token *tokens, int32_t *cur_pos, double *result) {
 
     token = tokens[*cur_pos];
     if (token.type == SYMB && token.symb == '^') {
+        ++*cur_pos;
         eval_factor(tokens, cur_pos, &tmp_result);
         printf("HI\n");
         *result = pow(*result, tmp_result);
