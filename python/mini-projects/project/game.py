@@ -5,6 +5,7 @@
 import tyles
 from tkinter import *
 from PIL import Image, ImageTk
+from random import randint, choice
 
 
 class Clickable_tyle(tyles.TkWorldTyle):
@@ -18,33 +19,9 @@ class Clickable_tyle(tyles.TkWorldTyle):
         self.texture = ImageTk.PhotoImage(
             Image.alpha_composite(PIL_IMAGES[self.texture_name],
                                   PIL_IMAGES['chosen_corner']))
+        self.texture = choice([TEXTURES['men'], TEXTURES['water']])
         self.image = self.canvas.create_image(0, 0, anchor='nw', 
                                               image=self.texture)
-
-        self.info_window = Tk()
-        info_window = self.info_window
-        info_window.title('INFO')
-        info_window.protocol("WM_DELETE_WINDOW", self.deselect)
-
-        ent = Text(info_window, width=3, height=1, font=20)
-        ent.pack()
-        Label(info_window, text=(' x:' + str(self.x) + 
-                                 ' y:' + str(self.y))).pack()
-        Label(info_window, text='T - tree').pack()
-        Label(info_window, text='~ - water').pack()
-        Label(info_window, text='^ - mountain').pack()
-        Label(info_window, text='Enter to update').pack()
-
-        def update(event):
-            self.symb = ent.get(1.0, END)[0]
-            self.update()
-            self.deselect()
-
-        info_window.bind('<Return>', update)
-        info_window.focus()
-        ent.focus()
-        info_window.mainloop()
-
 
 
 def main():
@@ -56,7 +33,8 @@ def main():
         'water' : ImageTk.PhotoImage(Image.open('./textures/water.png')),
         'mountain' : ImageTk.PhotoImage(Image.open('./textures/mountain.png')),
         'tree' : ImageTk.PhotoImage(Image.open('./textures/tree.png')),
-        'chosen_corner' : ImageTk.PhotoImage(Image.open('./textures/chosen_corner.png'))
+        'chosen_corner' : ImageTk.PhotoImage(Image.open('./textures/chosen_corner.png')),
+        'men' : ImageTk.PhotoImage(Image.open('./textures/men.png'))
     }
 
     PIL_IMAGES = {
@@ -64,7 +42,8 @@ def main():
         'water' : Image.open('./textures/water.png'),
         'mountain' : Image.open('./textures/mountain.png'),
         'tree' : Image.open('./textures/tree.png'),
-        'chosen_corner' : Image.open('./textures/chosen_corner.png')
+        'chosen_corner' : Image.open('./textures/chosen_corner.png'),
+        'men' : Image.open('./textures/men.png')
     }
     world.root_window.mainloop()
 

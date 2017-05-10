@@ -305,6 +305,7 @@ int32_t eval_unit(struct token *tokens, int32_t *cur_pos, double *result) {
     if (token.type == SYMB && token.symb == '(') {
         ++*cur_pos;
         eval_expression(tokens, cur_pos, result);
+        ++*cur_pos;
     }
 
     if (token.type == ID) {
