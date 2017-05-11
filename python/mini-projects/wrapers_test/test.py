@@ -102,7 +102,7 @@ class MyWorldTyle(tyles.WorldTyle):
 
     def delete_image(self):
         try:
-            self.image.delete()
+            self.canvas.delete(self.image)
         except:
             return ERROR
         return 0

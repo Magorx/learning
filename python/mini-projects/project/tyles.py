@@ -8,9 +8,16 @@ ERR_ARGS = -99
 
 STANDART_WORLD_WIDTH = 15
 STANDART_WORLD_HEIGHT = 15
+STANDART_SYMB_TEXTURE_DICT = {'.' : 'road',
+                              '~' : 'water',
+                              'T' : 'tree',
+                              '^' : 'mountain',
+                              '@' : 'men',
+                              'error' : 'error'}
 
 SIDE_PX = 50
 ERROR = -1
+ERROR_TEXTURE_NOT_EXIST = -2
 
 
 class Tyle(object):
@@ -149,6 +156,9 @@ class TkWorldTyle(WorldTyle):
         self.world = world
         self.canvas = canvas
         self.info_window = None
+        self.textures = []
+        self.textures_names = []
+        self.images = []
 
         if prev_tyle is None:
             super(TkWorldTyle, self).__init__(world, x, y, symb=symb)
@@ -158,82 +168,60 @@ class TkWorldTyle(WorldTyle):
             self.symb = prev_tyle.symb
             self.full = prev_tyle.full
 
-    def choose_texture_name(self):
-        symb = self.symb
-        if symb == '^':
-            self.texture_name = 'mountain'
-        elif symb == 'T':
-            self.texture_name = 'tree'
-        elif symb == '~':
-            self.texture_name = 'water'
-        elif symb == '.':
-            self.texture_name = 'road'
+    def insert_texture(self, pos, texture=None, texture_name=None,
+                       redraw=True):
+        if texture_name is None:
+            texture_name = 'error'
+        if texture is not None:
+            texture = self.world.textures[texture_name]
+
+        self.textures.insert(pos, texture)
+        self.textures_names.insert(pos, texture_name)
+
+        if redraw:
+            self.redraw()
+
+    def add_texture(self, texture=None, texture_name=None, redraw=True):
+        self.insert_texture(len(self.textures), texture, texture_name, redraw)
+
+    def redraw(self):
+        self.clear_images()
+        if not self.textures and self.textures_names:
+            for name in self.textures_names:
+                try:
+                    self.textures.append(self.world.textures[name])
+                except:
+                    self.textures.append(self.world.textures['error'])
+
+        for texture in self.textures:
+            self.images.append(self.canvas.create_image(0, 0, anchor='nw', image=texture))
+
+    def _texture_name_by_symb(self, symb,
+                              symb_texture_dict=STANDART_SYMB_TEXTURE_DICT):
+        d = symb_texture_dict
+        if symb in d:
+            return d[symb]
         else:
-            self.name = 'ERROR'
-            return ERROR
+            return 'error'
 
-        return 0
+    def texture_by_symb(self, symb,
+                        symb_texture_dict=STANDART_SYMB_TEXTURE_DICT):
+        texture_name = self._texture_name_by_symb(symb, symb_texture_dict)
+        if texture_name not in self.world.textures:
+            return self.world.textures['error']
+        else:
+            return self.world.textures[texture_name]
 
-    def set_texture(self):
-        try:
-            self.texture = self.world.textures[self.texture_name]
-        except:
-            print('! == [ERR][tyle] wrong texture name -> call TkWorldTyle.choose_texture_name(' + self.texture_name + ')')
-
-            if self.choose_texture_name() == ERROR:
-                print('! == [ERR][tyle] failed calling\
-                      self.choose_texture_name')
-                return ERROR
-            else:
-                self.texture = self.world.textures[self.texture_name]
-
-        return 0
-
-    def set_image(self, image=None):
-        self.delete_image()
-
-        if image is not None:
+    def clear_images(self):
+        for i in range(len(self.images)):
             try:
-                self.image = self.canvas.create_image(0, 0, anchor='nw',
-                                                      image=image)
+                self.canvas.delete(self.images[i])
             except:
-                print('! == [ERR][tyle] failed setting input image')
                 return ERROR
-            return 0
-
-        try:
-            self.image = self.canvas.create_image(0, 0, anchor='nw',
-                                              image=self.texture)
-        except:
-            print('! == [ERR][tyle] wrong texture -> call self.set_texture')
-            if self.set_texture() == ERROR:
-                print('! == [ERR][tyle] failed calling self.set_texture')
-            else:
-                self.image = self.canvas.create_image(0, 0, anchor='nw',
-                                                      image=self.texture)
-        return 0
-
-    def delete_image(self):
-        try:
-            self.image.delete()
-        except:
-            return ERROR
-        return 0
+        self.images = []
 
     def update(self):
-        self.choose_texture_name()
-        self.set_texture()
-        if self.set_image() == ERROR:
-            print('! == [ERR][tyle] failed updating')
-            return ERROR
-
-    def deselect(self):
-        try:
-            self.info_window.destroy()
-        except:
-            pass
-
-        self.update()
+        self.redraw()
 
 
 class TkWorld(World):
@@ -262,7 +250,8 @@ class TkWorld(World):
                 'water' : ImageTk.PhotoImage(Image.open('./textures/water.png')),
                 'mountain' : ImageTk.PhotoImage(Image.open('./textures/mountain.png')),
                 'tree' : ImageTk.PhotoImage(Image.open('./textures/tree.png')),
-                'chosen_corner' : ImageTk.PhotoImage(Image.open('./textures/chosen_corner.png'))
+                'chosen_corner' : ImageTk.PhotoImage(Image.open('./textures/chosen_corner.png')),
+                'error' : ImageTk.PhotoImage(Image.open('./textures/error.png'))
             }
 
             pil_images = {
@@ -270,7 +259,8 @@ class TkWorld(World):
                 'water' : Image.open('./textures/water.png'),
                 'mountain' : Image.open('./textures/mountain.png'),
                 'tree' : Image.open('./textures/tree.png'),
-                'chosen_corner' : Image.open('./textures/chosen_corner.png')
+                'chosen_corner' : Image.open('./textures/chosen_corner.png'),
+                'error' : Image.open('./textures/error.png')
             }
 
         self.common_symb = prev_world.common_symb
@@ -294,16 +284,18 @@ class TkWorld(World):
         
         for x in range(self.width):
             for y in range(self.height):
-                self.map[x][y].canvas.place(x=x*side_px, y=y*side_px)
+                tyle = self.map[x][y]
+                tyle.canvas.place(x=x*side_px, y=y*side_px)
+                tyle.canvas.bind('<Button-1>', self.map[x][y].select)
+                tyle.add_texture(tyle.texture_by_symb(tyle.symb), tyle._texture_name_by_symb(tyle.symb))
+
+    def select(self):
+        pass # You should use your own select, if need
 
     def full_update(self, to_bind=False):
         for x in range(self.width):
             for y in range(self.height):
                 self.map[x][y].update()
-                if to_bind:
-                    self.map[x][y].canvas.bind('<Button-1>', self.map[x][y].select)
-
-
 
 def main():
     pass
