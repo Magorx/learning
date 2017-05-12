@@ -131,7 +131,7 @@ class World(object):
                                                 delay_between_updates=\
                                                 delay_between_updates)
             cur_square += generated
-            if cur_square * 1.01 >= self.square:
+            if cur_square >= self.square * 0.99:
                 for x in range(self.width):
                     for y in range(self.height):
                         if self.map[x][y].symb == self.common_symb:
@@ -152,21 +152,12 @@ class World(object):
 
 
 class TkWorldTyle(WorldTyle):
-    def __init__(self, world, canvas, x=0, y=0, symb='.', prev_tyle=None):
-        self.world = world
+    def __init__(self, world, canvas, x=0, y=0, symb='.'):
+        super(TkWorldTyle, self).__init__(world, x, y, symb=symb)
         self.canvas = canvas
-        self.info_window = None
         self.textures = []
         self.textures_names = []
         self.images = []
-
-        if prev_tyle is None:
-            super(TkWorldTyle, self).__init__(world, x, y, symb=symb)
-        else:
-            self.x = prev_tyle.x
-            self.y = prev_tyle.y
-            self.symb = prev_tyle.symb
-            self.full = prev_tyle.full
 
     def insert_texture(self, pos, texture=None, texture_name=None,
                        redraw=True):
@@ -212,6 +203,11 @@ class TkWorldTyle(WorldTyle):
         else:
             return self.world.textures[texture_name]
 
+    def add_texture_by_symb(self, symb,
+                           symb_texture_dict=STANDART_SYMB_TEXTURE_DICT):
+        self.add_texture(self.texture_by_symb(symb),
+                         self._texture_name_by_symb(symb))
+
     def clear_images(self):
         for i in range(len(self.images)):
             try:
@@ -220,23 +216,23 @@ class TkWorldTyle(WorldTyle):
                 return ERROR
         self.images = []
 
-    def update(self):
+    def update(self, to_set_texture_by_symb=False):
+        if to_set_texture_by_symb or not self.textures:
+            self.clear_images()
+            self.add_texture_by_symb()
         self.redraw()
+
 
 
 class TkWorld(World):
     def __init__(self, width, height, tyle_type=TkWorldTyle, common_symb='.',
-                 prev_world=None,
                  side_px=SIDE_PX,
                  pre_generated=False,
                  window=None,
-                 textures=None, pil_images=None):
-        super(TkWorld, self).__init__(width, height, tyle_type, common_symb)
-        if prev_world is None or pre_generated:
-            prev_world = World(STANDART_WORLD_WIDTH,
-                               STANDART_WORLD_HEIGHT)
+                 textures=None):
+        super(TkWorld, self).__init__(width, height, common_symb=common_symb)
         if pre_generated:
-            prev_world.GenerateWorld()
+            self.GenerateWorld()
 
         if window is None:
             window = tkinter.Tk()
@@ -244,7 +240,7 @@ class TkWorld(World):
                           height=STANDART_WORLD_HEIGHT * SIDE_PX)
             window.protocol("WM_DELETE_WINDOW", exit)
 
-        if textures is None or pil_images is None:
+        if textures is None:
             textures = {
                 'road' : ImageTk.PhotoImage(Image.open('./textures/road.png')),
                 'water' : ImageTk.PhotoImage(Image.open('./textures/water.png')),
@@ -254,48 +250,34 @@ class TkWorld(World):
                 'error' : ImageTk.PhotoImage(Image.open('./textures/error.png'))
             }
 
-            pil_images = {
-                'road' : Image.open('./textures/road.png'),
-                'water' : Image.open('./textures/water.png'),
-                'mountain' : Image.open('./textures/mountain.png'),
-                'tree' : Image.open('./textures/tree.png'),
-                'chosen_corner' : Image.open('./textures/chosen_corner.png'),
-                'error' : Image.open('./textures/error.png')
-            }
-
-        self.common_symb = prev_world.common_symb
-        self.time = prev_world.time
-        self.width = prev_world.width
-        self.height = prev_world.height
-        self.square = self.width * self.height
-        self.map = [[0 for i in range(self.height)] for j in range(self.width)]
-
         self.root_window = window
         self.textures = textures
-        self.pil_images = pil_images
+
         for x in range(self.width):
             for y in range(self.height):
+                prev_tyle = self.map[x][y]
                 self.map[x][y] = tyle_type(
                     self,
                     tkinter.Canvas(self.root_window,
-                        width=side_px, height=side_px,
-                        bg='#FFFFFF'),
-                    prev_tyle=prev_world.map[x][y])
+                                   width=side_px, height=side_px, 
+                                   bg='#FFFFFF'),
+                    x, y, prev_tyle.symb)
         
         for x in range(self.width):
             for y in range(self.height):
                 tyle = self.map[x][y]
                 tyle.canvas.place(x=x*side_px, y=y*side_px)
-                tyle.canvas.bind('<Button-1>', self.map[x][y].select)
+                tyle.canvas.bind('<Button-1>', self.map[x][y].click_handler)
                 tyle.add_texture(tyle.texture_by_symb(tyle.symb), tyle._texture_name_by_symb(tyle.symb))
 
-    def select(self):
+    def click_handler(self):
         pass # You should use your own select, if need
 
     def full_update(self, to_bind=False):
         for x in range(self.width):
             for y in range(self.height):
                 self.map[x][y].update()
+
 
 def main():
     pass

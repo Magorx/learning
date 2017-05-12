@@ -8,8 +8,8 @@ from PIL import Image, ImageTk
 from random import randint, choice
 
 
-STANDART_WORLD_WIDTH = 5
-STANDART_WORLD_HEIGHT = 5
+WORLD_WIDTH = 10
+WORLD_HEIGHT = 10
 
 SIDE_PX = 50
 ERROR = -1
@@ -17,8 +17,8 @@ ERROR_BAD_BINDING_ARGS = -2
 
 
 root = Tk()
-root.config(width=STANDART_WORLD_WIDTH * SIDE_PX,
-            height=STANDART_WORLD_HEIGHT * SIDE_PX)
+root.config(width=WORLD_WIDTH * SIDE_PX,
+            height=WORLD_HEIGHT * SIDE_PX)
 root.protocol("WM_DELETE_WINDOW", exit)
 
 
@@ -31,17 +31,8 @@ TEXTURES = {
         'men' : ImageTk.PhotoImage(Image.open('./textures/men.png'))
 }
 
-PIL_IMAGES = {
-        'road' : Image.open('./textures/road.png'),
-        'water' : Image.open('./textures/water.png'),
-        'mountain' : Image.open('./textures/mountain.png'),
-        'tree' : Image.open('./textures/tree.png'),
-        'chosen_corner' : Image.open('./textures/chosen_corner.png'),
-        'men' : Image.open('./textures/men.png')
-}
 
-
-def length(x1, y1, x2, y2):
+def coord_range(x1, y1, x2, y2):
     return abs(x1 - x2) + abs(y1 - y2)
 
 
@@ -54,42 +45,42 @@ class Creature(object):
         self.x = x
         self.y = y
         self.selected = False
+        self.spd = 2
 
     def select(self):
         self.select = True
+        for x in range(max(self.x - 2, 0), min(self.x + 2, self.place.width)):
+            for y in range(max(self.y - 2, 0), min(self.y + 2, self.place.height)):
+                tyle = self.place.map[x][y]
+                if coord_range(self.x, self.y, x, y) <= self.spd:
+                    tyle.add_texture(texture_name='chosen_corner')
 
 
 class Clickable_tyle(tyles.TkWorldTyle):
-    def __init__(self, world, canvas, x=0, y=0, symb='.', prev_tyle=None):
-        tyles.TkWorldTyle.__init__(self, world, canvas, x, y, symb, prev_tyle)
+    def __init__(self, world, canvas, x=0, y=0, symb='.'):
+        tyles.TkWorldTyle.__init__(self, world, canvas, x, y, symb)
         self.creature = None
-        print(self.canvas, x, y)
-        self.bind('<Button-1>', exit)
     
-    def select(self, event):
-        print(self.canvas)
-        if randint(0, 1):
-            self.add_texture(TEXTURES['men'], 'men')
+    def click_handler(self, event):
+        if self.creature is None:
+            self.set_creature(Creature(world, 'Cr', x=self.x, y=self.y))
         else:
-            self.add_texture(TEXTURES['water'], 'water')
-
+            self.creature.select()
     def set_creature(self, creature):
         self.creature = creature
-        self.a = 0
 
     def bind(self, button, action):
         try:
             self.canvas.bind(button, action)
+            return 0
         except:
             return ERROR_BAD_BINDING_ARGS
 
 
 def main():
+    global world
     world = tyles.TkWorld(10, 10, pre_generated=True, tyle_type=Clickable_tyle,
-                          window=root, textures=TEXTURES, pil_images=PIL_IMAGES)
-    world.full_update()
-    print(world.map[5][5].canvas)
-
+                          window=root, textures=TEXTURES)
     world.root_window.mainloop()
 
 
