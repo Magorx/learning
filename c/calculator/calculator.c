@@ -100,6 +100,7 @@ int32_t token_destruct(struct token token) {
     if (token.type == ID) {
         free(token.id);
     }
+
     token.type = POISON_INT;
     token.number = POISON_INT;
     token.symb = POISON_CHAR;
@@ -129,28 +130,40 @@ int32_t token_dump(struct token token) {
     return 0;
 }
 
-struct token *get_token_number(char *expression, 
-                               int32_t start_index, int32_t *end_index) {
+struct token *write_token_number(char *expression, struct token *token_arr, int32_t index,
+                                 int32_t *start_index) {
     double number = 0;
-    char *get_number_enptr = NULL;
-    get_number(expression, &number, start_index, &get_number_enptr);
-    *end_index = index_in_string_by_char_ptr(expression,
-                                             get_number_enptr) - 1;
+    char *get_number_endptr = NULL;
+    get_number(expression, &number, *start_index, &get_number_endptr);
+    *start_index = index_in_string_by_char_ptr(expression,
+                                               get_number_endptr) - 1;
+    struct token *token = token_construct_number(number);
+    token_arr[index] = *token;
+    free(token);
 
     return token_construct_number(number);
 }
 
-struct token *get_token_id(char *expression,
-                           int32_t start_index, int32_t *end_index) {
+struct token *write_token_id(char *expression, struct token *token_arr, int32_t index,
+                                 int32_t *start_index) {
     char *id = NULL;
-    get_word(expression, start_index, &id);
-    *end_index = start_index + strlen(id) - 1;
+    get_word(expression, *start_index, &id);
+    *start_index = *start_index + strlen(id) - 1;
 
-    return token_construct_id(id);
+    struct token *token = token_construct_id(id);
+    token_arr[index] = *token;
+    free(token);
+
+    return NULL;
 }
 
-struct token *get_token_symb(char *expression, int32_t symb_index) {
-    return token_construct_symb(expression[symb_index]);
+struct token *write_token_symb(char *expression, struct token *token_arr, 
+                               int32_t index, int32_t symb_index) {
+    struct token *token = token_construct_symb(expression[symb_index]);
+    token_arr[index] = *token;
+    free(token);
+
+    return NULL;
 };
 
 struct token *tokenize(char *expression) {
@@ -180,20 +193,17 @@ struct token *tokenize(char *expression) {
             }
         }
         if (isdigit(symb)) {
-            token_arr[last_token_index] = *get_token_number(expression,
-                                                            symb_index,
-                                                            &symb_index);
+            write_token_number(expression, token_arr, last_token_index, 
+                               &symb_index);
         } else if isalpha(symb) {
-            
-            token_arr[last_token_index] = *get_token_id(expression,
-                                                        symb_index,
-                                                            &symb_index);
+            write_token_id(expression, token_arr, last_token_index,
+                           &symb_index);
         } else {        
-            token_arr[last_token_index] = *get_token_symb(expression,
-                                                          symb_index);
+            write_token_symb(expression, token_arr, last_token_index, 
+                             symb_index);
         }
+
         ++last_token_index;
-        
     }
 
     return token_arr;
@@ -273,7 +283,6 @@ int32_t eval_factor(struct token *tokens, int32_t *cur_pos, double *result) {
                 tmp_result = tmp_result * -1;
                 break;
             case '(':
-                //++*cur_pos;
                 eval_unit(tokens, cur_pos, &tmp_result);
         }
     } else if (token.type == ID) {
