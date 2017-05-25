@@ -163,7 +163,7 @@ class TkWorldTyle(WorldTyle):
                        redraw=True):
         if texture_name is None:
             texture_name = 'error'
-        if texture is not None:
+        if texture is None:
             texture = self.world.textures[texture_name]
 
         self.textures.insert(pos, texture)
@@ -174,6 +174,19 @@ class TkWorldTyle(WorldTyle):
 
     def add_texture(self, texture=None, texture_name=None, redraw=True):
         self.insert_texture(len(self.textures), texture, texture_name, redraw)
+
+    def delete_texture(self, pos):
+        try:
+            del self.textures[pos]
+            del self.textures_names[pos]
+            self.canvas.delete(self.images[pos])
+            del self.images[pos]
+        except Exception:
+            print('ERROR DELETING TEXTURE')
+            return ERROR
+
+    def remove_texture(self):
+        self.delete_texture(len(self.textures) - 1)
 
     def redraw(self):
         self.clear_images()
@@ -221,6 +234,10 @@ class TkWorldTyle(WorldTyle):
             self.clear_images()
             self.add_texture_by_symb()
         self.redraw()
+
+    def click_handler(self, event):
+        print('hi')
+        pass # You should use your own, if need
 
 
 
@@ -271,7 +288,7 @@ class TkWorld(World):
                 tyle.add_texture(tyle.texture_by_symb(tyle.symb), tyle._texture_name_by_symb(tyle.symb))
 
     def click_handler(self):
-        pass # You should use your own select, if need
+        pass # You should use your own, if need
 
     def full_update(self, to_bind=False):
         for x in range(self.width):
