@@ -240,6 +240,29 @@ class TkWorldTyle(WorldTyle):
         pass # You should use your own, if need
 
 
+class TkTyleInfo(object):
+    def __init__(self, tyle, canvas):
+        self.tyle = tyle
+        self.canvas = canvas
+        self.infos = {}
+
+    def add_info_text(self, x, y, text, mark='', anchor=tkinter.CENTER):
+        if not mark:
+            mark = text
+        if mark in self.infos:
+            self.canvas.delete(self.infos[mark])
+
+        self.infos[mark] = self.canvas.create_text(x, y, 
+                                                   text=text, anchor=anchor)
+        self.canvas.focus(self.infos[mark])
+
+        return 0
+
+    def delete_info(self, mark):
+        if mark in self.infos:
+            self.canvas.delete(self.infos[mark])
+        return 0
+
 
 class TkWorld(World):
     def __init__(self, width, height, tyle_type=TkWorldTyle, common_symb='.',
