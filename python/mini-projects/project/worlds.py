@@ -198,7 +198,10 @@ class TkWorldTyle(WorldTyle):
                     self.textures.append(self.world.textures['error'])
 
         for texture in self.textures:
-            self.images.append(self.canvas.create_image(0, 0, anchor='nw', image=texture))
+            self.images.append(self.canvas.create_image(self.world.side_px//2,
+                                                        self.world.side_px//2,
+                                                        anchor=tkinter.CENTER, 
+                                                        image=texture))
 
     def _texture_name_by_symb(self, symb,
                               symb_texture_dict=STANDART_SYMB_TEXTURE_DICT):
@@ -246,14 +249,16 @@ class TkTyleInfo(object):
         self.canvas = canvas
         self.infos = {}
 
-    def add_info_text(self, x, y, text, mark='', anchor=tkinter.CENTER):
+    def add_info_text(self, x, y, text, mark='', anchor=tkinter.CENTER,
+                      color='black'):
         if not mark:
             mark = text
         if mark in self.infos:
             self.canvas.delete(self.infos[mark])
 
-        self.infos[mark] = self.canvas.create_text(x, y, 
-                                                   text=text, anchor=anchor)
+        self.infos[mark] = self.canvas.create_text(x, y, font=20,
+                                                   text=text, anchor=anchor,
+                                                   fill=color)
         self.canvas.focus(self.infos[mark])
 
         return 0
@@ -271,6 +276,8 @@ class TkWorld(World):
                  window=None,
                  textures=None):
         super(TkWorld, self).__init__(width, height, common_symb=common_symb)
+        self.side_px = side_px
+
         if pre_generated:
             self.GenerateWorld()
 

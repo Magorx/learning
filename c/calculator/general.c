@@ -57,7 +57,7 @@ int randstr(int len, char **string_ptr) {
 	return 0;
 }
 
-int32_t get_number(char *string, double *number,
+int get_number(char *string, double *number,
 				   int start_index, char **endptr) {
 	if (string == NULL)
 		return ERR_NULL_OBJ;

@@ -278,8 +278,8 @@ int32_t eval_factor(struct token *tokens, int32_t *cur_pos, double *result) {
     printf("fact pos %d\n", *cur_pos);
 
     double tmp_result = 0;
+    
     struct token token = tokens[*cur_pos];
-
     if (token.type == NUMBER) {
         eval_unit(tokens, cur_pos, &tmp_result);
     } else if (token.type == SYMB) {

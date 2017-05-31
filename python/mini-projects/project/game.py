@@ -76,18 +76,24 @@ class Creature(object):
         place.creature = self
 
         self.info = worlds.TkTyleInfo(place, place.map[x][y].canvas)
-        self.info.add_info_text(0, 0, self.mp, mark='mp', anchor=NW)
-        self.info.add_info_text(0, SIDE_PX, self.hp, mark='hp', anchor=SW)
-        self.info.add_info_text(SIDE_PX, 0, self.atk, mark='atk', anchor=SE)
+        self.info.add_info_text(0, 0, self.mp, mark='mp', anchor=NW, 
+                                color='blue')
+        self.info.add_info_text(0, SIDE_PX, self.hp, mark='hp', anchor=SW,
+                                color='orange')
+        self.info.add_info_text(SIDE_PX, SIDE_PX, self.atk, mark='atk', anchor=SE,
+                                color='red')
 
     def delete_self_texture(self):
         tyle = self.place.map[self.x][self.y]
         tyle.delete_texture(tyle.textures.index(self.texture))
 
     def update_info(self):
-        self.info.add_info_text(0, 0, self.mp, mark='mp', anchor=NW)
-        self.info.add_info_text(0, SIDE_PX, self.hp, mark='hp', anchor=SW)
-        self.info.add_info_text(SIDE_PX, 0, self.atk, mark='atk', anchor=SE)
+        self.info.add_info_text(0, 0, self.mp, mark='mp', anchor=NW, 
+                                color='blue')
+        self.info.add_info_text(0, SIDE_PX, self.hp, mark='hp', anchor=SW,
+                                color='green')
+        self.info.add_info_text(SIDE_PX, SIDE_PX, self.atk, mark='atk', anchor=SE,
+                                color='red')
 
     def deleete_info(self):
         self.info.delete_info('hp')
@@ -201,6 +207,7 @@ class Clickable_tyle(worlds.TkWorldTyle):
             self.set_creature(Creature(world, 'Cr', x=self.x, y=self.y, 
                                        hp=randint(1, 4), atk=randint(1, 2),
                                        mp=randint(2, 5)))
+            self.creature.update_info()
         else:
             self.creature.select()
 

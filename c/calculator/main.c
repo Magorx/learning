@@ -21,5 +21,8 @@ int main() {
 
     free(str);
 
+    int32_t a = 5;
+    printf("a = %d\n", a);
+
     return 0;
 }
