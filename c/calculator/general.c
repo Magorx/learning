@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -7,8 +6,6 @@
 
 const int POISON_INT = -123;
 const char POISON_CHAR = '~';
-const int TRUE = 1;
-const int FALSE = 0;
 const int MAX_MEMORY_ALLOCATION_ATTEMPTS = 5;
 const int MAX_RANDOM_STRING_LENGTH = 100;
 
@@ -57,72 +54,53 @@ int randstr(int len, char **string_ptr) {
 	return 0;
 }
 
-int get_number(char *string, double *number,
-				   int start_index, char **endptr) {
+char *get_word(char *string, char *endptr) {
 	if (string == NULL)
-		return ERR_NULL_OBJ;
+		return NULL;
 
-	char *tmp_string = &string[start_index];
-	//printf("%s\n", tmp_string);
-	*number = strtod(tmp_string, endptr);
-
-	return 0;
-}
-
-int get_word(char *string, int start_index, char **word) {
-	if (string == NULL)
-		return ERR_NULL_OBJ;
-	if (!isalpha(string[start_index]))
-		return ERR_ARG2;
-
-	char *new_word = (char*)
-		many_atempts_calloc(strlen(string) - start_index + 2,
-							sizeof(char),
-						    MAX_MEMORY_ALLOCATION_ATTEMPTS);
-	if (new_word == NULL) {
-		return ERR_STRING_NOT_CREATED;
-	}
-
-	int symb_index = start_index;
-	for (symb_index = start_index; symb_index < strlen(string); ++symb_index) {
+	int word_len = 0;
+	for (int symb_index = 0; symb_index < strlen(string); ++symb_index) {
 		if (isalpha(string[symb_index])) {
-			new_word[symb_index - start_index] = string[symb_index];
-		} else {
-			break;
+			++word_len;
 		}
 	}
 
-	*word = new_word;
-	return 0;
+	char *word = many_atempts_calloc(word_len,
+							   sizeof(char),
+							   MAX_MEMORY_ALLOCATION_ATTEMPTS);
+	if (word == NULL) {
+		return NULL;
+	}
+	memcpy(word, string, word_len * sizeof(char));
+	if (endptr != NULL) {
+		endptr = &string[word_len];
+	}
+
+	return word;
 }
 
 int index_in_string_by_char_ptr(char *string, char *symb_ptr) {
 	if (string == NULL)
 		return ERR_ARG1;
-
-	for (int symb_index = 0; symb_index < strlen(string); ++symb_index) {
-		if (&string[symb_index] == symb_ptr) {
-			return symb_index;
-		}
+	if (symb_ptr == NULL) {
+		return ERR_ARG2;
 	}
 
-	return ERR_ARG2;
+	return symb_ptr - string;
 }
 
 int int_len(int number) {
+	int len = 1;
 	if (number < 0) {
-		return _int_len(-number, 1);
-	} else {
-		return _int_len(number, 0);
+		++len;
+		number = -number;
 	}
-}
+	while (number > 9) {
+		++len;
+		number = number / 10;
+	}
 
-int _int_len(int number, int len_count) {
-	if (number >= 0 && number <= 9) {
-		return len_count + 1;
-	} else {
-		return _int_len(number / 10, len_count + 1);
-	}
+	return len;
 }
 
 void *many_atempts_calloc(int elem_count, int elem_size, int attempt_count) {

@@ -1,0 +1,42 @@
+FIX GITHAB
+TABS
+DEBUG DEFINE
+TEST!!!
+DOXY
+
+calc.h
+  unused -> ? |
+  destruct -> clear + destruct |
+  handle_func -> eval_func |
+  voobshe function delete, only calculate must be alive |
+
+general.h
+  TRUE, FALSE -> stdbool.h |
+  get_number -> delete (use указательная арифтметика) |
+  get_word - use standart interface (2 args, return) |
+
+general.c
+  index... -->> return symb_ptr - string && fix &&& vashe rewrite |
+  ptr_distance - need? | no
+  int_len: use '?' && use cycle |
+
+calc.c
+  construct_id: copy, not .id=id
+  leave construct_ but read_token_x_to_ptr not call it, set vars by itself
+  деструктор заливает ядом, клеар ставит 0
+  write_unued == clear !
+  делаю clear пока read, не надо вызывать для всего массива токенов
+  tokenize: symb_index будет меняться только в read'ах, сделать while, strlen(expr - запомнить)
+  
+  eval'ы: switch -> if
+  while -> for ?
+
+  factor не проверяет на число
+  also там ошибка (-2^2 = 4, т.к. -2^2)
+
+  check cur_pos dublingin unit
+
+  func: use else
+
+  clear in calc
+

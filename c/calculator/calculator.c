@@ -9,11 +9,17 @@
 const int32_t NUMBER = 1;
 const int32_t ID = 2;
 const int32_t SYMB = 3;
-const int32_t UNUSED = 4;
+const int32_t EMPTY = 4;
 const int32_t MAX_ID_LEN = 20;
 const int32_t MAX_EXPRESSION_LEN = 1000;
 
-struct token *token_construct_unused() {
+int32_t eval_expression(struct token *tokens, int32_t *cur_pos, double *result);
+int32_t eval_term(struct token *tokens, int32_t *cur_pos, double *result);
+int32_t eval_factor(struct token *tokens, int32_t *cur_pos, double *result);
+int32_t eval_unit(struct token *tokens, int32_t *cur_pos, double *result);
+int32_t eval_function(char *function, double arg, double *result);
+
+struct token *token_construct_empty() {
     struct token *new_token = (struct token*)
         many_atempts_calloc(1,
                             sizeof(struct token),
@@ -22,7 +28,7 @@ struct token *token_construct_unused() {
         return NULL;
     }
 
-    new_token->type = UNUSED;
+    new_token->type = EMPTY;
 
     return new_token;
 }
@@ -33,14 +39,6 @@ struct token *token_construct_number(double number) {
                             sizeof(struct token),
                             MAX_MEMORY_ALLOCATION_ATTEMPTS);
     if (new_token == NULL) {
-        return NULL;
-    }
-
-    new_token->id = (char*)
-        many_atempts_calloc(MAX_ID_LEN,
-                            sizeof(char),
-                            MAX_MEMORY_ALLOCATION_ATTEMPTS);
-    if (new_token->id == NULL) {
         return NULL;
     }
 
@@ -64,6 +62,7 @@ struct token *token_construct_id(char *id) {
                             sizeof(char),
                             MAX_MEMORY_ALLOCATION_ATTEMPTS);
     if (new_token->id == NULL) {
+        free(new_token);
         return NULL;
     }
 
@@ -82,31 +81,37 @@ struct token *token_construct_symb(char symb) {
         return NULL;
     }
 
-    new_token->id = (char*)
-        many_atempts_calloc(MAX_ID_LEN,
-                            sizeof(char),
-                            MAX_MEMORY_ALLOCATION_ATTEMPTS);
-    if (new_token->id == NULL) {
-        return NULL;
-    }
-
     new_token->symb = symb;
     new_token->type = SYMB;
 
     return new_token;
 }
 
-int32_t token_destruct(struct token token) {
-    if (token.type == ID) {
-        free(token.id);
+int32_t token_clear(struct token *token) {
+    if (token == NULL) {
+        return ERR_NULL_OBJ;
+    }
+    if (token->type == ID) {
+        free(token->id);
     }
 
-    token.type = POISON_INT;
-    token.number = POISON_INT;
-    token.symb = POISON_CHAR;
+    token->type = POISON_INT;
+    token->number = POISON_INT;
+    token->symb = POISON_CHAR;
 
     return 0;
 };
+
+int32_t token_destruct(struct token *token) {
+    if (token == NULL) {
+        return ERR_NULL_OBJ;
+    }
+
+    token_clear(token);
+    free(token);
+
+    return 0;
+}
 
 int32_t token_dump(struct token token) {
     switch (token.type) {
@@ -119,7 +124,7 @@ int32_t token_dump(struct token token) {
         case SYMB:
             printf("Symb[%c]\n", token.symb);
             break;
-        case UNUSED:
+        case EMPTY:
             printf("Unused\n");
             break;
         default:
@@ -130,8 +135,8 @@ int32_t token_dump(struct token token) {
     return 0;
 }
 
-int32_t write_token_unused_to_ptr(struct token *ptr) {
-    struct token *token = token_construct_unused();
+int32_t write_token_empty_to_ptr(struct token *ptr) {
+    struct token *token = token_construct_empty();
     *ptr = *token;
     free(token);
 
@@ -139,12 +144,10 @@ int32_t write_token_unused_to_ptr(struct token *ptr) {
 }
 
 int32_t read_token_number_to_ptr(char *expression, int32_t *start_index,
-                                       struct token *ptr) {
-    double number = 0;
-    char *get_number_endptr = NULL;
-    get_number(expression, &number, *start_index, &get_number_endptr);
-    *start_index = index_in_string_by_char_ptr(expression,
-                                               get_number_endptr) - 1;
+                                 struct token *ptr) {
+    char *endptr = NULL;
+    double number = strtod(&expression[*start_index], &endptr);
+    *start_index = endptr - expression;
     struct token *token = token_construct_number(number);
     *ptr = *token;
     free(token);
@@ -153,10 +156,9 @@ int32_t read_token_number_to_ptr(char *expression, int32_t *start_index,
 }
 
 int32_t read_token_id_to_ptr(char *expression, int32_t *start_index,
-                                   struct token *ptr) {
-    char *id = NULL;
-    get_word(expression, *start_index, &id);
-    *start_index = *start_index + strlen(id) - 1;
+                             struct token *ptr) {
+    char *id = get_word(&expression[*start_index], NULL);
+    *start_index = *start_index + strlen(id);
 
     struct token *token = token_construct_id(id);
     *ptr = *token;
@@ -170,6 +172,7 @@ int32_t read_token_symb_to_ptr(char *expression, int32_t *symb_index,
     struct token *token = token_construct_symb(expression[*symb_index]);
     *ptr = *token;
     free(token);
+    ++*symb_index;
 
     return 0;
 };
@@ -182,23 +185,25 @@ struct token *tokenize(char *expression) {
         many_atempts_calloc(strlen(expression) + 1,
                             sizeof(struct token),
                             MAX_MEMORY_ALLOCATION_ATTEMPTS);
+    if (token_arr == NULL)
+        return NULL;
     for (int32_t i = 0; i < strlen(expression) + 1; ++i) {
-        write_token_unused_to_ptr(&token_arr[i]);
+        write_token_empty_to_ptr(&token_arr[i]);
     }
 
-    char symb = 0;
-    int32_t last_token_index = 0;
-
-    for (int32_t symb_index = 0;
+    int32_t symb_index = 0;
+    for (int32_t last_token_index = 0;
          symb_index < strlen(expression);
-         ++symb_index) {
+         ++last_token_index) {
+        char symb = 0;
         symb = expression[symb_index];
+        if (symb == ' ') {
+            ++symb_index;
+            --last_token_index;
+            continue;
+        }
         if (isspace(symb)) {
-            if (symb == ' ') {
-                continue;
-            } else {
-                break;
-            }
+            break;
         }
 
         if (isdigit(symb)) {
@@ -211,8 +216,6 @@ struct token *tokenize(char *expression) {
             read_token_symb_to_ptr(expression, &symb_index, 
                                    &token_arr[last_token_index]);
         }
-
-        ++last_token_index;
     }
 
     return token_arr;
@@ -225,7 +228,6 @@ int32_t eval_expression(struct token *tokens, int32_t *cur_pos, double *result) 
     eval_term(tokens, cur_pos, &cur_result);
 
     struct token token = tokens[*cur_pos];
-    
     while (token.type == SYMB && (token.symb == '+' || token.symb == '-')) {
         ++*cur_pos;
         double tmp_result = 0;
@@ -256,13 +258,12 @@ int32_t eval_term(struct token *tokens, int32_t *cur_pos, double *result) {
     while (token.type == SYMB && (token.symb == '*' || token.symb == '/')) {
         ++*cur_pos;
         double tmp_result = 0;
+        eval_factor(tokens, cur_pos, &tmp_result);
         switch (token.symb) {
             case '*':
-                eval_factor(tokens, cur_pos, &tmp_result);
                 cur_result = cur_result * tmp_result;
                 break;
             case '/':
-                eval_factor(tokens, cur_pos, &tmp_result);
                 cur_result = cur_result / tmp_result;
                 break;
         }
@@ -283,14 +284,12 @@ int32_t eval_factor(struct token *tokens, int32_t *cur_pos, double *result) {
     if (token.type == NUMBER) {
         eval_unit(tokens, cur_pos, &tmp_result);
     } else if (token.type == SYMB) {
+        ++*cur_pos;
+        eval_factor(tokens, cur_pos, &tmp_result);
         switch (token.symb) {
             case '+':
-                ++*cur_pos;
-                eval_factor(tokens, cur_pos, &tmp_result);
                 break;
             case '-':
-                ++*cur_pos;
-                eval_factor(tokens, cur_pos, &tmp_result);
                 tmp_result = tmp_result * -1;
                 break;
             case '(':
@@ -305,7 +304,6 @@ int32_t eval_factor(struct token *tokens, int32_t *cur_pos, double *result) {
     if (token.type == SYMB && token.symb == '^') {
         ++*cur_pos;
         eval_factor(tokens, cur_pos, &tmp_result);
-        printf("HI\n");
         *result = pow(*result, tmp_result);
     }
 
@@ -330,16 +328,16 @@ int32_t eval_unit(struct token *tokens, int32_t *cur_pos, double *result) {
     }
 
     if (token.type == ID) {
-        ++*cur_pos;
+        *cur_pos = *cur_pos + 2;
         eval_expression(tokens, cur_pos, result);
-        handle_function(token.id, *result, result);
+        eval_function(token.id, *result, result);
     }
 
     return 0;
 }
 
 
-int32_t handle_function(char *function, double arg, double *result) {
+int32_t eval_function(char *function, double arg, double *result) {
     if (function == NULL)
         return ERR_NULL_OBJ;
 
@@ -387,8 +385,8 @@ int32_t calculate(char *expression, double *result) {
 
     struct token *tokens = tokenize(expression);
 
-    int32_t DEBUG = FALSE;
-    if (DEBUG == TRUE) {
+    int32_t DEBUG = false;
+    if (DEBUG == true) {
          for (int i = 0; i < strlen(expression); ++i) {
             token_dump(tokens[i]);
         }
@@ -398,7 +396,7 @@ int32_t calculate(char *expression, double *result) {
     eval_expression(tokens, &cur_pos, result);
 
     for (int i = 0; i < strlen(expression); ++i) {
-        token_destruct(tokens[i]);
+        token_clear(&tokens[i]);
     }
     free(tokens);
 

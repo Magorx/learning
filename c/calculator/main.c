@@ -5,7 +5,6 @@
 #include "general.h"
 #include "calculator.h"
 
-#define ARR_LEN(arr) sizeof(arr) / sizeof(arr[0])
 int main() {
     printf("Enter your expression: ");
     char *str = many_atempts_calloc(sizeof(char),
@@ -21,8 +20,7 @@ int main() {
 
     free(str);
 
-    int32_t a = 5;
-    printf("a = %d\n", a);
+    printf("len = %d", int_len(-1234));
 
     return 0;
 }

@@ -1,6 +1,9 @@
 #ifndef GENERAL_H
 #define GENERAL_H
 
+#include <stdlib.h>
+#include <stdbool.h>
+
 #define ERR_RETURN(err_code) \
     do { \
         printf("ERROR [%s]:\n", #err_code); \
@@ -9,7 +12,6 @@
 		printf("line [%d]\n", __LINE__); \
         return err_code; \
     } while (0);
-
 
 #define ASSERT_EQ(first, second) \
 	do { \
@@ -28,7 +30,7 @@
 
 #define ASSERT_CMP_EQ(first, second, comparator) \
 	do { \
-		if (comparator(first, second) != TRUE) { \
+		if (comparator(first, second) != true) { \
 			printf("ASSERTION FAILED\n"); \
 			exit(EXIT_SUCCESS); \
 		} \
@@ -36,7 +38,7 @@
 
 #define EXPECT_CMP_EQ(first, second, comparator) \
 	do { \
-		if (comparator(first, second) != TRUE) { \
+		if (comparator(first, second) != true) { \
 			printf("EXPECTATION ERROR\n"); \
 		} \
 	} while (0); \
@@ -51,8 +53,6 @@ enum GENERAL_ERRORS {
 
 extern const int POISON_INT;
 extern const char POISON_CHAR;
-extern const int TRUE;
-extern const int FALSE;
 extern const int MAX_MEMORY_ALLOCATION_ATTEMPTS;
 extern const int MAX_RANDOM_STRING_LENGT;
 
@@ -67,12 +67,9 @@ extern const int TEST_ITER_COUNT;
 
 int randint(int min, int max);
 int randstr(int len, char **string_pointer);
-int32_t get_number(char *string, double *number,
-				   int start_index, char **endptr);
-int get_word(char *string, int start_index, char **word);
+char *get_word(char *string, char *endptr);
 int index_in_string_by_char_ptr(char *string, char *symb_ptr);
 int int_len(int number);
-int _int_len(int number, int len_count);
 void *many_atempts_calloc(int elem_count, int elem_size, int attempt_count);
 
 #endif  // GENERAL_H
