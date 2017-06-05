@@ -20,7 +20,5 @@ int main() {
 
     free(str);
 
-    printf("len = %d", int_len(-1234));
-
     return 0;
 }

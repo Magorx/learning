@@ -6,10 +6,10 @@
 #include "general.h"
 #include "calculator.h"
 
+const int32_t EMPTY = 0;
 const int32_t NUMBER = 1;
 const int32_t ID = 2;
 const int32_t SYMB = 3;
-const int32_t EMPTY = 4;
 const int32_t MAX_ID_LEN = 20;
 const int32_t MAX_EXPRESSION_LEN = 1000;
 
@@ -49,6 +49,10 @@ struct token *token_construct_number(double number) {
 };
 
 struct token *token_construct_id(char *id) {
+    if (id == NULL) {
+        return NULL;
+    }
+
     struct token *new_token = (struct token*)
         many_atempts_calloc(1,
                             sizeof(struct token),
@@ -66,7 +70,7 @@ struct token *token_construct_id(char *id) {
         return NULL;
     }
 
-    new_token->id = id;
+    strcpy(new_token->id, id);
     new_token->type = ID;
 
     return new_token;
@@ -95,9 +99,10 @@ int32_t token_clear(struct token *token) {
         free(token->id);
     }
 
-    token->type = POISON_INT;
-    token->number = POISON_INT;
-    token->symb = POISON_CHAR;
+    token->id = NULL;
+    token->type = 0;
+    token->number = 0;
+    token->symb = 0;
 
     return 0;
 };
@@ -107,7 +112,14 @@ int32_t token_destruct(struct token *token) {
         return ERR_NULL_OBJ;
     }
 
-    token_clear(token);
+    if (token->type == ID) {
+        free(token->id);
+    }
+
+    token->type = POISON_INT;
+    token->number = POISON_INT;
+    token->id = NULL;
+    token->symb = POISON_CHAR;
     free(token);
 
     return 0;
@@ -135,22 +147,17 @@ int32_t token_dump(struct token token) {
     return 0;
 }
 
-int32_t write_token_empty_to_ptr(struct token *ptr) {
-    struct token *token = token_construct_empty();
-    *ptr = *token;
-    free(token);
-
-    return 0;
-}
-
 int32_t read_token_number_to_ptr(char *expression, int32_t *start_index,
                                  struct token *ptr) {
     char *endptr = NULL;
     double number = strtod(&expression[*start_index], &endptr);
     *start_index = endptr - expression;
-    struct token *token = token_construct_number(number);
-    *ptr = *token;
-    free(token);
+
+    struct token token;
+    token_clear(&token);
+    token.type = NUMBER;
+    token.number = number;
+    *ptr = token;
 
     return 0;
 }
@@ -160,18 +167,28 @@ int32_t read_token_id_to_ptr(char *expression, int32_t *start_index,
     char *id = get_word(&expression[*start_index], NULL);
     *start_index = *start_index + strlen(id);
 
-    struct token *token = token_construct_id(id);
-    *ptr = *token;
-    free(token);
+    struct token token;
+    token.type = ID;
+    token.id = (char*)
+        many_atempts_calloc(MAX_ID_LEN,
+                            sizeof(char),
+                            MAX_MEMORY_ALLOCATION_ATTEMPTS);
+    if (token.id == NULL) {
+        return ERR_NULL_OBJ;
+    }
+    strcpy(token.id, id);
+    *ptr = token;
 
     return 0;
 }
 
 int32_t read_token_symb_to_ptr(char *expression, int32_t *symb_index, 
                                      struct token *ptr) {
-    struct token *token = token_construct_symb(expression[*symb_index]);
-    *ptr = *token;
-    free(token);
+    struct token token;
+    token_clear(&token);
+    token.type = SYMB;
+    token.symb = expression[*symb_index];
+    *ptr = token;
     ++*symb_index;
 
     return 0;
@@ -180,26 +197,22 @@ int32_t read_token_symb_to_ptr(char *expression, int32_t *symb_index,
 struct token *tokenize(char *expression) {
     if (expression == NULL)
         return NULL;
+    int32_t expr_len = strlen(expression);
 
     struct token *token_arr = (struct token*)
-        many_atempts_calloc(strlen(expression) + 1,
+        many_atempts_calloc(expr_len + 1,
                             sizeof(struct token),
                             MAX_MEMORY_ALLOCATION_ATTEMPTS);
     if (token_arr == NULL)
         return NULL;
-    for (int32_t i = 0; i < strlen(expression) + 1; ++i) {
-        write_token_empty_to_ptr(&token_arr[i]);
-    }
 
     int32_t symb_index = 0;
-    for (int32_t last_token_index = 0;
-         symb_index < strlen(expression);
-         ++last_token_index) {
+    int32_t last_token_index = 0;
+    while (symb_index < expr_len) {
         char symb = 0;
         symb = expression[symb_index];
         if (symb == ' ') {
             ++symb_index;
-            --last_token_index;
             continue;
         }
         if (isspace(symb)) {
@@ -216,6 +229,8 @@ struct token *tokenize(char *expression) {
             read_token_symb_to_ptr(expression, &symb_index, 
                                    &token_arr[last_token_index]);
         }
+
+        ++last_token_index;
     }
 
     return token_arr;
@@ -232,11 +247,9 @@ int32_t eval_expression(struct token *tokens, int32_t *cur_pos, double *result) 
         ++*cur_pos;
         double tmp_result = 0;
         eval_term(tokens, cur_pos, &tmp_result);
-        switch (token.symb) {
-            case '+':
+        if (token.symb == '+') {
                 cur_result = cur_result + tmp_result;
-                break;
-            case '-':
+        } else {
                 cur_result = cur_result - tmp_result;
                 break;
         }
@@ -259,13 +272,10 @@ int32_t eval_term(struct token *tokens, int32_t *cur_pos, double *result) {
         ++*cur_pos;
         double tmp_result = 0;
         eval_factor(tokens, cur_pos, &tmp_result);
-        switch (token.symb) {
-            case '*':
-                cur_result = cur_result * tmp_result;
-                break;
-            case '/':
-                cur_result = cur_result / tmp_result;
-                break;
+        if (token.symb == '*') {
+            cur_result = cur_result * tmp_result;
+        } else {
+            cur_result = cur_result / tmp_result;
         }
 
         token = tokens[*cur_pos];
@@ -281,21 +291,16 @@ int32_t eval_factor(struct token *tokens, int32_t *cur_pos, double *result) {
     double tmp_result = 0;
     
     struct token token = tokens[*cur_pos];
-    if (token.type == NUMBER) {
-        eval_unit(tokens, cur_pos, &tmp_result);
-    } else if (token.type == SYMB) {
+    if (token.type == SYMB && (token.symb == '+' || token.symb == '-')) {
         ++*cur_pos;
         eval_factor(tokens, cur_pos, &tmp_result);
-        switch (token.symb) {
-            case '+':
-                break;
-            case '-':
-                tmp_result = tmp_result * -1;
-                break;
-            case '(':
-                eval_unit(tokens, cur_pos, &tmp_result);
+        if (token.symb == '-') {
+                tmp_result = -tmp_result;
         }
-    } else if (token.type == ID) {
+
+        *result = tmp_result;
+        return 0;
+    } else {
         eval_unit(tokens, cur_pos, &tmp_result);
     }
     *result = tmp_result;
@@ -314,21 +319,20 @@ int32_t eval_unit(struct token *tokens, int32_t *cur_pos, double *result) {
     printf("unit pos %d\n", *cur_pos);
 
     struct token token = tokens[*cur_pos];
+    ++*cur_pos;
 
     if (token.type == NUMBER) {
         *result = token.number;
-        ++*cur_pos;
         return 0;
     }
 
     if (token.type == SYMB && token.symb == '(') {
-        ++*cur_pos;
         eval_expression(tokens, cur_pos, result);
         ++*cur_pos;
     }
 
     if (token.type == ID) {
-        *cur_pos = *cur_pos + 2;
+        ++*cur_pos;
         eval_expression(tokens, cur_pos, result);
         eval_function(token.id, *result, result);
     }
@@ -344,33 +348,23 @@ int32_t eval_function(char *function, double arg, double *result) {
     printf("func %s(%f)\n", function, arg);
     if (strcmp(function, "sqrt") == 0) {
         *result = sqrt(arg);
-    }
-    if (strcmp(function, "exp") == 0) {
+    } else if (strcmp(function, "exp") == 0) {
         *result = exp(arg);
-    }
-    if (strcmp(function, "sin") == 0) {
+    } else if (strcmp(function, "sin") == 0) {
         *result = sin(arg);
-    }
-    if (strcmp(function, "cos") == 0) {
+    } else if (strcmp(function, "cos") == 0) {
         *result = cos(arg);
-    }
-    if (strcmp(function, "log") == 0) {
+    } else if (strcmp(function, "log") == 0) {
         *result = log(arg);
-    }
-    if (strcmp(function, "lg") == 0) {
+    } else if (strcmp(function, "lg") == 0) {
         *result = log10(arg);
-        printf("%f\n", *result);
-    }
-    if (strcmp(function, "abs") == 0) {
+    } else if (strcmp(function, "abs") == 0) {
         *result = fabs(arg);
-    }
-    if (strcmp(function, "round") == 0) {
+    } else if (strcmp(function, "round") == 0) {
         *result = round(arg);
-    }
-    if (strcmp(function, "trunc") == 0) {
+    } else if (strcmp(function, "trunc") == 0) {
         *result = trunc(arg);
-    }
-    if (strcmp(function, "") == 0) {
+    } else if (strcmp(function, "") == 0) {
         *result = 0;
     }
 
@@ -384,10 +378,11 @@ int32_t calculate(char *expression, double *result) {
         return ERR_ARG2;
 
     struct token *tokens = tokenize(expression);
+    int32_t expr_len = strlen(expression);
 
     int32_t DEBUG = false;
     if (DEBUG == true) {
-         for (int i = 0; i < strlen(expression); ++i) {
+         for (int i = 0; i < expr_len; ++i) {
             token_dump(tokens[i]);
         }
     }
@@ -395,7 +390,7 @@ int32_t calculate(char *expression, double *result) {
     int32_t cur_pos = 0;
     eval_expression(tokens, &cur_pos, result);
 
-    for (int i = 0; i < strlen(expression); ++i) {
+    for (int i = 0; i < expr_len; ++i) {
         token_clear(&tokens[i]);
     }
     free(tokens);

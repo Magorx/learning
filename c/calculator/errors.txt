@@ -21,22 +21,22 @@ general.c
   int_len: use '?' && use cycle |
 
 calc.c
-  construct_id: copy, not .id=id
-  leave construct_ but read_token_x_to_ptr not call it, set vars by itself
-  деструктор заливает ядом, клеар ставит 0
-  write_unued == clear !
-  делаю clear пока read, не надо вызывать для всего массива токенов
-  tokenize: symb_index будет меняться только в read'ах, сделать while, strlen(expr - запомнить)
+  construct_id: copy, not .id=id |
+  leave construct_ but read_token_x_to_ptr not call it, set vars by itself |
+  деструктор заливает ядом, клеар ставит 0 |
+  write_unued == clear ! |
+  делаю clear пока read, не надо вызывать для всего массива токенов |
+  tokenize: symb_index будет меняться только в read'ах, сделать while, strlen(expr - запомнить) |
   
-  eval'ы: switch -> if
-  while -> for ?
+  eval'ы: switch -> if |
+  while -> for ? |
 
-  factor не проверяет на число
-  also там ошибка (-2^2 = 4, т.к. -2^2)
+  factor не проверяет на число |
+  also там ошибка (-2^2 = 4, т.к. -2^2) |
 
-  check cur_pos dublingin unit
+  check cur_pos dublingin unit |
 
-  func: use else
+  func: use else |
 
-  clear in calc
+  clear in calc |
 
