@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define DEBUG if(DEBUG_MODE == true) \
+#define DEBUG if(DEBUG_MODE) \
 
 
 #define ERR_RETURN(err_code) \
@@ -47,10 +47,11 @@
 	} while (0); \
 
 enum GENERAL_ERRORS {
-	ERR_ARG1 = -10,
+	ERR_ARG1 = -20,
 	ERR_ARG2,
 	ERR_ARG3,
 	ERR_NULL_OBJ,
+	ERR_MEMORY_NOT_ALLOCATED,
 	ERR_STRING_NOT_CREATED,
 };
 
@@ -70,6 +71,7 @@ extern const int TEST_ITER_COUNT;
 
 int randint(int min, int max);
 int randstr(int len, char **string_pointer);
+int join_strings(char **string_array, int array_len, char **result);
 char *get_word(char *string, char *endptr);
 int index_in_string_by_char_ptr(char *string, char *symb_ptr);
 int int_len(int number);

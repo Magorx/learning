@@ -54,6 +54,27 @@ int randstr(int len, char **string_ptr) {
 	return 0;
 }
 
+int join_strings(char **string_array, int array_len, char **result) {
+	if (string_array == NULL || result == NULL)
+		return ERR_NULL_OBJ;
+
+	int char_count = 0;
+	for (int i = 0; i < array_len; ++i) {
+		char_count = char_count + strlen(string_array[i]);
+	}
+
+	char *new_string = many_atempts_calloc(char_count + 1,
+										   sizeof(char),
+										   MAX_MEMORY_ALLOCATION_ATTEMPTS);
+	for (int i = 0; i < array_len; ++i) {
+		strcat(new_string, string_array[i]);
+	}
+
+	*result = new_string;
+
+	return 0;
+}
+
 char *get_word(char *string, char *endptr) {
 	if (string == NULL)
 		return NULL;

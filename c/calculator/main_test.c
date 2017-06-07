@@ -8,7 +8,7 @@
 int main() {
     printf("Testing calculator\n");
     test_all();
-    printf("All tests pased correctly\n");
+    printf("All tests passed correctly\n");
 
     return 0;
 }

@@ -6,7 +6,7 @@
 #include "general.h"
 #include "calculator.h"
 
-#define DEBUG_MODE false
+const bool DEBUG_MODE = false;
 
 const int32_t EMPTY = 0;
 const int32_t NUMBER = 1;
@@ -14,8 +14,6 @@ const int32_t ID = 2;
 const int32_t SYMB = 3;
 const int32_t MAX_ID_LEN = 20;
 const int32_t MAX_EXPRESSION_LEN = 1000;
-
-const int32_t ERR_ID_NOT_CREATED = -100;
 
 int32_t eval_expression(struct token *tokens, int32_t *cur_pos, double *result);
 int32_t eval_term(struct token *tokens, int32_t *cur_pos, double *result);
@@ -178,7 +176,7 @@ int32_t read_token_id_to_ptr(char *expression, int32_t *start_index,
                             sizeof(char),
                             MAX_MEMORY_ALLOCATION_ATTEMPTS);
     if (token.id == NULL) {
-        return ERR_ID_NOT_CREATED;
+        return ERR_MEMORY_NOT_ALLOCATED;
     }
     strcpy(token.id, id);
     *ptr = token;
