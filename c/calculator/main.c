@@ -5,6 +5,8 @@
 #include "general.h"
 #include "calculator.h"
 
+#define DEBUG_MODE false
+
 int main() {
     printf("Enter your expression: ");
     char *str = many_atempts_calloc(sizeof(char),
@@ -12,10 +14,10 @@ int main() {
                                     MAX_MEMORY_ALLOCATION_ATTEMPTS);
     fgets(str, MAX_EXPRESSION_LEN, stdin);
 
-    printf("===== DEBUG =====\n");
+    DEBUG printf("===== DEBUG =====\n");
     double res = 0;
     calculate(str, &res);
-    printf("=================\n");
+    DEBUG printf("=================\n");
     printf("result: %f\n", res);
 
     free(str);

@@ -6,12 +6,16 @@
 #include "general.h"
 #include "calculator.h"
 
+#define DEBUG_MODE false
+
 const int32_t EMPTY = 0;
 const int32_t NUMBER = 1;
 const int32_t ID = 2;
 const int32_t SYMB = 3;
 const int32_t MAX_ID_LEN = 20;
 const int32_t MAX_EXPRESSION_LEN = 1000;
+
+const int32_t ERR_ID_NOT_CREATED = -100;
 
 int32_t eval_expression(struct token *tokens, int32_t *cur_pos, double *result);
 int32_t eval_term(struct token *tokens, int32_t *cur_pos, double *result);
@@ -42,8 +46,8 @@ struct token *token_construct_number(double number) {
         return NULL;
     }
 
-    new_token->number = number;
     new_token->type = NUMBER;
+    new_token->number = number;
 
     return new_token;
 };
@@ -62,7 +66,7 @@ struct token *token_construct_id(char *id) {
     }
 
     new_token->id = (char*)
-        many_atempts_calloc(MAX_ID_LEN,
+        many_atempts_calloc(strlen(id),
                             sizeof(char),
                             MAX_MEMORY_ALLOCATION_ATTEMPTS);
     if (new_token->id == NULL) {
@@ -70,8 +74,8 @@ struct token *token_construct_id(char *id) {
         return NULL;
     }
 
-    strcpy(new_token->id, id);
     new_token->type = ID;
+    strcpy(new_token->id, id);
 
     return new_token;
 };
@@ -85,8 +89,8 @@ struct token *token_construct_symb(char symb) {
         return NULL;
     }
 
-    new_token->symb = symb;
     new_token->type = SYMB;
+    new_token->symb = symb;
 
     return new_token;
 }
@@ -174,7 +178,7 @@ int32_t read_token_id_to_ptr(char *expression, int32_t *start_index,
                             sizeof(char),
                             MAX_MEMORY_ALLOCATION_ATTEMPTS);
     if (token.id == NULL) {
-        return ERR_NULL_OBJ;
+        return ERR_ID_NOT_CREATED;
     }
     strcpy(token.id, id);
     *ptr = token;
@@ -237,7 +241,7 @@ struct token *tokenize(char *expression) {
 }
 
 int32_t eval_expression(struct token *tokens, int32_t *cur_pos, double *result) {
-    printf("expr pos %d\n", *cur_pos);
+    DEBUG printf("expr pos %d\n", *cur_pos);
 
     double cur_result = 0;
     eval_term(tokens, cur_pos, &cur_result);
@@ -262,7 +266,7 @@ int32_t eval_expression(struct token *tokens, int32_t *cur_pos, double *result) 
 }
 
 int32_t eval_term(struct token *tokens, int32_t *cur_pos, double *result) {
-    printf("term pos %d\n", *cur_pos);
+    DEBUG printf("term pos %d\n", *cur_pos);
 
     double cur_result = 0;
     eval_factor(tokens, cur_pos, &cur_result);
@@ -286,7 +290,7 @@ int32_t eval_term(struct token *tokens, int32_t *cur_pos, double *result) {
 }
 
 int32_t eval_factor(struct token *tokens, int32_t *cur_pos, double *result) {
-    printf("fact pos %d\n", *cur_pos);
+    DEBUG printf("fact pos %d\n", *cur_pos);
 
     double tmp_result = 0;
     
@@ -316,7 +320,7 @@ int32_t eval_factor(struct token *tokens, int32_t *cur_pos, double *result) {
 }
 
 int32_t eval_unit(struct token *tokens, int32_t *cur_pos, double *result) {
-    printf("unit pos %d\n", *cur_pos);
+    DEBUG printf("unit pos %d\n", *cur_pos);
 
     struct token token = tokens[*cur_pos];
     ++*cur_pos;
@@ -345,7 +349,8 @@ int32_t eval_function(char *function, double arg, double *result) {
     if (function == NULL)
         return ERR_NULL_OBJ;
 
-    printf("func %s(%f)\n", function, arg);
+    DEBUG printf("func %s(%f)\n", function, arg);
+
     if (strcmp(function, "sqrt") == 0) {
         *result = sqrt(arg);
     } else if (strcmp(function, "exp") == 0) {
@@ -380,13 +385,6 @@ int32_t calculate(char *expression, double *result) {
     struct token *tokens = tokenize(expression);
     int32_t expr_len = strlen(expression);
 
-    int32_t DEBUG = false;
-    if (DEBUG == true) {
-         for (int i = 0; i < expr_len; ++i) {
-            token_dump(tokens[i]);
-        }
-    }
-
     int32_t cur_pos = 0;
     eval_expression(tokens, &cur_pos, result);
 
@@ -394,6 +392,54 @@ int32_t calculate(char *expression, double *result) {
         token_clear(&tokens[i]);
     }
     free(tokens);
+
+    return 0;
+}
+
+
+int32_t test_all() {
+    double res = 0;
+    
+    calculate("0", &res);
+    ASSERT_EQ(res, 0);
+    calculate("-1", &res);
+    ASSERT_EQ(res, -1);
+    calculate("2 + 3", &res);
+    ASSERT_EQ(res, 5);
+    calculate("2 - 3", &res);
+    ASSERT_EQ(res, -1);
+    calculate("2 * 3", &res);
+    ASSERT_EQ(res, 6);
+    calculate("2 * 0", &res);
+    ASSERT_EQ(res, 0);
+    calculate("2 * 0", &res);
+    ASSERT_EQ(res, 0);
+    calculate("2^3", &res);
+    ASSERT_EQ(res, 8);
+    calculate("2^1", &res);
+    ASSERT_EQ(res, 2);
+    calculate("2^0", &res);
+    ASSERT_EQ(res, 1);
+    calculate("2^-2", &res);
+    ASSERT_EQ(res, 0.25);
+    calculate("(0)", &res);
+    ASSERT_EQ(res, 0);
+    calculate("2 + (1 + 2)", &res);
+    ASSERT_EQ(res, 5);
+    calculate("(1 - 1) + (2 + 3)", &res);
+    ASSERT_EQ(res, 5);
+    calculate("2 - (1 + 2)", &res);
+    ASSERT_EQ(res, -1);
+    calculate("2 + -(1 + 2)", &res);
+    ASSERT_EQ(res, -1);
+    calculate("-(1)", &res);
+    ASSERT_EQ(res, -1);
+    calculate("(2)^(3)", &res);
+    ASSERT_EQ(res, 8);
+    calculate("2 * lg(10)", &res);
+    ASSERT_EQ(res, 2);
+    calculate("2 ^ abs(-3)", &res);
+    ASSERT_EQ(res, 8);
 
     return 0;
 }

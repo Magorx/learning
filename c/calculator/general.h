@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#define DEBUG if(DEBUG_MODE == true) \
+
+
 #define ERR_RETURN(err_code) \
     do { \
         printf("ERROR [%s]:\n", #err_code); \
