@@ -82,22 +82,30 @@ class Tyle(object):
 
 
 class World(object):
-    def __init__(self, id, width, height, start_points, admin):
+    def __init__(self, id, width, height, start_points, admin, min_players, 
+                 max_players):
         self.id = id
         self.map = [[Tyle(j, i, choices([_ for _ in range(4)], [1, 4, 3, 2])) 
                                 for i in range(height)] for j in range(width)]
-        self.map[randint(0, width - 1)][randint(0, height - 1)].score = 5
+        self.map[randint(0, width - 1)][randint(0, height - 1)].bonus = 5
         self.width = width
         self.height = height
         self.start_points = start_points
         self.admin = admin
+        self.min_players = min_players
+        self.max_players = max_players
+
         self.players = []
         self.results = None
+        self.running = False
+        self.round = 0
 
     def add_player(self, player):
         if player not in self.players:
             self.players.append(player)
             player.world = self
+            if len(self.players) >= self.min_players:
+                self.running = True
             return 'Вы успешно присоединились к миру.'
         elif player.world is not self:
             player.World = self
@@ -105,6 +113,14 @@ class World(object):
         else:
             return 'Вы уже присоединены к этому миру.'
 
+    def new_round(self):
+        self.round += 1
+        width = self.width
+        height = self.height
+        self.map = [[Tyle(j, i, choices([_ for _ in range(4)], [1, 4, 3, 2])) 
+                                for i in range(height)] for j in range(width)]
+        self.map[randint(0, width - 1)][randint(0, height - 1)].bonus = 5
+        self.results = None
 
     def bet(self, player, x, y, count):
         if player not in self.players:
@@ -174,8 +190,8 @@ class World(object):
         to_return = ''
         for x in range(self.height):
             for y in range(self.width):
-                self.map[x][y].update()
-                to_return = to_return + self.map[x][y].symb + ' '
+                self.map[y][x].update()
+                to_return = to_return + self.map[y][x].symb + ' '
             to_return = to_return + '\n'
         return to_return
 
@@ -264,14 +280,19 @@ def world_by_id(world_id):
         return None
 
 
-@TeleBot.message_handler(commands=['stop'])
-def command_start(message):
-    if message.text == '/stop':
-        if message.chat.id in ADMIN_ID:
-            TeleBot.send_message(message.chat.id, 'Остановлен.')
-            print('Killed by {}'.format(message.chat.first_name))
-            global TO_STOP
-            TO_STOP = True
+def player_by_world(user, world):
+    if world in user.worlds:
+        return user.players[user.worlds.index(world)]
+    else:
+        return None
+
+
+def send_to_all_in_world(world, message):
+    if world is None or not message:
+        return 0
+
+    for player in world.players:
+        TeleBot.send_message(player.user.id, message)
 
 
 def warn_invalid_args(chat_id):
@@ -304,6 +325,26 @@ def warn_player_not_admin(chat_id):
     TeleBot.send_message(chat_id, 'Вы не админ в этом мире.')
 
 
+def warn_world_not_running_not_enough_players(chat_id):
+    TeleBot.send_message(chat_id, 'Этот мир еще не запущен, надо больше ' +
+                                  'игроков.')
+
+
+@TeleBot.message_handler(commands=['stop'])
+def command_start(message):
+    if message.chat.id in ADMIN_ID:
+        TeleBot.send_message(message.chat.id, 'Остановлен.')
+        print('Killed by {}'.format(message.chat.first_name))
+        global TO_STOP
+        TO_STOP = True
+
+
+@TeleBot.message_handler(commands=['rules'])
+def command_rules(message):
+    chat = message.chat
+
+
+
 @TeleBot.message_handler(func=lambda x: True)
 def message_handler(message):
     if TO_STOP:
@@ -313,9 +354,8 @@ def message_handler(message):
     chat = message.chat
     text = message.text
     user = user_by_id(chat.id)
-    print('Got message from {}: {}'.format(chat.first_name + ' ' + 
-                                           chat.last_name, text))
-    if user_by_id(chat.id) is None and text != '/start':
+    print('Got message from {}: {}'.format(chat.first_name, text))
+    if user is None and text != '/start':
         TeleBot.send_message(chat.id, 'Напишите мне, пожалуйста, /start, ' +
                              'чтобы я добавил вас в список пользователей')
         return 0
@@ -328,13 +368,13 @@ def message_handler(message):
     if text.startswith('/new_world'):
         args = text[11:].split('_')
         print('Starting new world with args: {}'.format(args))
-        if len(args) != 4:
-            warn_invalid_args(chat.id)
+        if len(args) != 6:
+            warn_invalid_args(user.id)
             return None
 
         world_id = args[0]
         if world_id in WORLDS:
-            TeleBot.send_message(chat.id, 'Мир с таким названием уже' +
+            TeleBot.send_message(user.id, 'Мир с таким названием уже' +
                                           'существует.')
             return None
 
@@ -342,109 +382,211 @@ def message_handler(message):
             width = int(args[1])
             height = int(args[2])
         except Exception:
-            warn_invalid_args(chat.id)
+            warn_invalid_args(user.id)
             return None
         if width < 1 or height < 1:
-            warn_invalid_sizes(chat.id)
+            warn_invalid_sizes(user.id)
 
         try:
             start_points = int(args[3])
         except Exception:
-            warn_invalid_args(chat.id)
+            warn_invalid_args(user.id)
             return None
         if start_points < 1:
-            warn_invalid_points(chat.id)
+            warn_invalid_points(user.id)
+            return None
+
+        try:
+            min_players = int(args[4])
+            max_players = int(args[5])
+        except Exception:
+            warn_invalid_args(user.id)
+            return None
+        if min_players < 0 or max_players < min_players:
+            warn_invalid_args(user.id)
             return None
         
-        new_world = World(world_id, width, height, start_points, user)
+        new_world = World(world_id, width, height, start_points, user, 
+                          min_players, max_players)
         WORLDS[world_id] = new_world
-        TeleBot.send_message(chat.id, 'Мир успешно создан.')
+        TeleBot.send_message(user.id, 'Мир успешно создан.\n' +
+                             '/join_{0} /info_{0} /show{0}'.format(world_id))
         print('World "{}" created by {}'.format(world_id, chat.first_name))
 
-    if text.startswith('/join'):
-        args = text[6:].split('_')
-        if len(args) not in [1, 2]:
-            warn_invalid_args(chat.id)
-            return None
-
-        world_id = args[0]
-        if world_id not in WORLDS:
-            warn_world_not_exist(chat.id)
-            return None
-
-        TeleBot.send_message(chat.id, user.join_world(world_id))
-
-    if text.startswith('/show'):
+    if text.startswith('/info'):
         args = text[6:].split('_')
         if len(args) != 1:
-            warn_invalid_args(chat.id)
+            warn_invalid_args(user.id)
             return None
 
         world_id = args[0]
         world = world_by_id(world_id)
         if world is None:
-            warn_world_not_exist(chat.id)
+            warn_world_not_exist(user.id)
             return None
 
-        TeleBot.send_message(chat.id, world.get_to_show())
+        world_info = ''
+        world_info = world_info + 'Мир {}\n'.format(world.id)
+        world_info = world_info + 'Игроки: {}/{}\n'.format(len(world.players), 
+                                                           world.max_players)
+        for player in world.players:
+            world_info = world_info + '  {}\n'.format(player.name)
+        if world in user.worlds:
+            world_info = world_info + 'Ваши очки: {}'.format(
+                player_by_world(user, world).points)
+        else:
+            world_info = world_info + 'Вы не участвуете в мире.'
+
+        TeleBot.send_message(user.id, world_info)
+
+    if text.startswith('/join'):
+        args = text[6:].split('_')
+        if len(args) not in [1, 2]:
+            warn_invalid_args(user.id)
+            return None
+
+        world_id = args[0]
+        if world_id not in WORLDS:
+            warn_world_not_exist(user.id)
+            return None
+
+        TeleBot.send_message(user.id, user.join_world(world_id))
+
+    if text.startswith('/show'):
+        args = text[6:].split('_')
+        if len(args) != 1:
+            warn_invalid_args(user.id)
+            return None
+
+        world_id = args[0]
+        world = world_by_id(world_id)
+        if world is None:
+            warn_world_not_exist(user.id)
+            return None
+
+        TeleBot.send_message(user.id, world.get_to_show())
 
     if text.startswith('/bet'):
         args = text[5:].split('_')
         if len(args) != 4:
-            warn_invalid_args(chat.id)
+            warn_invalid_args(user.id)
             return None
 
         world = world_by_id(args[0])
         if world is None:
-            warn_world_not_exist(chat.id)
+            warn_world_not_exist(user.id)
             return None
         if world not in user.worlds:
-            warn_player_not_in_world(chat.id)
+            warn_player_not_in_world(user.id)
+            return None
+        if not world.running:
+            warn_world_not_running_not_enough_players(user.id)
             return None
         try:
             x = int(args[1])
             y = int(args[2])
         except Exception:
-            warn_invalid_args(chat.id)
+            warn_invalid_args(user.id)
             return 0
-        if x < 0 or x >= world.width or y < 0 or y >= world.height:
-            warn_invalid_coords(chat.id)
+        if x < 1 or x > world.width or y < 1 or y > world.height:
+            warn_invalid_coords(user.id)
             return None
+        x -= 1
+        y -= 1
         try:
             points_to_bet = int(args[3])
         except Exception:
-            warn_invalid_args(chat.id)
+            warn_invalid_args(user.id)
         if points_to_bet < 1:
-            warn_invalid_points(chat.id)
+            warn_invalid_points(user.id)
             return None
 
         bet_result = \
-            user.players[user.worlds.index(world)].bet(x, y, points_to_bet)
-        TeleBot.send_message(chat.id, bet_result)
+            player_by_world(user, world).bet(x, y, points_to_bet)
+        TeleBot.send_message(user.id, bet_result)
 
-    if text.startswith('/get_results'):
-        args = text[13:].split('_')
-        print(args)
+    if text.startswith('/end_round'):
+        args = text[11:].split('_')
         if len(args) != 1:
-            warn_invalid_args(chat.id)
+            warn_invalid_args(user.id)
             return None
 
         world_id = args[0]
         world = world_by_id(world_id)
         if world is None:
-            warn_world_not_exist(chat.id)
+            warn_world_not_exist(user.id)
             return None
         if world not in user.worlds:
-            warn_player_not_in_world(chat.id)
+            warn_player_not_in_world(user.id)
             return None
         if user != world.admin:
-            warn_player_not_admin(chat.id)
+            warn_player_not_admin(user.id)
+            return None
+        if not world.running:
+            warn_world_not_running_not_enough_players(user.id)
             return None
 
         world.full_capture()
         results = world.get_formated_results()
         for player in world.players:
             TeleBot.send_message(player.user.id, results)
+            TeleBot.send_message(user.id, '/show_{}'.format(world.id))
+
+    if text.startswith('/new_round'):
+        args = text[11:].split('_')
+        print(args)
+        if len(args) != 1:
+            warn_invalid_args(user.id)
+            return None
+
+        world_id = args[0]
+        world = world_by_id(world_id)
+        if world is None:
+            warn_world_not_exist(user.id)
+            return None
+        if world not in user.worlds:
+            warn_player_not_in_world(user.id)
+            return None
+        if user != world.admin:
+            warn_player_not_admin(user.id)
+            return None
+        if not world.running:
+            warn_world_not_running_not_enough_players(user.id)
+            return None
+
+        world.new_round()
+        to_send = ''
+        to_send = to_send + 'Новый раунд в мире {}\n'.format(world.id)
+        to_send = to_send + '/info_{0}\n/show_{0}'.format(world.id)
+        send_to_all_in_world(world, to_send)
+
+    if text == '/lobby':
+        lobby_worlds = 'Доступные миры:\n'
+        for world_id in WORLDS:
+            world = WORLDS[world_id]
+            lobby_worlds = lobby_worlds + '/join_{} {}/{}\n'.format(
+                world.id, len(world.players), world.max_players)
+        
+        TeleBot.send_message(user.id, lobby_worlds)
+
+    if text.startswith('/message'):
+        args = text[9:].split('_')
+        world_id = args[0]
+        world = world_by_id(world_id)
+        if world is None:
+            warn_world_not_exist(user.id)
+            return None
+        if world not in user.worlds and user != world.admin:
+            warn_player_not_in_world(user.id)
+            return None
+        player = player_by_world(user, world)
+        if user == world.admin:
+            message = '[Admin]'
+        else:
+            message = ''
+        message = message + '{}({}): '.format(player.name, world.id) + args[1]
+        send_to_all_in_world(world, message)
+
 
 
 def main():
