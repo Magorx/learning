@@ -259,8 +259,6 @@ class TkTyleInfo(object):
         self.infos[mark] = self.canvas.create_text(x, y, font=20,
                                                    text=text, anchor=anchor,
                                                    fill=color)
-        self.canvas.focus(self.infos[mark])
-
         return 0
 
     def delete_info(self, mark):
@@ -324,6 +322,49 @@ class TkWorld(World):
         for x in range(self.width):
             for y in range(self.height):
                 self.map[x][y].update()
+
+
+class WindowedChoice(object):
+    def __init__(self, choices, returns, imgs=[], side_px=50):
+        if len(choices) != len(returns) or len(choices) < 1:
+            raise IndexError
+        if imgs and len(imgs) != len(choice):
+            raise IndexError
+
+        self.choices = choices
+        self.returns = returns
+        self.imgs = imgs
+        self.side_px = side_px
+        self.window = None
+        self.root = None
+        self.to_return = None
+
+    def activate(self, root):
+        if self.window is not None:
+            return 0
+
+        self.root = root
+        window = tkinter.Toplevel()
+        side_px = self.side_px
+        for i in range(len(self.choices)):
+            canvas = tkinter.Canvas(window, width=side_px, height=side_px+20, bg='green')
+            if self.imgs:
+                canvas.create_image(i * side_px, i * side_px, image=self.imgs[i])
+            button = tkinter.Button(canvas, text=str(self.choices[i]), command= lambda i=i: self.return_by_index(i))
+            button.place(x=0, y=SIDE_PX)
+            canvas.bind(exit)
+            canvas.place(x=i*side_px, y=0)
+        self.window = window
+
+    def deactivate(self):
+        self.window.destroy()
+        self.window = None
+        self.root = None
+
+    def return_by_index(self, i):
+        print('returned ', self.i)
+        self.deactivate()
+        return self.returns[i]
 
 
 def main():

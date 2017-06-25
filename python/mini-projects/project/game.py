@@ -76,26 +76,31 @@ class Creature(object):
         place.creature = self
 
         self.info = worlds.TkTyleInfo(place, place.map[x][y].canvas)
-        self.info.add_info_text(0, 0, self.mp, mark='mp', anchor=NW, 
-                                color='blue')
-        self.info.add_info_text(0, SIDE_PX, self.hp, mark='hp', anchor=SW,
-                                color='orange')
-        self.info.add_info_text(SIDE_PX, SIDE_PX, self.atk, mark='atk', anchor=SE,
-                                color='red')
+        self.update_info()
 
     def delete_self_texture(self):
         tyle = self.place.map[self.x][self.y]
         tyle.delete_texture(tyle.textures.index(self.texture))
 
-    def update_info(self):
+    def update_info(self, new_canvas = False):
+        if new_canvas:
+            x, y, place = self.x, self.y, self.place
+            self.delete_info()
+            self.info = worlds.TkTyleInfo(place,
+                                          place.map[x][y].canvas)
         self.info.add_info_text(0, 0, self.mp, mark='mp', anchor=NW, 
                                 color='blue')
         self.info.add_info_text(0, SIDE_PX, self.hp, mark='hp', anchor=SW,
-                                color='green')
-        self.info.add_info_text(SIDE_PX, SIDE_PX, self.atk, mark='atk', anchor=SE,
                                 color='red')
+        self.info.add_info_text(SIDE_PX, SIDE_PX, self.atk, mark='atk', anchor=SE,
+                                color='#800000')
 
-    def deleete_info(self):
+    def delete_info(self):
+        self.info.delete_texture('hp')
+        self.info.delete_texture('mp')
+        self.info.delete_texture('atk')
+
+    def delete_info(self):
         self.info.delete_info('hp')
         self.info.delete_info('mp')
         self.info.delete_info('atk')
@@ -108,6 +113,7 @@ class Creature(object):
 
     def die(self):
         self.unselect()
+        self.delete_info()
 
         tyle = self.place.map[self.x][self.y]
         tyle.creature = None
@@ -132,6 +138,7 @@ class Creature(object):
                         if cr == self:
                             tyle.add_texture(
                                 self.place.textures['chosen_corner_golden'])
+        self.update_info()
 
 
     def unselect(self):
@@ -143,6 +150,8 @@ class Creature(object):
 
                 tyle = self.place.map[x][y]
                 cr = tyle.creature
+                if cr is not None:
+                    cr.update_info()
 
                 to_clear = False
                 if tyle.creature_can_move == self:
@@ -177,6 +186,7 @@ class Creature(object):
 
         self.x = x
         self.y = y
+        self.update_info(new_canvas=True)
 
         write_to_log('{} moved to [{}][{}]'.format(self.name, x, y))
 
@@ -201,8 +211,10 @@ class Clickable_tyle(worlds.TkWorldTyle):
         self.creature_can_move = None
         self.creature_can_attack = None
         self.click_handler = self.handler_default
+        self.click_menu = worlds.WindowedChoice(['1', '2'], ['2', '3'])
 
     def handler_default(self, event):
+        self.click_menu.activate(self.canvas)
         if self.creature is None:
             self.set_creature(Creature(world, 'Cr', x=self.x, y=self.y, 
                                        hp=randint(1, 4), atk=randint(1, 2),
