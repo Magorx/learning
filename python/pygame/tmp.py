@@ -13,14 +13,14 @@ BUTTON_TO_COMMAND_DICT = {'w': 'move up',
                           's': 'move down',
                           'd': 'move right',
                           'f': 'fire',
+                          'e': 'rotate',
                           ' ': 'fire'}
 
 PLAYERS_CONTROL = [{pygame.K_w: 'move up',
                     pygame.K_a: 'move left',
                     pygame.K_s: 'move down',
                     pygame.K_d: 'move right',
-                    pygame.K_q: 'rotate_module left',
-                    pygame.K_e: 'rotate_module right',
+                    pygame.K_e: 'rotate',
                     pygame.K_SPACE: 'fire'},
 
                    {pygame.K_UP: 'move up',
@@ -31,10 +31,10 @@ PLAYERS_CONTROL = [{pygame.K_w: 'move up',
 
 WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 500
-UNIT_SPEED = WINDOW_WIDTH * WINDOW_HEIGHT / 1400000 # Super magic constant
-TYLE_WIDTH = 50
-TYLE_HEIGHT = 50
-SPAWN_POINTS = [(5, 5),
+UNIT_SPEED = WINDOW_WIDTH * WINDOW_HEIGHT / 1000000
+TYLE_WIDTH = 75
+TYLE_HEIGHT = 75
+SPAWN_POINTS = [(100, 100),
                 (WINDOW_WIDTH - TYLE_WIDTH - 5, WINDOW_HEIGHT - TYLE_HEIGHT - 5),
                 (5, WINDOW_HEIGHT - TYLE_HEIGHT - 5),
                 (WINDOW_WIDTH - TYLE_WIDTH - 5, 5)]
@@ -108,18 +108,19 @@ def objects_in_touch(first, second):
 
 
 class Movable(object):
-    def __init__(self, x, y, sprite=None, speed=1, on_touch=None, on_collision=None,
+    def __init__(self, x, y, sprite, speed, on_touch=None, on_collision=None,
                  on_window_touch=None, logic=None, direction='up',
                  sprite_name=''):
         self.x = x
         self.y = y
-        if sprite is not None:
-            self.width = sprite.get_rect().width
-            self.height = sprite.get_rect().height
+        self.width = sprite.get_rect().width
+        self.height = sprite.get_rect().height
         self.direction = direction
         self.speed = speed
         self.sprite = sprite
         self.sprite_name = sprite_name
+        self.angle = 0
+        self.rect = self.sprite.get_rect()
 
         self._on_touch = on_touch
         self._on_collision = on_collision
@@ -151,8 +152,8 @@ class Movable(object):
                 self._on_window_touch()
             return None
 
-        self.x = new_x
-        self.y = new_y
+        self.rect.x, self.x = new_x, new_x
+        self.rect.y, self.y = new_y, new_y
 
         if self.collides():
             if self._on_collision is not None:
@@ -181,80 +182,27 @@ class Movable(object):
                     return obj
 
     def render(self):
-        screen.blit(self.sprite, (self.x, self.y))
+        image = pygame.transform.rotate(self.sprite, self.angle)
+        self.rect = image.get_rect(center=self.rect.center)
+        screen.blit(image, self.rect)
 
     def delete(self):
         del OBJECTS[OBJECTS.index(self)]
 
 
-class Base(pygame.sprite.Sprite):
-    def __init__(self, sprite, hp, angle=0):
-        self.rect = sprite.get_rect()
-        self.width = self.rect.width
-        self.height = self.rect.height
-        self.sprite = sprite
-        self.angle = angle
-        self.modules = []
-        self.modules_coords = []
-        self.hp = hp
-
-    def get_image(self):
-        return self.sprite
-
-class Module(pygame.sprite.Sprite):
-    def __init__(self, sprite, angle=0, turn_speed=UNIT_SPEED/2):
-        self.rect = sprite.get_rect()
-        self.width = self.rect.width
-        self.height = self.rect.height
-        self.sprite = sprite
-        self.angle = angle
-
-    def get_image(self):
-        image = pygame.transform.rotate(self.sprite, self.angle)
-        self.rect = image.get_rect(center=self.rect.center)
-        return image, self.rect
-
-
-class Weapon(Module):
-    def __init__(self, sprite, damage, hp, turn_speed=UNIT_SPEED/2):
-        super(Weapon, self).__init__(sprite, turn_speed=turn_speed)
-        self.damage = damage
-        self.hp = hp
-        self.turn_speed = turn_speed
-
-
 class Unit(Movable):
-    def __init__(self, x, y, base, modules, modules_coords, speed=UNIT_SPEED, angle=0, direction='up'):
-        super(Unit, self).__init__(x, y, speed=speed, direction=direction)
-        self.base = base
-        self.width = base.width
-        self.height = base.height
-        self.modules = modules
-        self.modules_coords = modules_coords
+    def __init__(self, x, y, sprite, sprite_name='', direction='up',
+                 speed=UNIT_SPEED, damage=1, hp=5):
+        super(Unit, self).__init__(x, y, sprite, speed=speed,
+                                   direction=direction, sprite_name=sprite_name)
+        self.hp = hp
+        self.damage = damage
         self.last_shoot_time = 0
         self._on_collision = self.on_collision
-        self.direction = direction
-
-        self.hp = base.hp + sum(list(map(lambda obj: obj.hp, modules)))
-
-    def install_module(self, x, y, module):
-        self.modules.append(module)
-        self.modules_coords.append((x, y))
+        self.angle = 0
 
     def move(self, direction):
         self._move(direction)
-
-    def rotate_modules(self, direction):
-        if direction == 'right':
-            shift = 1
-        elif direction == 'left':
-            shift = -1
-        else:
-            return None
-
-        for module in self.modules:
-            print(module.turn_speed)
-            module.angle += module.turn_speed * shift
 
     def on_collision(self, obj, called=False):
         if obj._on_collision is not None and not called:
@@ -297,31 +245,15 @@ class Unit(Movable):
         if len(command) == 1:
             if command[0] == 'fire':
                 self.fire('bullet')
+            if command[0] == 'rotate':
+                self.angle += 0.1
         elif len(command) == 2:
             if command[0] == 'move':
                 self.move(command[1])
-            if command[0] == 'rotate_module':
-                self.rotate_modules(command[1])
 
     def act(self):
-        rect = self.base.sprite.get_rect()
-        rect.x = self.x
-        rect.y = self.y
-        self.base.rect = rect
-        print(self.base.rect)
         if self.hp <= 0:
             self.die()
-
-    def render(self):
-        base_rect = self.base.rect
-        screen.blit(self.base.get_image(), (self.x, self.y))
-        for i in range(len(self.modules)):
-            image, rect = self.modules[i].get_image()
-            x, y = self.x + self.modules_coords[i][0], self.y + self.modules_coords[i][1]
-            rect.x = x
-            rect.y = y
-            rect.center = base_rect.center
-            screen.blit(image, rect)
 
 
 class Missle(Movable):
@@ -366,7 +298,6 @@ class Player(object):
 
 
 def main():
-    print(UNIT_SPEED)
     global window
     global screen
     global hero
@@ -388,15 +319,11 @@ def main():
             print('not enough controls for all players')
             break
         x, y = SPAWN_POINTS[i]
-        base_sprite = pygame.image.load('./sprites/base/base.png')
-        base = Base(base_sprite, 5)
-        weapon_sprite = pygame.image.load('./sprites/weapon/weapon.png')
-        weapon = Weapon(weapon_sprite, 5, 5)
-        unit = Unit(200, 200, base, [weapon], [(0, 0)])
+        unit = Unit(100, 100, tank_sprite, sprite_name='tank')
         player = Player(unit, PLAYERS_CONTROL[i])
         players.append(player)
 
-    pygame.key.set_repeat(50, 1)
+    pygame.key.set_repeat(50, 50)
     done = False
     keys_active = []
     keys_down = []
@@ -419,7 +346,7 @@ def main():
 
             if event.type == pygame.KEYDOWN:
                 key = event.key
-                if key not in keys_active:
+                if key not in keys_active:  # and not is_key_of_same_control_set_in_arr(keys_active, key):
                     keys_active.append(key)
                 else:
                     pass
