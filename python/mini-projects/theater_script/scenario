@@ -1,0 +1,13 @@
+#SCENE cave
+#if mark_exist sword
+You woke up. Ouch, your had is bleeding... Last chance is to eascape this cave...
+You can go:
+#endif
+#finaly
+
+#CHOICES
+1 Left
+2 Right
+#VARIANTS
+scene_sword
+scene_orge

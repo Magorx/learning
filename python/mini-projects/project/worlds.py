@@ -350,9 +350,9 @@ class WindowedChoice(object):
             canvas = tkinter.Canvas(window, width=side_px, height=side_px+20, bg='green')
             if self.imgs:
                 canvas.create_image(i * side_px, i * side_px, image=self.imgs[i])
-            button = tkinter.Button(canvas, text=str(self.choices[i]), command= lambda i=i: self.return_by_index(i))
+            button = tkinter.Button(canvas, text=str(self.choices[i]), command= lambda i=i: exit)
             button.place(x=0, y=SIDE_PX)
-            canvas.bind(exit)
+            button.bind(exit)
             canvas.place(x=i*side_px, y=0)
         self.window = window
 

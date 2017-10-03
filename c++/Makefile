@@ -1,7 +1,7 @@
 CC = g++
 
 WARNINGS = -Wall -Werror	
-STANDARD = -std=c++11
+STANDARD = -std=c++14 -fsanitize=address,undefined 
 CFLAGS = $(STANDARD) $(WARNINGS)
 
 all: template test

@@ -61,7 +61,7 @@ class WorldTyle(Tyle):
 
 class World(object):
     def __init__(self, width, height, tyle_type=WorldTyle, common_symb='.',
-                 is_tor=False):
+                 landshafts=None, lands_to_generate=90, is_tor=False):
         self.map = [[tyle_type(self, j, i, symb=common_symb) for i in range (height)]
                     for j in range(width)]
         self.common_symb = common_symb
@@ -71,6 +71,8 @@ class World(object):
         self.square = width * height
         self.is_tor = is_tor
         self.to_handle = []
+        self.landshafts = landshafts
+        self.lands_to_generate = lands_to_generate
 
     def print(self, clear_screan=True):
         if clear_screan:
@@ -117,7 +119,9 @@ class World(object):
                 cur_square += 1
                 if to_update:
                     self.map[x][y].update()
-                    time.sleep(delay_between_updates)
+                    if delay_between_updates:
+                        time.sleep(delay_between_updates)
+                        self.print()
             x += random.randint(-1, 1)
             y += random.randint(-1, 1)
             if x < 0 or y < 0 or x >= width or y >= height:
@@ -126,9 +130,19 @@ class World(object):
         return cur_square
 
     def GenerateWorld(self,
-                      lands_to_generate=90, defined_land_square = 0,
-                      landshafts=['~', '^', 'T'],
+                      lands_to_generate=None, defined_land_square = 0,
+                      landshafts=None,
                       to_update=False, delay_between_updates=0):
+        if not landshafts:
+            if self.landshafts is not None:
+                landshafts = self.landshafts
+            else:
+                landshafts = ['~', '^', 'T']
+        if not lands_to_generate:
+            if self.lands_to_generate is not None:
+                lands_to_generate = self.lands_to_generate
+            else:
+                lands_to_generate = 90
         self.ClearWorld(to_update=to_update)
         ''' lands_to_generate must be given as percents
             world.square * percents // 100 will be generated'''
@@ -142,7 +156,7 @@ class World(object):
         while cur_square < self.square * lands_to_generate // 100:
             if not defined_land_square:
                 land_square = \
-                    max(random.randint(self.square // 50, self.square // 10),
+                    max(random.randint(self.square // 60, self.square // 10),
                         2)
             else:
                 land_square = defined_land_square
@@ -424,52 +438,35 @@ class TkWorld(World):
                 self.map[x][y].update()
 
 
-'''class WindowedChoice(object):
-    def __init__(self, choices, returns, imgs=[], side_px=50):
-        if len(choices) != len(returns) or len(choices) < 1:
-            raise IndexError
-        if imgs and len(imgs) != len(choice):
-            raise IndexError
-
-        self.choices = choices
-        self.returns = returns
-        self.imgs = imgs
-        self.side_px = side_px
-        self.window = None
-        self.root = None
-        self.to_return = None
-
-    def activate(self, root):
-        if self.window is not None:
-            return 0
-
-        self.root = root
-        window = tkinter.Toplevel()
-        side_px = self.side_px
-        for i in range(len(self.choices)):
-            canvas = tkinter.Canvas(window, width=side_px, height=side_px+20, bg='green')
-            if self.imgs:
-                canvas.create_image(i * side_px, i * side_px, image=self.imgs[i])
-            button = tkinter.Button(canvas, text=str(self.choices[i]), command= lambda i=i: self.return_by_index(i))
-            button.place(x=0, y=SIDE_PX)
-            canvas.bind(exit)
-            canvas.place(x=i*side_px, y=0)
-        self.window = window
-
-    def deactivate(self):
-        self.window.destroy()
-        self.window = None
-        self.root = None
-
-    def return_by_index(self, i):
-        print('returned ', self.i)
-        self.deactivate()
-        return self.returns[i]'''
-
-
 def main():
-    pass
+    options = {'gen world': ''}
+    print('What do you want to do?')
+    print(options)
+    choice = input()
+    if choice not in options:
+        print('NOthing like that in options')
 
+    if  choice == 'gen world':
+        print('Enter row_count and column_count: ', end='')
+        row_count, column_count = list(map(int, input().split()))
+        print('Enter common_symb: ', end='')
+        common_symb = input()
+        print('Enter landshafts: ', end='')
+        landshafts = input().split()
+        print('Enter how many percents of land to generate: ', end='')
+        lands_to_generate = int(input())
+
+        world = World(row_count, column_count, common_symb=common_symb,
+                      landshafts=landshafts,
+                      lands_to_generate=lands_to_generate)
+        world.GenerateWorld(delay_between_updates=1)
+        world.print()
 
 if __name__ == "__main__":
     main()
+
+# gen world
+# 30 100
+# *
+# $
+# 50

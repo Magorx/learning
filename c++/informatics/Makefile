@@ -1,7 +1,7 @@
 CC = g++
 
 WARNINGS = -Wall -Werror	
-STANDARD = -std=c++11
+STANDARD = -std=c++14
 CFLAGS = $(STANDARD) $(WARNINGS)
 
 all: easy_task

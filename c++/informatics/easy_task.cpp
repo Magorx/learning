@@ -1,33 +1,44 @@
 #include <iostream>
-#include <ctype.h>
+#include <vector>
 
-bool digit_can_be_used(int32_t number) {
-    return number <= 5;
+template<typename T>
+using Row = std::vector<T>;
+
+template<typename T>
+std::vector<T> ReadVector(int32_t length) {
+    std::vector<T> objects(length);
+    for (size_t i = 0; i < length; ++i) {
+        std::cin >> objects[i];
+    }
+    return objects;
+}
+
+template<typename T>
+std::vector<Row<T>> ReadMatrix(size_t row_count, size_t column_count) {
+    std::vector<Row<T>> matrix;
+    matrix.reserve(row_count);
+    for (size_t i = 0; i < row_count; ++i) {
+        matrix.push_back(ReadVector<T>(column_count));
+    }
+    return matrix;
 }
 
 int main() {
-    std::string str;
-    getline(std::cin, str);
+    size_t hill_count = 0;
+    std::cin >> hill_count;
+    const std::vector<Row<int32_t>> adjacency_matrix = ReadMatrix(hill_count, hill_count);
+    const std::vector<int32_t> colors = ReadRow(hill_count);
 
-    bool can_be_used = true;
-    char ch = ' ';
-    for (unsigned int i = 0; i < str.length() - 1; ++i) {
-        if (!can_be_used) {
-            break;
-        }
-        ch = str[i];
-        if (isdigit(ch)) {
-            can_be_used = digit_can_be_used(ch - '0');
-            if (isdigit(str[i + 1]) && ch != '0') {
-                can_be_used = false;
+    int32_t bad_bridge_count = 0;
+    for (size_t i = 0; i < hill_count; ++i) {
+        for (size_t j = i + 1; j < hill_count; ++j) {
+            if (adjacency_matrix[i][j] && colors[i] != colors[j]) {
+                ++bad_bridge_count;
             }
         }
     }
-    if (can_be_used && isdigit(str.back())) {
-        can_be_used = digit_can_be_used(str.back() - '0');
-    }
-
-    std::cout << (can_be_used ? "YES\n" : "NO\n");
-    
+ 
+    std::cout << bad_bridge_count << '\n';
+ 
     return 0;
 }

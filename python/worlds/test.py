@@ -15,8 +15,7 @@ def main():
     while string != 'stop':
         world.print()
         string = input()
-        else:
-            handler(string)
+        handler(string)
 
 
 if __name__ == "__main__":

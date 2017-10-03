@@ -85,9 +85,9 @@ class World(object):
     def __init__(self, id, width, height, start_points, admin, min_players, 
                  max_players):
         self.id = id
-        self.map = [[Tyle(j, i, choices([_ for _ in range(4)], [1, 4, 3, 2])) 
+        self.map = [[Tyle(j, i, choices([_ for _ in range(4)], [1, 4, 3, 2]) + 2) 
                                 for i in range(height)] for j in range(width)]
-        self.map[randint(0, width - 1)][randint(0, height - 1)].bonus = 5
+        self.map[randint(0, width - 1)][randint(0, height - 1)].bonus = 7
         self.width = width
         self.height = height
         self.start_points = start_points
@@ -117,9 +117,11 @@ class World(object):
         self.round += 1
         width = self.width
         height = self.height
-        self.map = [[Tyle(j, i, choices([_ for _ in range(4)], [1, 4, 3, 2])) 
+        self.map = [[Tyle(j, i, choices([_ for _ in range(4)], [1, 4, 3, 2]) + 2) 
                                 for i in range(height)] for j in range(width)]
         self.map[randint(0, width - 1)][randint(0, height - 1)].bonus = 5
+        for player in self.players:
+            player.points = self.start_points
         self.results = None
 
     def bet(self, player, x, y, count):
@@ -342,7 +344,7 @@ def command_start(message):
 @TeleBot.message_handler(commands=['rules'])
 def command_rules(message):
     chat = message.chat
-
+    TeleBot.send_message(chat.id, open('rules.txt', 'r').read())
 
 
 @TeleBot.message_handler(func=lambda x: True)
@@ -534,7 +536,6 @@ def message_handler(message):
 
     if text.startswith('/new_round'):
         args = text[11:].split('_')
-        print(args)
         if len(args) != 1:
             warn_invalid_args(user.id)
             return None
