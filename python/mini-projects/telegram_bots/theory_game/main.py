@@ -168,7 +168,7 @@ class World(object):
             score = res[4]
 
             to_return = to_return + 'Клетка [{}][{}] (бонус {}):\n'.format(
-                tyle.x, tyle.y, tyle.last_round_bonus)
+                tyle.x + 1, tyle.y + 1, tyle.last_round_bonus)
             for player in bets:
                 to_return = to_return + '  {} - {}\n'.format(bets[player], 
                                                              player)
@@ -299,7 +299,7 @@ def send_to_all_in_world(world, message):
 
 def warn_invalid_args(chat_id):
     TeleBot.send_message(chat_id, 'Некоректные аргументы. ' + 
-                                  '/input_help для помощи.')
+                                  '/commands_help для помощи.')
 
 
 def warn_world_not_exist(chat_id):
@@ -346,6 +346,11 @@ def command_rules(message):
     chat = message.chat
     TeleBot.send_message(chat.id, open('rules.txt', 'r').read())
 
+@TeleBot.message_handler(commands=['commands_help'])
+def command_rules(message):
+    chat = message.chat
+    TeleBot.send_message(chat.id, open('commands_help.txt', 'r').read())
+
 
 @TeleBot.message_handler(func=lambda x: True)
 def message_handler(message):
@@ -364,7 +369,7 @@ def message_handler(message):
 
     if text == '/start':
         TeleBot.send_message(chat.id, 'Привет. Правила доступны по /rules, ' +
-                                      'помощь - по /help')
+                                      'помощь - по /commands_help')
         USERS[chat.id] = User(chat.id, chat.first_name)
 
     if text.startswith('/new_world'):
@@ -412,7 +417,7 @@ def message_handler(message):
                           min_players, max_players)
         WORLDS[world_id] = new_world
         TeleBot.send_message(user.id, 'Мир успешно создан.\n' +
-                             '/join_{0} /info_{0} /show{0}'.format(world_id))
+                             '/join_{0} /info_{0} /show_{0}'.format(world_id))
         print('World "{}" created by {}'.format(world_id, chat.first_name))
 
     if text.startswith('/info'):

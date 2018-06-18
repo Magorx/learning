@@ -1,0 +1,4 @@
+ifa (bgq=grc)
+if ((qrga!=grb)??(cgr=gqrd))
+if  (a==b)  {  c=d
+a=b;if((c==d)??(a=b))

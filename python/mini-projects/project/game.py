@@ -214,7 +214,7 @@ class Clickable_tyle(worlds.TkWorldTyle):
         self.click_menu = worlds.WindowedChoice(['1', '2'], ['2', '3'])
 
     def handler_default(self, event):
-        self.click_menu.activate(self.canvas)
+        #self.click_menu.activate(self.canvas)
         if self.creature is None:
             self.set_creature(Creature(world, 'Cr', x=self.x, y=self.y, 
                                        hp=randint(1, 4), atk=randint(1, 2),

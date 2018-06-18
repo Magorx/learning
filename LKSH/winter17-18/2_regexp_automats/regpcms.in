@@ -1,0 +1,287 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=windows-1251">
+<title>Результаты</title>
+<link rel="stylesheet" href="../../../standings-wt.css">
+</head>
+<body>
+<table class="wrapper">
+<tr>
+<td><a name="%D0%A6%D0%B8%D0%BA%D0%BB %D0%B8%D0%BD%D1%82%D0%B5%D1%80%D0%BD%D0%B5%D1%82-%D0%BE%D0%BB%D0%B8%D0%BC%D0%BF%D0%B8%D0%B0%D0%B4. %D0%A8%D0%B5%D1%81%D1%82%D0%B0%D1%8F %D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D0%BD%D0%B0%D1%8F %D0%BE%D0%BB%D0%B8%D0%BC%D0%BF%D0%B8%D0%B0%D0%B4%D0%B0. %D0%A3%D1%81%D0%BB%D0%BE%D0%B6%D0%BD%D0%B5%D0%BD%D0%BD%D1%8B%D0%B9 %D1%83%D1%80%D0%BE%D0%B2%D0%B5%D0%BD%D1%8C.">
+<h2>Цикл интернет-олимпиад. Шестая командная олимпиада. Усложненный уровень.</h2>
+</a>
+<p>Попыток: 596, удачных: 152<br>Последняя удачная попытка: StavTeam (Ставрополь, Россия), D, 4:58:49<br>
+</p>
+<center>
+<table class="standings">
+<tr bgcolor="ffffff">
+<th class="party">Команда</th><th class="problem">A</th><th class="problem">B</th><th class="problem">C</th><th class="problem">D</th><th class="problem">E</th><th class="problem">F</th><th class="problem">G</th><th class="problem">H</th><th class="problem">I</th><th class="problem">J</th><th class="solved">=</th><th class="penalty">Время</th><th class="rank">Масто</th>
+</tr>
+<tr height="3">
+<td colspan="14">
+<hr size="1" color="000000">
+</td>
+</tr>
+<tr bgcolor="d0f0ff">
+<td class="party">LIT_1 (Александрия, Украина)</td><td class="problem"><i>+5<br>
+<s>118:38</s></i></td><td class="problem"><i>+<br>
+<s>10:18</s></i></td><td class="problem"><b>-1</b></td><td class="problem"><i>+<br>
+<s>148:24</s></i></td><td class="problem"><i>+<br>
+<s>7:09</s></i></td><td class="problem"><i>+<br>
+<s>29:33</s></i></td><td class="problem"><i>+<br>
+<s>15:28</s></i></td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>62:54</s></i></td><td class="problem"><i>+<br>
+<s>137:17</s></i></td><td class="solved">8</td><td class="penalty">626</td><td class="rank">1</td>
+</tr>
+<tr bgcolor="c8e8f8">
+<td class="party">StavTeam (Ставрополь, Россия)</td><td class="problem"><i>+5<br>
+<s>220:20</s></i></td><td class="problem"><i>+<br>
+<s>7:14</s></i></td><td class="problem">.</td><td class="problem"><i>+1<br>
+<s>298:49</s></i></td><td class="problem"><i>+1<br>
+<s>22:01</s></i></td><td class="problem"><i>+1<br>
+<s>165:08</s></i></td><td class="problem"><i>+<br>
+<s>30:04</s></i></td><td class="problem">.</td><td class="problem"><i>+2<br>
+<s>108:20</s></i></td><td class="problem"><i>+4<br>
+<s>281:31</s></i></td><td class="solved">8</td><td class="penalty">1411</td><td class="rank">2</td>
+</tr>
+<tr bgcolor="ffffff">
+<td class="party">trolface (Казань, Россия)</td><td class="problem"><i>+6<br>
+<s>93:04</s></i></td><td class="problem"><i>+<br>
+<s>17:28</s></i></td><td class="problem"><b>-1</b></td><td class="problem"><b>-5</b></td><td class="problem"><i>+3<br>
+<s>64:47</s></i></td><td class="problem"><i>+3<br>
+<s>117:32</s></i></td><td class="problem"><i>+<br>
+<s>37:44</s></i></td><td class="problem">.</td><td class="problem"><i>+2<br>
+<s>32:57</s></i></td><td class="problem"><i>+<br>
+<s>186:19</s></i></td><td class="solved">7</td><td class="penalty">826</td><td class="rank">3</td>
+</tr>
+<tr bgcolor="f8f8f8">
+<td class="party">DOS (Минск, Беларусь)</td><td class="problem"><i>+1<br>
+<s>185:36</s></i></td><td class="problem"><i>+<br>
+<s>24:31</s></i></td><td class="problem">.</td><td class="problem"><b>-2</b></td><td class="problem"><i>+4<br>
+<s>109:38</s></i></td><td class="problem"><i>+<br>
+<s>128:38</s></i></td><td class="problem"><i>+<br>
+<s>15:34</s></i></td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>98:27</s></i></td><td class="problem"><i>+<br>
+<s>256:30</s></i></td><td class="solved">7</td><td class="penalty">915</td><td class="rank">4</td>
+</tr>
+<tr bgcolor="ffffff">
+<td class="party">loving program (Ставрополь)</td><td class="problem"><i>+8<br>
+<s>224:15</s></i></td><td class="problem"><i>+<br>
+<s>36:41</s></i></td><td class="problem">.</td><td class="problem"><i>+1<br>
+<s>272:45</s></i></td><td class="problem"><i>+5<br>
+<s>57:40</s></i></td><td class="problem"><i>+<br>
+<s>196:14</s></i></td><td class="problem"><i>+<br>
+<s>73:25</s></i></td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>88:0</s></i></td><td class="problem">.</td><td class="solved">7</td><td class="penalty">1226</td><td class="rank">5</td>
+</tr>
+<tr bgcolor="f8f8f8">
+<td class="party">LIT_6 (Александрия, Украина)</td><td class="problem"><i>+6<br>
+<s>284:53</s></i></td><td class="problem"><i>+<br>
+<s>22:44</s></i></td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>243:16</s></i></td><td class="problem"><i>+4<br>
+<s>111:43</s></i></td><td class="problem"><i>+1<br>
+<s>184:30</s></i></td><td class="problem"><i>+1<br>
+<s>103:33</s></i></td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>166:17</s></i></td><td class="problem">.</td><td class="solved">7</td><td class="penalty">1353</td><td class="rank">6</td>
+</tr>
+<tr bgcolor="ffffff">
+<td class="party">LIT_11 (Olexandriya, Ukraine)</td><td class="problem"><i>+6<br>
+<s>279:41</s></i></td><td class="problem"><i>+<br>
+<s>13:10</s></i></td><td class="problem">.</td><td class="problem"><i>+12<br>
+<s>217:06</s></i></td><td class="problem"><i>+7<br>
+<s>57:19</s></i></td><td class="problem"><i>+2<br>
+<s>153:25</s></i></td><td class="problem"><i>+<br>
+<s>66:05</s></i></td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>116:26</s></i></td><td class="problem">.</td><td class="solved">7</td><td class="penalty">1441</td><td class="rank">7</td>
+</tr>
+<tr bgcolor="c8e8f8">
+<td class="party">Perm #1 (Пермь, Россия)</td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>31:37</s></i></td><td class="problem"><b>-3</b></td><td class="problem"><i>+<br>
+<s>118:29</s></i></td><td class="problem"><i>+1<br>
+<s>33:55</s></i></td><td class="problem"><i>+<br>
+<s>79:17</s></i></td><td class="problem"><i>+1<br>
+<s>44:47</s></i></td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>134:04</s></i></td><td class="problem">.</td><td class="solved">6</td><td class="penalty">479</td><td class="rank">8</td>
+</tr>
+<tr bgcolor="d0f0ff">
+<td class="party">UPML#1 (Киев, Украина)</td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>10:13</s></i></td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>231:07</s></i></td><td class="problem"><i>+<br>
+<s>15:33</s></i></td><td class="problem"><i>+4<br>
+<s>189:21</s></i></td><td class="problem"><i>+1<br>
+<s>61:48</s></i></td><td class="problem">.</td><td class="problem"><b>-1</b></td><td class="problem"><i>+11<br>
+<s>274:18</s></i></td><td class="solved">6</td><td class="penalty">1100</td><td class="rank">9</td>
+</tr>
+<tr bgcolor="f8f8f8">
+<td class="party">LIT_7 (Александрия, Украина)</td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>8:59</s></i></td><td class="problem">.</td><td class="problem">.</td><td class="problem"><i>+4<br>
+<s>39:32</s></i></td><td class="problem"><i>+2<br>
+<s>99:22</s></i></td><td class="problem"><i>+<br>
+<s>48:28</s></i></td><td class="problem">.</td><td class="problem"><i>+1<br>
+<s>196:24</s></i></td><td class="problem">.</td><td class="solved">5</td><td class="penalty">530</td><td class="rank">10</td>
+</tr>
+<tr bgcolor="ffffff">
+<td class="party">Макеев Влад (Москва, Россия)</td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>26:41</s></i></td><td class="problem">.</td><td class="problem">.</td><td class="problem"><i>+3<br>
+<s>46:11</s></i></td><td class="problem"><i>+<br>
+<s>159:48</s></i></td><td class="problem"><i>+1<br>
+<s>74:34</s></i></td><td class="problem">.</td><td class="problem"><i>+3<br>
+<s>286:35</s></i></td><td class="problem">.</td><td class="solved">5</td><td class="penalty">731</td><td class="rank">11</td>
+</tr>
+<tr bgcolor="f8f8f8">
+<td class="party">БКК (Киров, Россия)</td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>31:25</s></i></td><td class="problem">.</td><td class="problem">.</td><td class="problem"><i>+5<br>
+<s>101:0</s></i></td><td class="problem"><i>+1<br>
+<s>258:22</s></i></td><td class="problem"><i>+<br>
+<s>145:25</s></i></td><td class="problem">.</td><td class="problem"><i>+1<br>
+<s>188:12</s></i></td><td class="problem">.</td><td class="solved">5</td><td class="penalty">863</td><td class="rank">12</td>
+</tr>
+<tr bgcolor="d0f0ff">
+<td class="party">Грустный Роджер (Россия, Ставрополь)</td><td class="problem"><b>-6</b></td><td class="problem"><i>+<br>
+<s>18:08</s></i></td><td class="problem">.</td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>70:27</s></i></td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>30:33</s></i></td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>163:50</s></i></td><td class="problem"><b>-1</b></td><td class="solved">4</td><td class="penalty">281</td><td class="rank">13</td>
+</tr>
+<tr bgcolor="c8e8f8">
+<td class="party">Air Penguins (Минск, Беларусь)</td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>22:07</s></i></td><td class="problem">.</td><td class="problem">.</td><td class="problem"><i>+3<br>
+<s>90:07</s></i></td><td class="problem"><b>-7</b></td><td class="problem"><i>+<br>
+<s>34:43</s></i></td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>194:19</s></i></td><td class="problem">.</td><td class="solved">4</td><td class="penalty">400</td><td class="rank">14</td>
+</tr>
+<tr bgcolor="d0f0ff">
+<td class="party">UPML (Киев, Украина)</td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>13:17</s></i></td><td class="problem">.</td><td class="problem"><b>-7</b></td><td class="problem"><b>-12</b></td><td class="problem"><i>+1<br>
+<s>244:23</s></i></td><td class="problem"><i>+3<br>
+<s>67:18</s></i></td><td class="problem"><b>-6</b></td><td class="problem"><i>+<br>
+<s>106:12</s></i></td><td class="problem">.</td><td class="solved">4</td><td class="penalty">510</td><td class="rank">15</td>
+</tr>
+<tr bgcolor="c8e8f8">
+<td class="party">grammarschool122 (казань)</td><td class="problem">.</td><td class="problem"><i>+1<br>
+<s>10:24</s></i></td><td class="problem">.</td><td class="problem">.</td><td class="problem"><b>-10</b></td><td class="problem"><i>+2<br>
+<s>288:33</s></i></td><td class="problem"><i>+<br>
+<s>49:12</s></i></td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>133:43</s></i></td><td class="problem">.</td><td class="solved">4</td><td class="penalty">540</td><td class="rank">16</td>
+</tr>
+<tr bgcolor="d0f0ff">
+<td class="party">Витебск #1_8-9 (Витебск, Беларусь)</td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>31:47</s></i></td><td class="problem">.</td><td class="problem"><b>-1</b></td><td class="problem"><i>+7<br>
+<s>245:12</s></i></td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>61:24</s></i></td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>180:05</s></i></td><td class="problem">.</td><td class="solved">4</td><td class="penalty">657</td><td class="rank">17</td>
+</tr>
+<tr bgcolor="c8e8f8">
+<td class="party">Витебск #1_9 (Витебск, Беларусь)</td><td class="problem">.</td><td class="problem"><i>+1<br>
+<s>49:19</s></i></td><td class="problem">.</td><td class="problem"><b>-10</b></td><td class="problem"><i>+6<br>
+<s>248:22</s></i></td><td class="problem">.</td><td class="problem"><i>+1<br>
+<s>37:14</s></i></td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>193:18</s></i></td><td class="problem">.</td><td class="solved">4</td><td class="penalty">687</td><td class="rank">18</td>
+</tr>
+<tr bgcolor="d0f0ff">
+<td class="party">Saturday (Ставрополь, Россия)</td><td class="problem"><b>-3</b></td><td class="problem"><i>+<br>
+<s>28:48</s></i></td><td class="problem">.</td><td class="problem">.</td><td class="problem"><i>+16<br>
+<s>120:45</s></i></td><td class="problem">.</td><td class="problem"><i>+1<br>
+<s>54:50</s></i></td><td class="problem">.</td><td class="problem"><i>+1<br>
+<s>246:54</s></i></td><td class="problem">.</td><td class="solved">4</td><td class="penalty">808</td><td class="rank">19</td>
+</tr>
+<tr bgcolor="c8e8f8">
+<td class="party">PetRoK (Витебск, Беларусь)</td><td class="problem">.</td><td class="problem"><i>+1<br>
+<s>25:41</s></i></td><td class="problem">.</td><td class="problem">.</td><td class="problem"><i>+24<br>
+<s>217:59</s></i></td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>55:59</s></i></td><td class="problem">.</td><td class="problem"><i>+1<br>
+<s>144:50</s></i></td><td class="problem">.</td><td class="solved">4</td><td class="penalty">961</td><td class="rank">20</td>
+</tr>
+<tr bgcolor="ffffff">
+<td class="party">Атырау КТЛ #1 (Атырау, Казахстан)</td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>18:01</s></i></td><td class="problem">.</td><td class="problem">.</td><td class="problem"><i>+3<br>
+<s>61:39</s></i></td><td class="problem"><b>-2</b></td><td class="problem"><i>+<br>
+<s>46:42</s></i></td><td class="problem">.</td><td class="problem">.</td><td class="problem">.</td><td class="solved">3</td><td class="penalty">185</td><td class="rank">21</td>
+</tr>
+<tr bgcolor="f8f8f8">
+<td class="party">kimkim (Талдыкорган)</td><td class="problem"><b>-2</b></td><td class="problem"><i>+1<br>
+<s>27:48</s></i></td><td class="problem">.</td><td class="problem">.</td><td class="problem"><b>-24</b></td><td class="problem"><b>-4</b></td><td class="problem"><i>+2<br>
+<s>83:41</s></i></td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>106:31</s></i></td><td class="problem">.</td><td class="solved">3</td><td class="penalty">276</td><td class="rank">22</td>
+</tr>
+<tr bgcolor="ffffff">
+<td class="party">Gomel_Team_2 (Гомель, Беларусь)</td><td class="problem"><b>-3</b></td><td class="problem"><i>+1<br>
+<s>15:26</s></i></td><td class="problem">.</td><td class="problem">.</td><td class="problem"><b>-1</b></td><td class="problem"><b>-10</b></td><td class="problem"><i>+<br>
+<s>77:57</s></i></td><td class="problem"><b>-2</b></td><td class="problem"><i>+<br>
+<s>231:15</s></i></td><td class="problem">.</td><td class="solved">3</td><td class="penalty">343</td><td class="rank">23</td>
+</tr>
+<tr bgcolor="f8f8f8">
+<td class="party">Divide and Rule (Ставрополь, Россия)</td><td class="problem"><i>+10<br>
+<s>240:09</s></i></td><td class="problem"><i>+1<br>
+<s>9:52</s></i></td><td class="problem">.</td><td class="problem">.</td><td class="problem"><b>-4</b></td><td class="problem"><b>-1</b></td><td class="problem"><i>+<br>
+<s>35:44</s></i></td><td class="problem"><b>-3</b></td><td class="problem">.</td><td class="problem">.</td><td class="solved">3</td><td class="penalty">504</td><td class="rank">24</td>
+</tr>
+<tr bgcolor="ffffff">
+<td class="party">Витебск # 8_9 (Витебск, Беларусь)</td><td class="problem">.</td><td class="problem"><i>+4<br>
+<s>125:53</s></i></td><td class="problem">.</td><td class="problem">.</td><td class="problem">.</td><td class="problem"><b>-3</b></td><td class="problem"><i>+<br>
+<s>135:23</s></i></td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>216:17</s></i></td><td class="problem">.</td><td class="solved">3</td><td class="penalty">556</td><td class="rank">25</td>
+</tr>
+<tr bgcolor="f8f8f8">
+<td class="party">Витебск #1_7 (Витебск, Беларусь)</td><td class="problem">.</td><td class="problem"><i>+3<br>
+<s>27:17</s></i></td><td class="problem">.</td><td class="problem"><b>-3</b></td><td class="problem"><b>-13</b></td><td class="problem">.</td><td class="problem"><i>+4<br>
+<s>196:40</s></i></td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>252:09</s></i></td><td class="problem">.</td><td class="solved">3</td><td class="penalty">615</td><td class="rank">26</td>
+</tr>
+<tr bgcolor="ffffff">
+<td class="party">РСФМСШИ #001 (Almaty,Kazakhsan)</td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>55:12</s></i></td><td class="problem">.</td><td class="problem">.</td><td class="problem"><b>-9</b></td><td class="problem"><i>+15<br>
+<s>202:47</s></i></td><td class="problem"><i>+1<br>
+<s>121:10</s></i></td><td class="problem">.</td><td class="problem">.</td><td class="problem">.</td><td class="solved">3</td><td class="penalty">698</td><td class="rank">27</td>
+</tr>
+<tr bgcolor="f8f8f8">
+<td class="party">Витебск # 8_6-8 (Витебск, Беларусь)</td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>32:21</s></i></td><td class="problem">.</td><td class="problem">.</td><td class="problem"><i>+3<br>
+<s>195:12</s></i></td><td class="problem">.</td><td class="problem"><i>+10<br>
+<s>240:40</s></i></td><td class="problem">.</td><td class="problem"><b>-1</b></td><td class="problem">.</td><td class="solved">3</td><td class="penalty">727</td><td class="rank">28</td>
+</tr>
+<tr bgcolor="d0f0ff">
+<td class="party">OrelNoTeam (п. Нарышкино)</td><td class="problem"><b>-3</b></td><td class="problem"><i>+<br>
+<s>34:07</s></i></td><td class="problem">.</td><td class="problem">.</td><td class="problem">.</td><td class="problem">.</td><td class="problem"><i>+1<br>
+<s>65:24</s></i></td><td class="problem">.</td><td class="problem">.</td><td class="problem">.</td><td class="solved">2</td><td class="penalty">119</td><td class="rank">29</td>
+</tr>
+<tr bgcolor="c8e8f8">
+<td class="party">Алматы КТЛ #4 (Алматы,Казахстан)</td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>53:20</s></i></td><td class="problem">.</td><td class="problem">.</td><td class="problem">.</td><td class="problem">.</td><td class="problem"><i>+<br>
+<s>70:06</s></i></td><td class="problem">.</td><td class="problem">.</td><td class="problem">.</td><td class="solved">2</td><td class="penalty">123</td><td class="rank">30</td>
+</tr>
+<tr bgcolor="d0f0ff">
+<td class="party">Dejavu (г. Екатеринбург)</td><td class="problem">.</td><td class="problem"><i>+3<br>
+<s>92:25</s></i></td><td class="problem">.</td><td class="problem">.</td><td class="problem"><i>+2<br>
+<s>184:56</s></i></td><td class="problem">.</td><td class="problem">.</td><td class="problem">.</td><td class="problem">.</td><td class="problem">.</td><td class="solved">2</td><td class="penalty">376</td><td class="rank">31</td>
+</tr>
+<tr bgcolor="c8e8f8">
+<td class="party">po_starters (Россия Ставрополь)</td><td class="problem">.</td><td class="problem"><i>+1<br>
+<s>67:03</s></i></td><td class="problem">.</td><td class="problem">.</td><td class="problem">.</td><td class="problem"><b>-3</b></td><td class="problem"><i>+3<br>
+<s>293:17</s></i></td><td class="problem">.</td><td class="problem">.</td><td class="problem">.</td><td class="solved">2</td><td class="penalty">440</td><td class="rank">32</td>
+</tr>
+<tr bgcolor="ffffff">
+<td class="party">EMLi You are eater (Ижевск, Россия)</td><td class="problem"><b>-2</b></td><td class="problem"><i>+1<br>
+<s>63:03</s></i></td><td class="problem">.</td><td class="problem">.</td><td class="problem"><b>-1</b></td><td class="problem">.</td><td class="problem">.</td><td class="problem">.</td><td class="problem">.</td><td class="problem">.</td><td class="solved">1</td><td class="penalty">83</td><td class="rank">33</td>
+</tr>
+<tr height="3">
+<td colspan="14">
+<hr size="1" color="000000">
+</td>
+</tr>
+<tr>
+<td>Всего попыток</td><td>74</td><td>52</td><td>5</td><td>59</td><td>197</td><td>78</td><td>63</td><td>11</td><td>36</td><td>21</td>
+</tr>
+<tr>
+<td>Удачных</td><td>8</td><td>34</td><td>0</td><td>13</td><td>21</td><td>16</td><td>32</td><td>0</td><td>23</td><td>5</td>
+</tr>
+<tr>
+<td>Неудачных</td><td>66</td><td>18</td><td>5</td><td>46</td><td>176</td><td>62</td><td>31</td><td>11</td><td>13</td><td>16</td>
+</tr>
+</table>
+</center>
+</td>
+</tr>
+</table>
+</body>
+</html>

@@ -5,7 +5,7 @@
 const int32_t RIGHT = 1;
 const int32_t LEFT = -1;
 const double PI = 3.1415926535;
-const double eps = 1e-6;
+const double eps = 1e-7;
 
 struct Vector {
     double x, y;

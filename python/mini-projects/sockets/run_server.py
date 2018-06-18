@@ -50,9 +50,6 @@ class thing(object):
 
         return 0
 
-    #def fire(self, direction):
-        
-
 
 def handle_input(s, conn):
     print(s)
