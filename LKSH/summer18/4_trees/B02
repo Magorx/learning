@@ -1,0 +1,87 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+int n;
+int inf = 10000000;
+vector<int> tree;
+vector<int> add;
+vector<int> init;
+
+void push(int v) {
+  if (add[v] != 0) {
+    tree[2 * v + 1] += add[v];
+    tree[2 * v] += add[v];
+    add[2 * v + 1] += add[v];
+    add[2 * v] += add[v];
+    add[v] = 0;
+  }
+}
+
+int build(int v, int l, int r) {
+  if (r - l == 1) {
+    tree[v] = init[l];
+    return tree[v];
+  }
+  int m = (r + l) / 2;
+  tree[v] = max(build(2 * v + 1, l, m), build(2 * v, l, m));
+  return tree[v];
+}
+
+int query(int v, int lv, int rv, int l, int r) {
+  cout << v << '\n';
+  if (lv >= r || rv <= l) {
+    return -inf;
+  } else if (lv >= l && rv <= r) {
+    return tree[v];
+  }
+  int mv = (lv + rv) / 2;
+  push(v);
+  return max(query(2 * v + 1, lv, mv, l, r), query(2 * v, mv, rv, l, r));
+}
+
+void update_seg(int v, int lv, int rv, int l, int r, int delta) {
+  if (lv >= r || rv <= l) {
+    return;
+  }
+  if (lv >= l && rv <= r) {
+    tree[v] += delta;
+    add[v] += delta;
+  }
+
+  int mv = (lv + rv) / 2;
+  update_seg(2 * v + 1, lv, mv, l, r, delta);
+  update_seg(2 * v, mv, rv, l, r, delta);
+  tree[v] = max(tree[2 * v + 1], tree[2 * v]);
+}
+
+int main() {
+  cin >> n;
+  tree.resize(4 * n + 2);
+  add.resize(4 * n + 2);
+  init.resize(n);
+  for (int i = 0; i < n; ++i) {
+    cin >> init[i];
+  }
+  build(1, 0, n - 1);
+  cout << "HI\n";
+
+  int k = 0;
+  cin >> k;
+  for (int i = 0; i < k; ++i) {
+    char c;
+    cin >> c;
+    if (c == 'g') {
+      int index = 0;
+      cin >> index;
+      cout << query(1, 0, n - 1, index, index + 1);
+    } else {
+      int l, r, delta;
+      cin >> l >> r >> delta;
+      update_seg(1, 0, n - 1, l, r, delta);
+    }
+  }
+
+}

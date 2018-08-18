@@ -1,0 +1,15 @@
+{
+  "files.associations": {
+    "array": "cpp",
+    "iostream": "cpp",
+    "*.tcc": "cpp",
+    "ratio": "cpp",
+    "system_error": "cpp",
+    "type_traits": "cpp",
+    "chrono": "cpp",
+    "functional": "cpp",
+    "tuple": "cpp",
+    "utility": "cpp"
+  },
+  "git.ignoreLimitWarning": true
+}

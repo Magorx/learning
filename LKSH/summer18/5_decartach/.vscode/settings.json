@@ -1,0 +1,16 @@
+{
+  "git.ignoreLimitWarning": true,
+  "files.associations": {
+    "iostream": "cpp",
+    "*.tcc": "cpp",
+    "ratio": "cpp",
+    "system_error": "cpp",
+    "type_traits": "cpp",
+    "deque": "cpp",
+    "list": "cpp",
+    "unordered_map": "cpp",
+    "unordered_set": "cpp",
+    "vector": "cpp",
+    "functional": "cpp"
+  }
+}
