@@ -12,8 +12,11 @@ STANDART_WORLD_WIDTH = 15
 STANDART_WORLD_HEIGHT = 15
 
 
+STANDART_COMMON_SYMB = '!'
+
+
 class Tyle(object):
-    def __init__(self, symb='.'):
+    def __init__(self, symb=STANDART_COMMON_SYMB):
         self.symb = symb
     
     def __repr__(self):
@@ -21,20 +24,26 @@ class Tyle(object):
 
 
 class WorldTyle(Tyle):
-    def __init__(self, world, x, y, symb='.'):
+    def __init__(self, world, x, y, symb=STANDART_COMMON_SYMB):
         self.world = world
         self.x = x
         self.y = y
         self.symb = symb
+
+        self.moveable = True
+
         self.creature = None
         self.building = None
         self.landshaft = None
 
 
 class World(object):
-    def __init__(self, width, height, tyle_type=WorldTyle, common_symb='.'):
-        self.map = [[tyle_type(self, j, i, symb=common_symb) for i in range (height)]
-                                 for j in range(width)]
+    def __init__(self, width, height, tyle_type=WorldTyle, common_symb=STANDART_COMMON_SYMB):
+        self.map = [[tyle_type(self, j, i, symb=common_symb) for i in range (height)] for j in range(width)]
+        if common_symb is None:
+            common_symb = STANDART_COMMON_SYMB
+
+        self.tyle_type = tyle_type
         self.common_symb = common_symb
         self.time = 0
         self.width = width
@@ -42,8 +51,8 @@ class World(object):
         self.square = width * height
 
     def print(self):
-        for x in range(self.width):
-            for y in range(self.height):
+        for y in range(self.height):
+            for x in range(self.width):
                 print(self.map[x][y], end='')
             print()
 
@@ -94,7 +103,7 @@ class World(object):
         return cur_square
 
     def GenerateWorld(self,
-                      lands_to_generate=100, defined_land_square = 10,
+                      lands_to_generate=100, defined_land_square = 0,
                       landshafts=['~', '^', 'T'],
                       to_update=False, delay_between_updates=0):
         self.ClearWorld(to_update=to_update)
@@ -144,13 +153,28 @@ class World(object):
             
         return 0
 
-    def SaveTheWorld(self):
-        file = open('top.world', 'w')
-        for x in range(self.width):
-                for y in range(self.height):
-                    print(self.map[x][y].symb, file=file, end='')
-                print(file=file)
+    def SaveTheWorld(self, file_name='world.wrld'):
+        file = open(file_name, 'w')
+        print(self.width, self.height, file=file)
+        for y in range(self.height):
+            for x in range(self.width):
+                print(self.map[x][y].symb, file=file, end='')
+            print(file=file)
         file.close()
+
+
+    def LoadTheWorld(self, file_name):
+        self.ClearWorld(to_update=True)
+        file = open(file_name, 'r')
+
+        width, height = map(int, file.readline().split())
+        self.width = width
+        self.height = height
+
+        for y in range(height):
+            line = list(file.readline())
+            for x in range(width):
+                self.map[x][y].symb = line[x]
 
 
 def main():

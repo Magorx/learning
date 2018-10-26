@@ -67,6 +67,13 @@ class TkWorldTyle(world.WorldTyle):
             print('ERROR DELETING TEXTURE')
             return ERROR
 
+    def delete_texture_by_name(self, name):
+        for i in range(len(self.textures_names)):
+            if name == self.textures_names[i]:
+                self.delete_texture(i)
+                return
+        return ERROR
+
     def delete_top_texture(self):
         self.delete_texture(len(self.textures) - 1)
 
@@ -121,6 +128,7 @@ class TkWorldTyle(world.WorldTyle):
         self.redraw()
 
     def clicked(self, event):
+        self.world.clicked()
         pass # You should use your own, if need
 
 
@@ -152,12 +160,12 @@ class TkWorld(world.World):
     def __init__(self,
                  width, height, 
                  tyle_type=TkWorldTyle, 
-                 common_symb='.',
+                 common_symb=world.STANDART_COMMON_SYMB,
                  side_px=SIDE_PX,
                  pre_generated=False,
                  window=None,
                  textures=None):
-        super(TkWorld, self).__init__(width, height, common_symb=common_symb)
+        super(TkWorld, self).__init__(width, height, tyle_type=tyle_type, common_symb=common_symb)
         self.side_px = side_px
 
         if pre_generated:
@@ -183,19 +191,27 @@ class TkWorld(world.World):
                     tkinter.Canvas(self.root_window,
                                    width=side_px, height=side_px, 
                                    bg='#FFFFFF'),
-                    x, y, prev_tyle.symb)
+                x, y, prev_tyle.symb)
         
         for x in range(self.width):
             for y in range(self.height):
                 tyle = self.map[x][y]
                 tyle.canvas.place(x=x*side_px, y=y*side_px)
                 tyle.canvas.bind('<Button-1>', self.map[x][y].clicked)
+                tyle.canvas.bind('<Button-2>', self.map[x][y].clicked)
+                tyle.canvas.bind('<Button-3>', self.map[x][y].clicked)
                 tyle.add_texture(tyle.texture_by_symb(tyle.symb), tyle._texture_name_by_symb(tyle.symb))
 
     def full_update(self, to_set_texture_by_symb=True):
         for x in range(self.width):
             for y in range(self.height):
                 self.map[x][y].update(to_set_texture_by_symb=to_set_texture_by_symb)
+
+    def clicked():
+        pass # You should use your own, if need
+
+    def LoadTheWorld(self, file_name):
+        super(TkWorld, self).LoadTheWorld(file_name)
 
 
 def main():

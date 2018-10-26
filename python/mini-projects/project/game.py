@@ -2,12 +2,13 @@
 # -*- coding: utf-8 -*-
 
 
-import game_world
+import game_engine
 
 
 def main():
-    world = game_world.GameWorld(20, 20, pre_generated=True)
-    world.root_window.mainloop()
+    engine = game_engine.GameEngine()
+    engine.LoadWorld(20, 10, 'hax')
+    engine.StartWorld()
 
 
 if __name__ == '__main__':

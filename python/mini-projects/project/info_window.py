@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-
+import tkinter
 import random
 import time
 
@@ -20,12 +20,18 @@ class InfoWindow(object):
         self.button_height = button_height
         self.button_width = button_width
         self.window = None
-        self.root = None
         self.to_return = None
+
+        self.active = False
+
+    def die(self, event):
+        time.sleep(1)
+        self.deactivate()
 
     def activate(self):
         if self.window is not None:
             return 0
+        self.active = True
 
         window = tkinter.Toplevel()
         side_px = self.side_px
@@ -34,15 +40,15 @@ class InfoWindow(object):
             if self.imgs:
                 canvas.create_image(i * side_px, i * side_px, image=self.imgs[i])
             button = tkinter.Button(canvas, text=str(self.choices[i]), command=self.commands[i], width=self.button_width, height=self.button_height)
-            button.bind(exit)
             button.pack()
             canvas.pack()
         self.window = window
 
-    def deactivate(self):
+    def deactivate(self, tk_event=None):
+        self.active = False
         self.window.destroy()
         self.window = None
-        self.root = None
+        print('QUCH')
 
     def return_by_index(self, i):
         print('returned ', self.i)
