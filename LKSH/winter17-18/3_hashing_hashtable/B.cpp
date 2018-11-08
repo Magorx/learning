@@ -15,8 +15,6 @@ void CALC_K_POWS() {
 }
 
 int main() {
-  freopen("eqsubstr.in", "r", stdin);
-  freopen("eqsubstr.out", "w", stdout);
   CALC_K_POWS();
   std::string input;
   std::cin >> input;

@@ -41,7 +41,7 @@ string get_k_str(Node* cur_v, int k) {
   for (int i = 0; i < ALPHABET_SIZE; ++i) {
     if (cur_v->next[i]) {
       cur_k += cur_v->next[i]->power;
-      if (cur_k >= k) {
+      if (cur_k > k) {
         cur_k -= cur_v->next[i]->power;
         get_k_str(cur_v->next[i], k - cur_k);
       }

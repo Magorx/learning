@@ -1,0 +1,17 @@
+{
+  "files.associations": {
+    "cmath": "cpp",
+    "complex": "cpp",
+    "cstdlib": "cpp",
+    "iostream": "cpp",
+    "array": "cpp",
+    "bitset": "cpp",
+    "initializer_list": "cpp",
+    "utility": "cpp",
+    "valarray": "cpp",
+    "functional": "cpp",
+    "ratio": "cpp",
+    "scoped_allocator": "cpp",
+    "vector": "cpp"
+  }
+}

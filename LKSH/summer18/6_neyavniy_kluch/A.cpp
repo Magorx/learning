@@ -39,13 +39,12 @@ struct Node{
       if (R) {
         R->reverse();
       }
-      rev = false;
     }
+    rev = false;
   }
 
   void update() {
-    minimum = min(value, node_min(L));
-    minimum = min(minimum, node_min(R));
+    minimum = min(value, min(node_min(L), node_min(R)));
     s = size(L) + size(R) + 1;
   }
 };
@@ -114,91 +113,52 @@ void print_tree(Node* n) {
   }
 
   n->push();
+  n->update();
   print_tree(n->L);
   cout << n->value << ' ';
   print_tree(n->R);
 }
 
 int main() {
-  srand(time(NULL));
-  int n, m = 0;
+  //srand(time(NULL));
+  int n, m;
   cin >> n >> m;
   Node* tree = nullptr;
   for (int i = 0; i < n; ++i) {
-    int x = 0;
+    int x;
     cin >> x;
-    tree = merge(tree, new Node(x));
+    Node* node = new Node(x);
+    tree = merge(tree, node);
   }
 
-  /*stack<Node*> s;
-  Node* tree = nullptr;
- 
-  for (int i = 0; i < n; ++i) {
-    Node* cur_node = arr[i];
-    Node* last_node = nullptr;
-    while (!s.empty() && s.top()->y > cur_node->y) {
-      last_node = s.top();
-      last_node->update();
-      s.pop();
-    }
-    if (s.empty()) {
-        tree = cur_node;
-        tree->update();
-    }
-    if (last_node) {
-      cur_node->L = last_node;
-      cur_node->update();
-      if (!s.empty()) {
-        s.top()->R = cur_node;
-        s.top()->update();
-      }
-    } else {
-      if (!s.empty()) {
-        last_node = s.top();
-        last_node->update();
-        last_node->R = cur_node;
-        last_node->update();
-      }
-    }
-    s.push(cur_node);
-  }*/
-
   for (int i = 0; i < m; ++i) {
-    int type = -1;
+    int type;
     cin >> type;
     int l, r;
     cin >> l >> r;
-    if (l == r) {
-      if (type == 1) {
-        continue;
-      }
-    }
     --l;
-
     Node* left_part;
     Node* middle_part;
     Node* right_part;
     tie(left_part, middle_part) = split(tree, l);
     tie(middle_part, right_part) = split(middle_part, r - l);
 
-    /* print_tree(left_part);
-    cout << "| ";
-    print_tree(middle_part);
-    cout << "| ";
-    print_tree(right_part);
-    cout << '\n'; */
-
+    // print_tree(left_part);
+    // cout << "| ";
+    // print_tree(middle_part);
+    // cout << "| ";
+    // print_tree(right_part);
+    // cout << '\n';
     if (type == 1) {
       middle_part->reverse();
     } else {
-      middle_part->update();
       cout << middle_part->minimum << '\n';
     }
 
     left_part = merge(left_part, middle_part);
     tree = merge(left_part, right_part);
     // print_tree(tree);
-    // cout << '\n';
+    //  cout << '\n';,
   }
 
   // print_tree(tree);

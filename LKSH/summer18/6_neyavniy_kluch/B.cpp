@@ -16,7 +16,7 @@ struct Node{
 
   Node(int value_) {
     value = value_;
-    y = rand();
+    y = (rand() << 16) ^ rand();
     s = 1;
     L = nullptr;
     R = nullptr;
