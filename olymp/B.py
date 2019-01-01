@@ -1,8 +1,8 @@
-n, m, k = map(int, input().split())
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
-lx = 0
-rx = n
-ly = 0
-ry = m
-s = n * m / k
-
+n, m = map(int, input().split())
+arr1 = []
+for i in range(n):
+    a = list(map(int, input().split()))
+    

@@ -2,99 +2,87 @@
 
 using namespace std;
 
-const int NONE = 1;
+const long long OPEN = 1;
+const long long CLOSE = 3;
+const long long POINT = 2;
 
 struct Point {
-    int x;
-    int type;
-    int id;
+  long long time;
+  long long stat;
+  long long train;
 
-    Point() {
-      x = -1;
-      type = -1;
-      id = -1;
-    }
-
-    Point(int a, int b, int c) {
-        x = a;
-        type = b;
-        id = c;
-    }
+  Point(long long a, long long b, long long c) {
+    time = a;
+    stat = b;
+    train = c;
+  }
 };
 
-bool operator<(const Point& first, const Point& second) {
-    if (first.x < second.x) {
-        return true;
-    } else if (second.x < first.x) {
-        return false;
-    } else {
-        if (first.type < second.type) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+set<long long> trains;
+set<long long> stats;
+
+bool OK(Point cur) {
+  return trains.find(cur.train) != trains.end() || stats.find(cur.stat) != stats.end();
 }
 
-int main() {
-  int n, w, l, r;
-  cin >> n >> w >> l >> r;
-  if (r - l < w) {
-    cout << -1 << '\n';
-    return 0;
-  }
-
-  vector<Point> arr(n);
-  for (int i = 0; i < n; ++i) {
-    cin >> arr[i].x;
-    arr[i].type = NONE;
-    arr[i].id = i;
-  }
-  arr.push_back({l, NONE - 1, -1});
-  arr.push_back({r, NONE + 1, -1});
-  sort(arr.begin(), arr.end());
-
-  int min_to_remove = 1e9;
-  int l_index = 0;
-  int ans_l = 1;
-  int ans_r = n;
-  for (int i = 0; i < n + 2; ++i) {
-    Point cur = arr[i];
-    if (l_index == i) {
-      continue;
+bool operator<(const Point& first, const Point& second) {
+  if (first.time < second.time) {
+    return true;
+  } else if (second.time < first.time) {
+    return false;
+  } else {
+    if (OK(first) > OK(second)) {
+      return true;
+    } else if (OK(first) < OK(second)) {
+      return false;
     } else {
-      if (cur.x - arr[l_index].x < w) {
-        continue;
+      if (first.stat < second.stat) {
+        return true;
       } else {
-        while (cur.x - arr[l_index].x >= w) {
-          ++l_index;
-        }
-        if (l_index == i) {
-          cout << 0 << '\n';
-          return 0;
-        }
-
-        if (i - l_index < min_to_remove) {
-          min_to_remove = i - l_index;
-          ans_l = l_index;
-          ans_r = i - 1;
-        }
+        return false;
       }
     }
   }
-  cout << "PE PLZ";
+}
 
-  if (min_to_remove == 1e9) {
-    cout << n << '\n';
-    for (int i = 0; i < n; ++i) {
-      cout << i + 1 << '\n';
-    }
-  } else {
-    cout << min_to_remove << '\n';
-    for (int i = ans_l; i <= ans_r; ++i) {
-      cout << arr[i].id + 1 << '\n';
+int main() {
+  long long n, e, m;
+  cin >> n >> e >> m;
+  e--;
+  long long points_cnt = 0;
+
+  vector<Point> arr;
+  for (long long i = 0; i < m; ++i) {
+    long long k;
+    cin >> k;
+    points_cnt += k;
+    for (long long j = 0; j < k; ++j) {
+      long long station, time;
+      cin >> station >> time;
+      station--;
+      arr.push_back({time, station, i});
     }
   }
+  sort(arr.begin(), arr.end());
+
+  stats.insert(0);
+  long long last_time = -1;
+  for (long long i = 0; i < points_cnt; ++i) {
+    Point cur = arr[i];
+    if (OK(cur)) {
+      trains.insert(cur.train);
+      stats.insert(cur.stat);
+      if (cur.stat == e) {
+        cout << cur.time << '\n';
+        return 0;
+      }
+      if (last_time != cur.time) {
+        sort(arr.begin(), arr.end());
+        last_time = cur.time;
+      }
+    }
+  }
+  cout << -1 << '\n';
 
   return 0;
 }

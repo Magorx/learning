@@ -2,6 +2,10 @@
   "files.associations": {
     "array": "cpp",
     "initializer_list": "cpp",
-    "utility": "cpp"
+    "utility": "cpp",
+    "bitset": "cpp",
+    "valarray": "cpp",
+    "vector": "cpp",
+    "deque": "cpp"
   }
 }

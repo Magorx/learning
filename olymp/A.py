@@ -1,34 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-n = int(input())
-arr = list(map(int, list(input())))
+def read():
+    s = input()
+    letter = s[0]
+    first = ord(letter) - ord('a') 
+    second = int(s[1])
+    return (first, second)
 
-pref_s = 0
-s = 0
-last_index = 0
+def f(a, b):
+    return abs(a - b)
 
-for i in range(n - 1):
-    pref_s += arr[i]
-    last_index = i + 1
-
-    flag = True
-    s = 0
-    while (last_index < n and flag):
-        for j in range(last_index, n):
-            s += arr[j]
-            if s > pref_s:
-                flag = False
-                break
-            elif s == pref_s:
-                s = 0
-                last_index = j + 1
-                break
-        else:
-            flag = False
-    if flag and s == 0:
-        #print(i, pref_s, last_index, s)
-        print('YES')
-        exit(0)
-
-print('NO')
+x1, y1 = read()
+x2, y2 = read()
+print(min(f(x1, x2), f(y1, y2)), max(f(x1, x2), f(y1, y2)))
