@@ -35,7 +35,7 @@ class MyHandler(socketserver.BaseRequestHandler):
             data = name + " : " + data
             #self.request.send(str(name + " : ").encode())
             print(data)
-            # ans = input().encode()
+            #ans = input().encode()
             data = data.encode("utf-8")
             for i in coc:
                 if i != self.request:
@@ -48,5 +48,5 @@ class MyServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     allow_reuse_address = True
 
 
-server = MyServer(('0.0.0.0', 10005), MyHandler)
+server = MyServer(('0.0.0.0', 10006), MyHandler)
 server.serve_forever()

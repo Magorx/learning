@@ -9,6 +9,7 @@ using MatrixMap = vector<Row<T>>;
 
 long double M;
 
+long double eps = 1e-7;
 
 template <typename T>
 struct Matrix {
@@ -106,22 +107,6 @@ const int ONE = 1;
 const int INF = 2;
 const int ZERO = 3;
 
-long long gcd(long long a, long long b) {
-  while (b) {
-    swap(a, b);
-    b = a % b;
-  }
-  return a;
-}
-
-long long GCD(vector<long long>& arr) {
-  long long ans = arr[0];
-  for (int i = 0; i < arr.size(); ++i) {
-    ans = gcd(ans, arr[i]);
-  }
-  return ans;
-}
-
 template <typename T>
 pair<int, vector<long double>> zareshat(Matrix<T> a, Matrix<T> b) {
   int row = 0;
@@ -129,21 +114,25 @@ pair<int, vector<long double>> zareshat(Matrix<T> a, Matrix<T> b) {
   int can_be_free = 0;
   while (row < a.row_count && column < a.column_count) {
     bool free = true;
-    long double minimum = 10000000000;
-    int min_index = -1;
+    long double maximum = 0;
+    int index = row;
     for (int i = row; i < a.row_count; ++i) {
-      if (a[i][column] != 0) {
+      if (fabs(a[i][column]) > eps) {
         free = false;
-        if (abs(minimum) > abs(a[i][column])) {
-          minimum = a[i][column];
-          min_index = i;
+        if (maximum < fabs(a[i][column])) {
+          maximum = fabs(a[i][column]);
+          index = i;
         }
+        break;
       }
     }
     if (!free) {
-      swap(a[min_index], a[row]);
-      swap(b[min_index], b[row]);
-      // cout << "r = " << row << " c = " << column << '\n';
+      swap(a[index], a[row]);
+      swap(b[index], b[row]);
+      for (int i = 0; i < a.column_count; ++i) {
+        a[row][i] /= maximum;
+      }
+      b[row][0] /= maximum;
       for (int j = 0; j < a.row_count; ++j) {
         if (j != row) {
           int t = a[j][column];
@@ -160,7 +149,7 @@ pair<int, vector<long double>> zareshat(Matrix<T> a, Matrix<T> b) {
     column++;
   }
   while (row < a.row_count) {
-    if (b[row][0] != 0) {
+    if (fabs(b[row][0]) > eps) {
       return {ZERO, {}};
     }
     row++;
@@ -189,6 +178,7 @@ int main() {
   }
   auto ans = zareshat(a, b);
   int flag = ans.first;
+  cout.precision(20);
   if (flag == ZERO) {
     cout << "impossible\n";
     return 0;

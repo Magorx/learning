@@ -79,9 +79,7 @@ bool compound(long long n, long long itters = 20) {
       }
     }
 
-    if (flag) {
-      continue;
-    } else {
+    if (!flag) {
       return true;
     }
   }
