@@ -3,284 +3,225 @@
 
 using namespace std;
 
-struct MyInt {
-  vector<int> val;
-  int sign;
+const long long inf = 1e10;
 
-  MyInt() {
-    sign = 1;
-    val.resize(0);
+long long randint() {
+  return (rand() << 16) ^ rand();
+}
+
+template <typename T>
+struct Node;
+
+template <typename T>
+long long node_min(Node<T>* n);
+
+template <typename T>
+long long node_size(Node<T>* n);
+
+template <typename T>
+struct Node {
+  T val;
+  long long pr;
+  Node *l;
+  Node *r;
+  int size;
+
+  T min_val;
+
+  Node() {}
+  Node(T value, int priority) {
+    val = value;
+    pr = priority;
+    size = 1;
+    l = nullptr;
+    r = nullptr;
+  }
+  Node(T value) {
+    val = value;
+    pr = randint();
+    min_val = value;
+    size = 1;
+    l = nullptr;
+    r = nullptr;
   }
 
-  MyInt(string s) {
-    unsigned i = 0;
-    if (s[0] == '-') {
-      sign = -1;
-      s = s.substr(1, s.size());
-    } else {
-      sign = 1;
-    }
-    reverse(s.begin(), s.end());
-    val.resize(s.length());
-
-    for (i = 0; i < s.length(); ++i) {
-    val[i] = s[i] - '0';
-    }
-  }
-
-  MyInt(int n) {
-    *this = MyInt(to_string(n));
-  }
-
-  int size() const {
-    return val.size();
-  }
-
-  void normalize() {
-    int size = this->size();
-    for (int i = 0; i < size - 1; ++i) {
-      if (val[i] > 9) {
-        val[i + 1] += val[i] / 10;
-        val[i] %= 10;
-      } else if (val[i] < 0) {
-        while (val[i] < 0) {
-        val[i + 1] -= 1;
-        val[i] += 10;
-        }
-      }
-    }
-    while (abs(val[size - 1]) > 9) {
-    if (val[size - 1] > 9) {
-      val.push_back(0);
-      val[size] += val[size - 1] / 10;
-      val[size - 1] %= 10;
-    } else if (val[size - 1] < 0) {
-      sign = -1;
-      val[size - 1] = val[size - 1] + 10;
-    }
-    size = this->size();
-    }
-  }
-
-  void clear() {
-    val.resize(0);
-    sign = 1;
-  }
-
-  bool is_zero() const {
-    for (auto i : val) {
-    if (i) {
-      return false;
-    }
-    }
-
-    return true;
-  }
-
-  int to_int() {
-    int n = 0;
-    for (size_t i = 0; i < val.size(); ++i) {
-    n *= 10;
-    n += val[i];
-    }
-    return n;
-  }
-
-  string to_str() {
-    string ret = "";
-    if (is_zero()) {
-      return "0";
-    }
-    if (sign < 0) {
-        ret += '-';
-    }
-    bool was_not_zero = false;
-    for (int i = size() - 1; i >= 0; --i) {
-        if (was_not_zero || val[i]) {
-          was_not_zero = true;
-          ret += to_string(abs(val[i]));
-        }
-    }
-    if (!was_not_zero) {
-      ret = "0";
-    }
-
-    return ret;
+  void update() {
+    min_val = min(min(val, node_min(l)), node_min(r));
+    size = node_size(l) + node_size(r) + 1;
   }
 };
 
-istream& operator>>(istream& input_stream, MyInt& myint)
-{
-  string s;
-  input_stream >> s;
-
-  unsigned i = 0;
-  if (s[0] == '-') {
-    myint.sign = -1;
-    s = s.substr(1, s.size());
+template <typename T>
+long long node_min(Node<T>* n) {
+  if (!n) {
+    return +inf;
   } else {
-    myint.sign = 1;
+    return n->min_val;
   }
-  reverse(s.begin(), s.end());
-  myint.val.resize(s.length());
-
-  for (i = 0; i < s.length(); ++i) {
-    myint.val[i] = s[i] - '0';
-  }
-  return input_stream;
 }
 
-ostream& operator<<(ostream& output_stream, const MyInt& myint)
-{
-  if (myint.is_zero()) {
-  output_stream << 0;
-  return output_stream;
+template <typename T>
+long long node_size(Node<T>* n) {
+  if (!n) {
+    return 0;
+  } else {
+    return n->size;
   }
-  if (myint.sign < 0) {
-    cout << '-';
+}
+
+template <typename T>
+pair<Node<T>*, Node<T>*> split(Node<T>* n, T key) {
+  if (!n) {
+    return {nullptr, nullptr};
   }
-  bool was_not_zero = false;
-  for (int i = myint.size() - 1; i >= 0; --i) {
-    if (was_not_zero || myint.val[i]) {
-    was_not_zero = true;
-    cout << abs(myint.val[i]);
+
+  pair<Node<T>*, Node<T>*> ret;
+  if (n->val <= key) {
+    ret = split(n->r, key);
+    n->r = ret.first;
+    n->update();
+    return {n, ret.second};
+  } else {
+    ret = split(n->l, key);
+    n->l = ret.second;
+    n->update();
+    return {ret.first, n};
+  }
+}
+
+template <typename T>
+Node<T>* merge(Node<T>* l, Node<T>* r) {
+  if (!l) {
+    return r;
+  } else if (!r) {
+    return l;
+  }
+
+  if (l->pr > r->pr) {
+    l->r = merge(l->r, r);
+    l->update();
+    return l;
+  } else {
+    r->l = merge(l, r->l);
+    r->update();
+    return r;
+  }
+}
+
+template <typename T>
+Node<T>* insert(Node<T>* n, Node<T>* new_node) {
+  if (!n) {
+    return new_node;
+  }
+
+  if (new_node->pr > n->pr) {
+    tie(new_node->l, new_node->r) = split(n, new_node->val);
+    new_node->update();
+    return new_node;
+  } else {
+    if (new_node->val > n->val) {
+      n->r = insert(n->r, new_node);
+    } else {
+      n->l = insert(n->l, new_node);
+    }
+    n->update();
+    return n;
+  }
+}
+
+template <typename T>
+Node<T>* del(Node<T>* t, T value) {
+  Node<T>* ret1;
+  Node<T>* ret2;
+  Node<T>* ret3;
+  tie(ret1, ret2) = split(t, value);
+  tie(ret1, ret3) = split(ret1, value - 1);
+  Node<T>* merged = merge(ret1, ret2);
+  return merged;
+}
+
+template <typename T>
+Node<T>* find(Node<T> *n, T val) {
+  if (!n) {
+    return nullptr;
+  }
+  if (n->val == val) {
+    return n;
+  }
+
+  if (n->val > val) {
+    Node<T> *ret = find(n->l, val);
+    if (ret) {
+      return ret;
+    } else {
+      return n;
+    }
+  } else {
+    Node<T> *ret = find(n->l, val);
+    if (ret) {
+      return ret;
+    } else {
+      return nullptr;
     }
   }
-  if (!was_not_zero) {
-  cout << 0;
-  }
-  return output_stream;
 }
 
-bool operator<(const MyInt& first, const MyInt& second) {
-  if (first.size() < second.size()) {
-    return true;
-  } else if (second.size() < first.size()){
-    return false;
+template <typename T>
+Node<T>* indexed(Node<T> *n, int index) {
+  if (!n) {
+    return nullptr;
+  }
+
+  if (node_size(n->l) == index) {
+    return n;
+  } else if (node_size(n->l) < index) {
+    return indexed(n->r, index - node_size(n->l) - 1);
   } else {
-    for (int i = first.size() - 1; i >= 0; --i) {
-      if (first.val[i] < second.val[i]) {
-        return true;
-      } else if (first.val[i] > second.val[i]) {
-        return false;
-      }
-    }
-  }
-  return false;
-}
-
-bool operator==(const MyInt& first, const MyInt& second) {
-  if (first < second || second < first) {
-    return false;
-  } else {
-    return true;
+    return indexed(n->l, index);
   }
 }
 
-MyInt operator+(const MyInt& first, const MyInt& second) {
-  MyInt result;
-  result.val.resize(max(first.size(), second.size()));
-  for (int i = 0; i < min(first.size(), second.size()); ++i) {
-    result.val[i] = first.val[i] * first.sign + second.val[i] * second.sign;
-  }
-  for (int i = min(first.size(), second.size()); i < max(first.size(), second.size()); ++i) {
-    result.val[i] = max(first, second).val[i];
+template<typename T>
+void print_tree(Node<T>* n) {
+  if (!n) {
+  return;
   }
 
-  result.normalize();
-
-  return result;
+  print_tree(n->l);
+  cout << n->val << ' ';
+  print_tree(n->r);
 }
 
-MyInt operator-(MyInt first, MyInt second) {
-  MyInt result;
-  if (first < second) {
-  first.sign *= -1;
-  result = first + second;
-  result.sign *= -1;
-  first.sign *= -1;
-  } else if (second < first) {
-  second.sign *= -1;
-  result = first + second;
-  second.sign *= -1;
-  }
-  return result;
-}
-
-MyInt operator*(const MyInt& first, int second) {
-  MyInt result = first;
-  for (int i = 0; i < first.size(); ++i) {
-  result.val[i] *= second;
-  }
-
-  result.normalize();
-  return result;
-}
-
-MyInt operator*(const MyInt& first, const MyInt& second) {
-  MyInt result;
-  result.clear();
-  result.val.resize(first.size() * second.size());
-  for (int i = second.size() - 1; i >= 0; --i) {
-  result = result * 10;
-  result = result + first * second.val[i];
-  }
-
-  result.normalize();
-  return result;
-}
-
-MyInt operator/(MyInt first, const int second) {
-  reverse(first.val.begin(), first.val.end());
-  first.val.resize(first.size() + 1);
-  reverse(first.val.begin(), first.val.end());
-  MyInt result;
-  if (first < second) {
-  return to_string(0);
-  }
-
-  for (int i = first.size() - 1; i >= 1; --i) {
-  // cout << i << ") " << first.val[i] << '\n';
-  int cur_ans = first.val[i] / second;
-  result.val.push_back(cur_ans);
-  first.val[i - 1] += first.val[i] % second * 10;
-  }
-  reverse(result.val.begin(), result.val.end());
-
-  return result;
-}
 
 int main() {
-  MyInt n;
+  Node<long long> *tree = nullptr;
+  int n = 0;
   cin >> n;
 
-  MyInt l = 1;
-  MyInt r = n;
-  MyInt one("1");
-  //cout << r << ' ' << l << ' ' << one << '\n';
-  while (one.to_str() != (r - l).to_str()) {
-    MyInt m = (l + r) / 2;
-    MyInt mm = m * m;
+  while (n--) {
+    int type;
+    long long value;
+    cin >> type >> value;
+    if (type == 1) {
+      tree = insert(tree, new Node<long long>(value));
 
-    cout << l << ' ' << r << ' ' << m  << ' ' << n << ' ' << mm << '\n';
-
-    while (*(mm.val.end() - 1) == 0) {
-      mm.val.pop_back();
-    }
-    while (*(m.val.end() - 1) == 0) {
-      m.val.pop_back();
-    }
-    /*for (int i = 0; i < mm.size(); ++i) {
-      cout << mm.val[i];
-    }
-    cout << '\n' << mm.size() << '\n';*/
-    if (n < mm) {
-      r = m;
+      int l = -1;
+      int r = tree->size - 1;
+      Node<long long> *ret;
+      while (r - l > 1) {
+        int m = (l + r) / 2;
+        //cout << l << ' ' << r << ' ' << m << '\n';
+        ret = indexed(tree, m);
+        if (ret->val >= value) {
+          r = m;
+        } else {
+          l = m;
+        }
+      }
+      cout << tree->size - (l + 2) << '\n';
     } else {
-      l = m;
+      tree = del(tree, indexed(tree, value)->val);
     }
   }
-  cout << l << '\n';
-
   return 0;
 }
