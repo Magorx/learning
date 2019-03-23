@@ -144,18 +144,64 @@ def stop_programm():
     exit(0)
 
 
-SHIFTS = [[1, 0], [0, 1], [-1, 0], [0, -1]]
+UP = [0, 1]
+DOWN = [0, -1]
+RIGHT = [1, 0]
+LEFT = [-1, 0]
+
+SHIFTS = [UP, LEFT, RIGHT, DOWN]
+SHIFTS_PHYSICS = [UP, LEFT]
 SHIFTS_LIQUID_MAIN = [[0, -1], [1, -1], [-1, -1]]
-SHIFTS_LIQUID_SIDE = [[1, 0], [-1, 0]]
+SHIFTS_LIQUID_SIDE = [LEFT, RIGHT]
 
 
 TYPE_GAS = 0
 TYPE_SOLID = 1
 TYPE_LIQUID = 2
 
+
 COLOR_AIR = '#DDDDDD'
 COLOR_EARTH = '#835C3B'
 COLOR_WATER = '#3B6182'
+
+
+class PhysicsModule():
+    def __init__(self, pixel):
+        self.pixel = pixel
+
+        self.liquid_pressure = 0
+        self.flow = [1, 1]
+
+    def find_own_source(self):
+        pxl = self.pixel
+        world = pxl.world
+        ret = None
+        for shift in SHIFTS_PHYSICS:
+            dx, dy = shift
+            nx, ny = pxl.x + dx, pxl.y + dy
+            if not world.checkxy(nx, ny):
+                continue
+            other = world[nx][ny]
+            
+            if other.type == TYPE_LIQUID:
+                return other
+            elif ret is None:
+                ret = other
+
+        return ret
+
+
+    def solve_own_flow(self, give):
+        pxl = self.pixel
+        world = pxl.world
+
+        source = self.find_own_source()
+        if source is None:
+            return
+
+    def solve_flow(self, other):
+        dx = self.pixel.x - other.x
+        dy = self.pixel.y - other.y
 
 
 class Pixel():
@@ -175,6 +221,35 @@ class Pixel():
 
         self.rect = None
         self.render()
+
+        self.physics = PhysicsModule(self)
+        self.ph = self.physics
+
+    def swap(self, other):
+        self.x, self.y, other.x, other.y = other.x, other.y, self.x, self.y
+        self.world[self.x][self.y] = self
+        other.world[other.x][other.y] = other
+
+    def calculate_physics(self):
+        ph = self.physics
+        world = self.world
+        x = self.x
+        y = self.y
+
+        if self.y == world.height - 1:
+            ph.liquid_pressure = 1
+        else:
+            other = world[x][y + 1]
+            if other.type == TYPE_LIQUID:
+                ph.liquid_pressure = other.ph.liquid_pressure + 1
+        
+        if self.x == 0:
+            return
+        else:
+            other = world[x - 1][y]
+            if other.ph.liquid_pressure != ph.liquid_pressure:
+                ph.solve_flow(other)
+
 
     def tick(self):
         if not self.active or self.world[self.x][self.y] != self:
@@ -205,6 +280,8 @@ class Pixel():
             y = self.y
             for shift in shifts:
                 dx, dy = shift
+                dx *= self.physics.flow[0]
+                dy *= self.physics.flow[1]
                 nx, ny = x + dx, y + dy
                 if not world.checkxy(nx, ny):
                     continue
@@ -214,10 +291,7 @@ class Pixel():
                         other.color = self.color
                         other.active = True
                         world.active.append(other)
-                    world[x][y] = other
-                    world[nx][ny] = self
-                    self.x, self.y = nx, ny
-                    other.x, other.y = x, y
+                    self.swap(other)
                     
                     other.render()
                     self.render()
@@ -265,6 +339,7 @@ class World():
         self.canvas.pack()
 
         self.key_set = set()
+        self.cursor_position = [0, 0]
 
         self.width = width
         self.height = height
@@ -350,11 +425,15 @@ class World():
             for j in range(self.height):
                 self[i][j].used = False
 
+        x = self.cursor_position[0] // PIXEL_SIZE
+        y = self.height - self.cursor_position[1] // PIXEL_SIZE - 1
         for key in self.key_set:
             if key == ' ':
-                x = self.cursor_position[0] // PIXEL_SIZE
-                y = self.height - self.cursor_position[1] // PIXEL_SIZE - 1
                 self[x][y] = Pixel(self, x, y, TYPE_GAS, COLOR_AIR)
+            if key == 'w':
+                self[x][y] = Pixel(self, x, y, TYPE_LIQUID, color_limits=[DARK_WATER, LIGHT_WATER])
+            if key == 'd':
+                self[x][y] = Pixel(self, x, y, TYPE_SOLID, COLOR_EARTH)
 
         self.active = self.next_active
         self.root.after(1000 // self.tps, self.tick)

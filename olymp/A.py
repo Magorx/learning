@@ -1,16 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-def read():
-    s = input()
-    letter = s[0]
-    first = ord(letter) - ord('a') 
-    second = int(s[1])
-    return (first, second)
+n = int(input())
+arr = []
+for i in range(n):
+    arr.append(list(map(int, input().split())) + [i])
+arr.sort()
+ans = [[-1, -1] for i in range(n)]
 
-def f(a, b):
-    return abs(a - b)
+last = -1
+for i in range(n):
+    cur = arr[i]
+    if last > cur[1]:
+        continue
+    ans[cur[2]] = [max(last, cur[0]), cur[1]]
+    last = cur[1]
 
-x1, y1 = read()
-x2, y2 = read()
-print(min(f(x1, x2), f(y1, y2)), max(f(x1, x2), f(y1, y2)))
+for i in range(n):
+    print(*ans[i])
