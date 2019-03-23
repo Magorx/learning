@@ -24,7 +24,7 @@ TICKS_PER_SECOND = 30 # make this lower if having lags
                       # and keep balance ^
 
 # LIQUIDS
-LIQUID_MOBILITY = 75 # the smaller - the faster
+LIQUID_MOBILITY = 50 # the smaller - the faster
 
 DARK_WATER = '#334488'  # generated water will have color in limit from this
 LIGHT_WATER = '#3344EE' # to that
