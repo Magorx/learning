@@ -16,21 +16,9 @@ COLOR_SYMBS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 
 FULL_SCREEN_MODE = True # withoout this window will be opened with some strange
                         # set of params
 
-PIXEL_SIZE = 40 # make this bigger if having lags
-TICKS_PER_SECOND = 15 # make this lower if having lags
+PIXEL_SIZE = 32 # make this bigger if having lags
+TICKS_PER_SECOND = 30 # make this lower if having lags
                       # and keep balance ^
-
-#BATTLE MODES
-BASIC = 1 # chance of winning in each pixel's attack is 50%
-
-STABLE_TECH_BASED = 2 # chances are based on TECH, that becomes bigger if
-                      # civilization is dying and becomes less, while not
-                      # !WARNING! this option leads to endless game
-
-UNSTABLE_TECH_BASED = 3 # chances are based on TECH and strange formula
-                        # (check choice_for_two). Idk how everything works here
-
-BATTLE_MODE = STABLE_TECH_BASED # choose battle mode, stable_tech recommended
 
 # OPTIONS - OPTIONS - OPTIONS - OPTIONS - OPTIONS - OPTIONS - OPTIONS - OPTIONS
 
@@ -84,6 +72,52 @@ def choice_for_two(fist, second, first_w=1, second_w=1):
     return arr[int(rand > edge)]
 
 
+def color_to_rgb(color):
+    r = int(color[1:3], 16)
+    g = int(color[3:5], 16)
+    b = int(color[5:7], 16)
+    return [r, g, b + 100]
+
+
+def rgb_to_color(rgb):
+    r = hex(rgb[0])[2:]
+    if len(r) == 1:
+        r = '0' + r
+    g = hex(rgb[0])[2:]
+    if len(g) == 1:
+        g = '0' + g
+    b = hex(rgb[0])[2:]
+    if len(b) == 1:
+        b = '0' + b
+    return '#' + r + g + b
+
+
+def mean_color(first, second):
+    rgb_first = color_to_rgb(first)
+    rgb_second = color_to_rgb(second)
+    rgb_mean = []
+    for i in range(3):
+        rgb_mean.append((rgb_first[i] + rgb_second[i]) // 2)
+    return rgb_to_color(rgb_mean)
+
+
+def colors_delta(first, second):
+    rgb_first = color_to_rgb(first)
+    rgb_second = color_to_rgb(second)
+    delta = 0
+    for i in range(3):
+        delta += abs(rgb_first[i] - rgb_second[i])
+    return delta
+
+
+def colors_are_equal(first, second):
+    delta = colors_delta(first, second)
+    if delta <= 6:
+        return True
+    else:
+        return False
+
+
 def stop_programm():
     exit(0)
 
@@ -109,26 +143,34 @@ class Pixel():
         self.y = y
         self.type = type
         self.color = color
+        
         self.used = 0
+        self.active = True
+        self.world.next_active.append(self)
 
         self.rect = None
         self.render()
 
     def tick(self):
-        if self.used:
-            return
-        else:
-            self.used = True
+        if not self.active or self.world[self.x][self.y] != self:
+            return False
 
         if self.type == TYPE_GAS:
-            pass
+            if colors_delta(self.color, COLOR_AIR) > 255 // 3:
+                self.color = mean_color(self.color, COLOR_AIR)
+            else:
+                self.color = COLOR_AIR
+                self.active = False
+            self.render()
+            if self.active:
+                self.world.next_active.append(self)
         elif self.type == TYPE_SOLID:
-            pass
+            self.active = False
         elif self.type == TYPE_LIQUID:
+            self.world.next_active.append(self)
             if not randint(0, 1):
                 SHIFTS_LIQUID_MAIN[1], SHIFTS_LIQUID_MAIN[2] = SHIFTS_LIQUID_MAIN[2], SHIFTS_LIQUID_MAIN[1] # random to left and right
                 shuffle(SHIFTS_LIQUID_SIDE)
-            shifts = SHIFTS_LIQUID_MAIN
             shifts = SHIFTS_LIQUID_MAIN[::]
             if not randint(0, 0):
                 shifts += SHIFTS_LIQUID_SIDE
@@ -139,17 +181,24 @@ class Pixel():
             for shift in shifts:
                 dx, dy = shift
                 nx, ny = x + dx, y + dy
+                if not world.checkxy(nx, ny):
+                    continue
                 other = world[nx][ny]
                 if other.type == TYPE_GAS:
+                    other.color = self.color
+                    other.active = True
+                    world.active.append(other)
                     world[x][y] = other
                     world[nx][ny] = self
                     self.x, self.y = nx, ny
                     other.x, other.y = x, y
                     
-                    other.render()
+                    #other.render()
                     self.render()
                     break
 
+        #if self.active:
+            #self.world.next_active.append(self)
 
     def render(self):
         if self.rect:
@@ -204,17 +253,20 @@ class World():
         self.window_standard_x = (self.screen_width - self.window_width) // 2
         self.window_standard_y = (self.screen_height - self.window_height) // 2
         root.geometry('{}x{}+{}+{}'.format(self.window_width, self.window_height, 
-                                             self.window_standard_x, self.window_standard_y))
+                                             0, 0))
         root.protocol("WM_DELETE_WINDOW", exit)
 
         cursor_position = [-1, -1]
 
+        self.active = []
+        self.next_active = []
         self.field = [[Pixel(self, j, i, TYPE_GAS, COLOR_AIR) for i in range(height)] for j in range(width)]
 
         for i in range(self.width):
             for j in range(self.height):
                 if i == 0 or j == 0 or i == self.width - 1 or j == self.height - 1:
                     self.field[i][j] = Pixel(self, i, j, TYPE_SOLID, COLOR_EARTH)
+                self.active.append(self[i][j])
 
     def __getitem__(self, arg):
         return self.field[arg]
@@ -226,6 +278,8 @@ class World():
     def on_click(self, event):
         x = event.x // PIXEL_SIZE
         y = self.height - event.y // PIXEL_SIZE - 1
+        if not self.checkxy(x, y):
+            return
 
         if event.num == 1:
             self[x][y] = Pixel(self, x, y, TYPE_LIQUID, COLOR_WATER)
@@ -251,28 +305,33 @@ class World():
         self.root.mainloop()
 
     def tick(self):
-        for i in range(self.width):
-            for j in range(self.height):
-                self.field[i][j].tick()
+        self.next_active = []
+        print(len(self.active))
+        for pxl in self.active:
+            pxl.tick()
 
         for i in range(self.width):
             for j in range(self.height):
-                #print(self[i][j], end='')
                 self[i][j].used = False
-            #print()
 
         for key in self.key_set:
-            print(key)
             if key == ' ':
                 x = self.cursor_position[0] // PIXEL_SIZE
                 y = self.height - self.cursor_position[1] // PIXEL_SIZE - 1
                 self[x][y] = Pixel(self, x, y, TYPE_GAS, COLOR_AIR)
 
+        self.active = self.next_active
         self.root.after(1000 // self.tps, self.tick)
+
+    def checkxy(self, x, y):
+        if x < 0 or x >= self.width or y < 0 or y >= self.height:
+            return False
+        else:
+            return True
 
 
 def main():
-    w = World(30, 30, livetime=300, tps=50, fullscreen=True)
+    w = World(20, 20, livetime=300, tps=TICKS_PER_SECOND, fullscreen=False)
     # yo man ud better go to options, check top of this file
     w.start()
 
