@@ -13,12 +13,21 @@ COLOR_SYMBS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 
 # OPTIONS - OPTIONS - OPTIONS - OPTIONS - OPTIONS - OPTIONS - OPTIONS - OPTIONS
 
 # VISUALS AND PRODUCTIVITY
-FULL_SCREEN_MODE = True # withoout this window will be opened with some strange
-                        # set of params
 
-PIXEL_SIZE = 32 # make this bigger if having lags
+WIDTH = 30  # width  of created world in macro_pixels
+HEIGHT = 20 # height of created world in macro_pixels
+
+FULL_SCREEN_MODE = True # dominate width and height | PIXEL_SIZE IS IMPORTANT
+
+PIXEL_SIZE = 40 # make this bigger if having lags | NOW IS MAGIC NUMBER
 TICKS_PER_SECOND = 30 # make this lower if having lags
                       # and keep balance ^
+
+# LIQUIDS
+LIQUID_MOBILITY = 75 # the smaller - the faster
+
+DARK_WATER = '#334488'  # generated water will have color in limit from this
+LIGHT_WATER = '#3344EE' # to that
 
 # OPTIONS - OPTIONS - OPTIONS - OPTIONS - OPTIONS - OPTIONS - OPTIONS - OPTIONS
 
@@ -76,20 +85,33 @@ def color_to_rgb(color):
     r = int(color[1:3], 16)
     g = int(color[3:5], 16)
     b = int(color[5:7], 16)
-    return [r, g, b + 100]
+    return [r, g, b]
 
 
 def rgb_to_color(rgb):
     r = hex(rgb[0])[2:]
     if len(r) == 1:
         r = '0' + r
-    g = hex(rgb[0])[2:]
+    g = hex(rgb[1])[2:]
     if len(g) == 1:
         g = '0' + g
-    b = hex(rgb[0])[2:]
+    b = hex(rgb[2])[2:]
     if len(b) == 1:
         b = '0' + b
     return '#' + r + g + b
+
+
+def color_from_limit(first, second):
+    rgb_first = color_to_rgb(first)
+    rgb_second = color_to_rgb(second)
+    rgb_output = []
+    for i in range(3):
+        lim_1 = rgb_first[i]
+        lim_2 = rgb_second[i]
+        if lim_1 > lim_2:
+            lim_1, lim_2 = lim_2, lim_1
+        rgb_output.append(randint(lim_1, lim_2))
+    return rgb_to_color(rgb_output)
 
 
 def mean_color(first, second):
@@ -137,11 +159,14 @@ COLOR_WATER = '#3B6182'
 
 
 class Pixel():
-    def __init__(self, world, x, y, type=TYPE_GAS, color=COLOR_AIR):
+    def __init__(self, world, x, y, type=TYPE_GAS, color=COLOR_AIR, color_limits=None):
         self.world = world
         self.x = x
         self.y = y
         self.type = type
+
+        if not color_limits is None:
+            color = color_from_limit(color_limits[0], color_limits[1])
         self.color = color
         
         self.used = 0
@@ -184,16 +209,17 @@ class Pixel():
                 if not world.checkxy(nx, ny):
                     continue
                 other = world[nx][ny]
-                if other.type == TYPE_GAS:
-                    other.color = self.color
-                    other.active = True
-                    world.active.append(other)
+                if other.type == TYPE_GAS or (other.type == TYPE_LIQUID and not randint(0, LIQUID_MOBILITY)):
+                    if other.type == TYPE_GAS:
+                        other.color = self.color
+                        other.active = True
+                        world.active.append(other)
                     world[x][y] = other
                     world[nx][ny] = self
                     self.x, self.y = nx, ny
                     other.x, other.y = x, y
                     
-                    #other.render()
+                    other.render()
                     self.render()
                     break
 
@@ -212,6 +238,7 @@ class Pixel():
 
     def __repr__(self):
         return str(self.type)
+
 
 class World():
     def __init__(self, width, height, livetime=60, tps=10, fullscreen=False):
@@ -234,6 +261,7 @@ class World():
         self.canvas.bind('<Motion>', self.update_cursor_position)
         self.root.bind('<KeyPress>', self.press_handler)
         self.root.bind('<KeyRelease>', self.release_handler)
+        self.root.bind('<ButtonRelease-1>', self.on_release)
         self.canvas.pack()
 
         self.key_set = set()
@@ -253,7 +281,7 @@ class World():
         self.window_standard_x = (self.screen_width - self.window_width) // 2
         self.window_standard_y = (self.screen_height - self.window_height) // 2
         root.geometry('{}x{}+{}+{}'.format(self.window_width, self.window_height, 
-                                             0, 0))
+                                             self.window_standard_x, self.window_standard_y))
         root.protocol("WM_DELETE_WINDOW", exit)
 
         cursor_position = [-1, -1]
@@ -267,6 +295,8 @@ class World():
                 if i == 0 or j == 0 or i == self.width - 1 or j == self.height - 1:
                     self.field[i][j] = Pixel(self, i, j, TYPE_SOLID, COLOR_EARTH)
                 self.active.append(self[i][j])
+
+        self.on_release(None)
 
     def __getitem__(self, arg):
         return self.field[arg]
@@ -282,9 +312,15 @@ class World():
             return
 
         if event.num == 1:
-            self[x][y] = Pixel(self, x, y, TYPE_LIQUID, COLOR_WATER)
+            self[x][y] = Pixel(self, x, y, TYPE_LIQUID, color_limits=[DARK_WATER, LIGHT_WATER])
         else:
             self[x][y] = Pixel(self, x, y, TYPE_SOLID, COLOR_EARTH)
+
+    def on_release(self, event):
+        r = randint(0 + 50, 255 - 50)
+        g = randint(0 + 50, 255 - 50)
+        b = randint(0 + 50, 255 - 50)
+        self.color_limits = [rgb_to_color([r - 50, b - 50, g - 50]), rgb_to_color([r + 50, b + 50, g + 50])]
 
     def lmb_motion(self, event):
         event.num = 1
@@ -331,7 +367,7 @@ class World():
 
 
 def main():
-    w = World(20, 20, livetime=300, tps=TICKS_PER_SECOND, fullscreen=False)
+    w = World(WIDTH, HEIGHT, livetime=300, tps=TICKS_PER_SECOND, fullscreen=FULL_SCREEN_MODE)
     # yo man ud better go to options, check top of this file
     w.start()
 
