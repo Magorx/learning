@@ -3,11 +3,74 @@
 
 
 import tkinter as tk
-from random import randint
+from random import randint, choice
 import math
 
 
 root = tk.Tk()
+
+
+COLOR_SYMBS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F']
+
+
+def randstr(length, lvl=3):
+    s = ""
+    for i in range(length):
+        roll = randint(1, lvl)
+        if roll == 1:
+            c = chr(randint(48, 57))
+        elif roll == 2:
+            c = chr(randint(65, 90))
+        elif roll == 3:
+            c = chr(randint(97, 122))
+        elif roll == 4:
+            c = choice(SYMBS)
+        s = s + c
+    return s
+
+
+def randstrchoice(length, chars):
+    s = []
+    for i in range(length):
+        s.append(choice(chars))
+    return ''.join(s)
+
+
+def randcolor():
+    return '#' + randstrchoice(6, COLOR_SYMBS)
+
+
+def color_to_rgb(color):
+    r = int(color[1:3], 16)
+    g = int(color[3:5], 16)
+    b = int(color[5:7], 16)
+    return [r, g, b]
+
+
+def rgb_to_color(rgb):
+    r = hex(rgb[0])[2:]
+    if len(r) == 1:
+        r = '0' + r
+    g = hex(rgb[1])[2:]
+    if len(g) == 1:
+        g = '0' + g
+    b = hex(rgb[2])[2:]
+    if len(b) == 1:
+        b = '0' + b
+    return '#' + r + g + b
+
+
+def color_from_limit(first, second):
+    rgb_first = color_to_rgb(first)
+    rgb_second = color_to_rgb(second)
+    rgb_output = []
+    for i in range(3):
+        lim_1 = rgb_first[i]
+        lim_2 = rgb_second[i]
+        if lim_1 > lim_2:
+            lim_1, lim_2 = lim_2, lim_1
+        rgb_output.append(randint(lim_1, lim_2))
+    return rgb_to_color(rgb_output)
 
 
 def _create_circle(self, x, y, r, **kwargs):
@@ -41,6 +104,11 @@ class Point(Visual):
         self.color = color
 
         self.canvas_object = None
+
+    def clear(self):
+        canvas = self.world.canvas
+        if self.canvas_object:
+            canvas.delete(self.canvas_object)
 
     def render(self):
         canvas = self.world.canvas
@@ -146,6 +214,12 @@ class Lightning(Visual):
         self.seg_num = seg_num
         self.delta = delta
 
+    def clear(self):
+        canvas = self.world.canvas
+        if self.canvas_object:
+            for obj in self.canvas_object:
+                canvas.delete(obj)
+
     def render(self):
         canvas = self.world.canvas
         if self.canvas_object:
@@ -195,10 +269,47 @@ class World:
         window.geometry('{}x{}+{}+{}'.format(self.window_width, self.window_height, 
                                              self.window_standard_x, self.window_standard_y))
         window.protocol("WM_DELETE_WINDOW", exit)
-
         self.root = window
+
         self.canvas = tk.Canvas(self.root, width=width, height=height)
+        self.canvas.bind('<Button-1>', self.on_click)
+        self.canvas.bind('<Motion>', self.update_cursor_position)
         self.canvas.pack()
+
+        self.new_point = None
+        self.cursor_x = 0
+        self.cursor_y = 0
+
+    def on_click(self, event):
+        x = event.x
+        y = event.y
+        if self.new_point is None:
+            point = Point(self, x, y, 0, '#000000')
+            self.new_point = point
+        else:
+            p1 = self.new_point
+            p2 = Point(self, x, y, 0, '#000000')
+            l = Lightning(self, p1, p2, 20, 3, 5, self.visuals[-1].color)
+            self.visuals[-1].clear()
+            self.visuals.pop()
+            self.visuals.append(l)
+            self.visuals.append(p1)
+            self.new_point = None
+
+    def update_cursor_position(self, event):
+        x = event.x
+        y = event.y
+        self.cursor_x = x
+        self.cursor_y = y
+
+        if self.new_point:
+            p1 = self.new_point
+            p2 = Point(self, x, y, 0, '#000000')
+            l = Lightning(self, p1, p2, 20, 3, 5, randcolor())
+            self.visuals[-1].clear()
+            self.visuals.pop()
+            self.visuals.append(l)
+            l.render()
 
     def add_visual(self, visual):
         self.visuals.append(visual)
@@ -218,17 +329,9 @@ class World:
 
 
 def main():
-    green = '#22FF22'
-    blue = '#2222FF'
     w = World(500, 500)
-    p1 = Point(w, 0, 0, 20, '#33FF33')
-    p2 = Point(w, 500, 500, 20, '#33FF33')
-    p3 = Point(w, 0, 500, 20, '#33FF33')
-    p4 = Point(w, 500, 0, 20, '#33FF33')
-    l1 = Lightning(w, p1, p2, 20, 2, 10, green)
-    l2 = Lightning(w, p3, p4, 20, 2, 10, blue)
-    w.add_visual(l1)
-    w.add_visual(l2)
+    p = Point(w, 0, 0, 0, '#000000')
+    w.add_visual(p)
     w.start()
 
 
