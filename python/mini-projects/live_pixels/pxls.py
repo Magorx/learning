@@ -17,7 +17,7 @@ FULL_SCREEN_MODE = True # withoout this window will be opened with some strange
                         # set of params
 
 PIXEL_SIZE = 40 # make this bigger if having lags
-TICKS_PER_SECOND = 15 # make this lower if having lags
+TICKS_PER_SECOND = 30 # make this lower if having lags
                       # and keep balance ^
 
 #BATTLE MODES
@@ -30,7 +30,7 @@ STABLE_TECH_BASED = 2 # chances are based on TECH, that becomes bigger if
 UNSTABLE_TECH_BASED = 3 # chances are based on TECH and strange formula
                         # (check choice_for_two). Idk how everything works here
 
-BATTLE_MODE = STABLE_TECH_BASED # choose battle mode, stable_tech recommended
+BATTLE_MODE = 2 # choose battle mode, stable_tech recommended
 
 # OPTIONS - OPTIONS - OPTIONS - OPTIONS - OPTIONS - OPTIONS - OPTIONS - OPTIONS
 
